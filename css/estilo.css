@@ -301,6 +301,47 @@ main { max-width: 1200px; margin: 0 auto; padding: 16px 16px 48px; min-height: 6
 .tabela-medidas th, .tabela-medidas td { padding: 10px 14px; text-align: left; border-top: 1px solid var(--linha); white-space: nowrap; }
 .tabela-medidas thead th { background: var(--peche); color: var(--rotulo-escuro); }
 .tabela-medidas tbody th { color: var(--titulo); }
+.guia-subtitulo { margin: 28px 0 6px; font-size: 1.2rem; }
+.guia-texto { margin: 0 0 12px; }
+
+/* Calculadora de tamanho */
+.calc { margin: 16px 0 24px; padding: 24px 20px; background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio); box-shadow: var(--sombra); }
+.calc-rotulo { margin: 0; color: var(--rotulo-escuro); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.8rem; }
+.calc-titulo { margin: 4px 0 6px; font-size: 1.35rem; }
+.calc-sub { margin: 0 0 16px; color: var(--secundario); }
+.calc-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; align-items: end; }
+.calc-campo { display: grid; gap: 4px; }
+.calc-campo label { font-weight: 700; font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--secundario); }
+.calc-unidade { font-weight: 400; text-transform: none; letter-spacing: 0; }
+.calc-campo input, .calc-campo select {
+  min-height: 48px; padding: 8px 16px; border: 1px solid var(--linha); border-radius: 24px;
+  background: var(--fundo); color: var(--texto); font: 1rem var(--f-texto); width: 100%;
+}
+.calc-campo input[aria-invalid="true"] { border-color: var(--rotulo); }
+.calc-botao { grid-column: 1 / -1; justify-self: start; }
+.calc-erro { margin: 12px 0 0; color: var(--rotulo-escuro); font-weight: 700; }
+.calc-resultado { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--linha); }
+.calc-topo { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.calc-selo {
+  flex: none; display: grid; place-content: center; text-align: center; width: 88px; height: 88px; margin: 0;
+  border-radius: 50%; background: var(--titulo); color: #fff;
+}
+.calc-selo strong { font-family: var(--f-titulo); font-size: 1.8rem; line-height: 1; }
+.calc-selo strong.calc-selo-duplo { font-size: 1.25rem; }
+.calc-selo span { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 4px; }
+.calc-res-titulo { margin: 0; font-family: var(--f-titulo); font-weight: 700; font-size: 1.2rem; color: var(--titulo); }
+.calc-res-sub { margin: 4px 0 0; color: var(--secundario); }
+.calc-notas { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; }
+.calc-notas li { padding: 10px 14px; background: var(--fundo); border: 1px solid var(--linha); border-radius: 12px; }
+.calc-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
+.calc-duvida { margin: 12px 0 0; font-size: 0.9rem; }
+.medir { margin: 0 0 8px; }
+.medir h2 { font-size: 1.2rem; margin-bottom: 8px; }
+.medir ol { margin: 0 0 10px; padding-left: 22px; display: grid; gap: 6px; }
+@media (max-width: 520px) {
+  .calc-form { grid-template-columns: 1fr; }
+  .calc-botao { justify-self: stretch; }
+}
 .dica { margin: 16px 0; padding: 12px 16px; background: var(--menta); border-left: 6px solid var(--selo); border-radius: 12px; }
 .sobre-frase { font-family: var(--f-frase); font-style: italic; font-size: 1.5rem; color: var(--secundario); margin: 12px 0; }
 .sobre .rodape-insta { color: var(--titulo); font-weight: 700; }

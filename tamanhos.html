@@ -21,6 +21,51 @@
   <main id="conteudo" tabindex="-1">
   <section class="guia">
     <h1 class="titulo-pagina">Guia de tamanhos</h1>
+
+    <section class="calc" aria-labelledby="calc-titulo">
+      <p class="calc-rotulo">Calculadora de tamanho</p>
+      <h2 id="calc-titulo" class="calc-titulo">Descubra o tamanho certo em segundos</h2>
+      <p class="calc-sub">Aqui quem decide o tamanho é a altura da criança. Conte a estatura e a idade e a gente sugere o tamanho.</p>
+      <form id="calc-form" class="calc-form" novalidate>
+        <div class="calc-campo">
+          <label for="calc-estatura">Estatura <span class="calc-unidade">(em cm)</span></label>
+          <input id="calc-estatura" name="estatura" type="number" inputmode="decimal" min="40" max="150" step="0.5" placeholder="Ex.: 74" required aria-describedby="calc-erro">
+        </div>
+        <div class="calc-campo">
+          <label for="calc-idade">Idade <span class="calc-unidade">(opcional)</span></label>
+          <select id="calc-idade" name="idade">
+            <option value="">Selecione</option>
+          </select>
+        </div>
+        <button type="submit" class="botao calc-botao">Descobrir o tamanho</button>
+      </form>
+      <p id="calc-erro" class="calc-erro" role="alert" hidden></p>
+      <div id="calc-resultado" class="calc-resultado" aria-live="polite" hidden>
+        <div class="calc-topo">
+          <p class="calc-selo"><strong id="calc-tamanho"></strong><span>tamanho</span></p>
+          <div>
+            <p id="calc-res-titulo" class="calc-res-titulo"></p>
+            <p id="calc-res-sub" class="calc-res-sub"></p>
+          </div>
+        </div>
+        <ul id="calc-notas" class="calc-notas"></ul>
+        <div id="calc-acoes" class="calc-acoes"></div>
+        <p class="calc-duvida"><a id="calc-whats" href="#" target="_blank" rel="noopener">Ficou na dúvida? Fale com a gente no WhatsApp</a></p>
+      </div>
+    </section>
+
+    <section class="medir" aria-labelledby="medir-titulo">
+      <h2 id="medir-titulo">Como medir a altura em casa</h2>
+      <ol>
+        <li>Tire os sapatos da criança e encoste ela de costas numa parede, com os calcanhares juntinhos da parede.</li>
+        <li>Deite um livro reto em cima da cabeça, encostado na parede, e faça um risquinho de lápis embaixo dele.</li>
+        <li>Meça com a fita métrica do chão até o risquinho. Esse número é a estatura.</li>
+      </ol>
+      <p><strong>Bebê que ainda não fica em pé?</strong> Meça deitado, com as perninhas esticadas, do alto da cabeça até o calcanhar.</p>
+    </section>
+
+    <h2 class="guia-subtitulo">Tabela de medidas</h2>
+    <p class="guia-texto">A estatura é o <strong>limite máximo</strong> de cada tamanho: passou do limite, vá para o tamanho seguinte.</p>
     <div class="tabela-rolagem" role="region" aria-label="Tabela de medidas, role para o lado para ver todas as colunas" tabindex="0">
       <table class="tabela-medidas">
         <caption>Medidas por tamanho (em cm)</caption>
@@ -31,15 +76,15 @@
           <tr><th scope="row">G</th><td>6–9 meses</td><td>até 73 cm</td><td>46–48</td><td>43–44</td><td>46–48</td></tr>
           <tr><th scope="row">01</th><td>9–12 meses</td><td>até 80 cm</td><td>48–50</td><td>45–48</td><td>48–50</td></tr>
           <tr><th scope="row">02</th><td>12–24 meses</td><td>até 90 cm</td><td>50–53</td><td>48–52</td><td>50–54</td></tr>
-          <tr><th scope="row">04</th><td>3–4 anos</td><td>até 103 cm</td><td>54–57</td><td>52–56</td><td>55–61</td></tr>
+          <tr><th scope="row">03 e 04</th><td>3–4 anos</td><td>até 103 cm</td><td>54–57</td><td>52–56</td><td>55–61</td></tr>
           <tr><th scope="row">06</th><td>5–6 anos</td><td>até 116 cm</td><td>58–61</td><td>56–58</td><td>61–65</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="dica"><strong>Dica com carinho:</strong> compare a estatura da criança com a tabela.</p>
+    <p class="dica"><strong>Dica com carinho:</strong> crianças da mesma idade podem ter alturas bem diferentes, por isso vá pela estatura e não pela idade.</p>
     <a class="botao" href="catalogo.html">Ver o catálogo</a>
   </section>
 </main>
-  <script type="module" src="js/paginas/estatica.js"></script>
+  <script type="module" src="js/paginas/tamanhos.js"></script>
 </body>
 </html>
