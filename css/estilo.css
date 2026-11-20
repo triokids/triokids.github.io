@@ -148,7 +148,9 @@ main { max-width: 1200px; margin: 0 auto; padding: 16px 16px 48px; min-height: 6
 .cartao-botao {
   width: 100%; min-height: 44px; padding: 0 14px; border: 0; border-radius: 22px; cursor: pointer;
   background: var(--titulo); color: #fff; font: 700 0.95rem var(--f-texto); box-shadow: var(--sombra);
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
 }
+.cartao-botao svg { flex: none; }
 .cartao-botao-claro { background: var(--cartao); color: var(--titulo); }
 @media (hover: hover) {
   .cartao-acoes {

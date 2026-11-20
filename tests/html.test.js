@@ -69,6 +69,12 @@ test('htmlCartao com preços diferentes mostra "a partir de"', () => {
   assert.match(htmlCartao(p, 10), /a partir de/i);
 });
 
+test('htmlCartao: Comprar com ícone de carrinho e Espiar com ícone de olho, ícones ocultos do leitor', () => {
+  const h = htmlCartao(peca(), 10);
+  assert.match(h, /data-acao="comprar"[^>]*>\s*<svg[^>]*class="icone-carrinho"[^>]*aria-hidden="true"[\s\S]*?<\/svg>\s*<span>Comprar<\/span><\/button>/);
+  assert.match(h, /data-acao="espiar"[^>]*>\s*<svg[^>]*class="icone-olho"[^>]*aria-hidden="true"[\s\S]*?<\/svg>\s*<span>Espiar<\/span><\/button>/);
+});
+
 test('htmlCartao não mostra pílulas de tamanho no corpo do cartão', () => {
   const h = htmlCartao(peca({}, { 2: 1, 4: 1, 6: 0 }), 10);
   assert.doesNotMatch(h, /class="pilulas"/);

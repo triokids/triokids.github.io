@@ -35,6 +35,19 @@ export function htmlPontinhos() {
   return `<span class="pontinhos" aria-hidden="true">${pontos}</span>`;
 }
 
+// Ícones em linha (decorativos: o texto ou o aria-label do botão dá o nome).
+const SVG_ATRIBUTOS = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
+const TRACO = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+
+export function htmlIconeCarrinho(tamanho = 24, classe = '') {
+  const cls = classe ? ` class="${classe}"` : '';
+  return `<svg${cls} ${SVG_ATRIBUTOS} width="${tamanho}" height="${tamanho}"><path ${TRACO} d="M3 4h2l2.4 11h10.2L20 7H6.2"/><circle cx="9" cy="19.5" r="1.4" fill="currentColor"/><circle cx="17" cy="19.5" r="1.4" fill="currentColor"/></svg>`;
+}
+
+function htmlIconeOlho(tamanho = 18) {
+  return `<svg class="icone-olho" ${SVG_ATRIBUTOS} width="${tamanho}" height="${tamanho}"><path ${TRACO} d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle ${TRACO} cx="12" cy="12" r="3"/></svg>`;
+}
+
 export function htmlCartao(peca, descontoCampanha) {
   const primeira = peca.variantes[0];
   const foto = primeira && primeira.fotos > 0
@@ -53,12 +66,12 @@ export function htmlCartao(peca, descontoCampanha) {
 
   const modo = modoComprar(peca);
   const nome = esc(peca.nome);
-  const botaoComprar = modo === 'nenhum' ? '' : `<button type="button" class="cartao-botao" data-acao="comprar"${modo === 'tamanhos' ? ` aria-expanded="false" aria-controls="tam-${esc(peca.id)}"` : ' aria-haspopup="dialog"'} aria-label="Comprar ${nome}">Comprar</button>`;
+  const botaoComprar = modo === 'nenhum' ? '' : `<button type="button" class="cartao-botao" data-acao="comprar"${modo === 'tamanhos' ? ` aria-expanded="false" aria-controls="tam-${esc(peca.id)}"` : ' aria-haspopup="dialog"'} aria-label="Comprar ${nome}">${htmlIconeCarrinho(18, 'icone-carrinho')}<span>Comprar</span></button>`;
   const tamanhos = modo === 'tamanhos' ? htmlTamanhosRapidos(varianteParaComprar(peca), peca.id) : '';
 
   return `<article class="cartao${fim ? ' cartao-esgotado' : ''}" data-peca="${esc(peca.id)}">
   <div class="cartao-foto">${foto}${fim ? '<span class="selo-esgotado selo-canto">esgotado</span>' : ''}
-    <div class="cartao-acoes">${botaoComprar}<button type="button" class="cartao-botao cartao-botao-claro" data-acao="espiar" aria-haspopup="dialog" aria-label="Espiar ${nome}">Espiar</button></div>
+    <div class="cartao-acoes">${botaoComprar}<button type="button" class="cartao-botao cartao-botao-claro" data-acao="espiar" aria-haspopup="dialog" aria-label="Espiar ${nome}">${htmlIconeOlho()}<span>Espiar</span></button></div>
     ${tamanhos}
   </div>
   <div class="cartao-corpo">
