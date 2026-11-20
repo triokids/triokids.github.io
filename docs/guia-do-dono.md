@@ -56,7 +56,7 @@ O GitHub Desktop respeita o arquivo `.gitignore`, então as pastas de trabalho p
 **Forma B: pelo site do GitHub (arrastando arquivos)**
 
 1. Na página do repositório, clique em **uploading an existing file** (ou **Add file → Upload files**).
-2. Abra a pasta do site no computador e arraste **somente** estes itens para a janela do navegador: `index.html`, `catalogo.html`, `peca.html`, `campanha.html`, `tamanhos.html`, `sobre.html`, `config.js`, `catalogo.json`, `.nojekyll`, e as pastas `css`, `js`, `img` e `fotos`. (A pasta `docs` com este guia é opcional.)
+2. Abra a pasta do site no computador e arraste **somente** estes itens para a janela do navegador: `index.html`, `catalogo.html`, `peca.html`, `campanha.html`, `tamanhos.html`, `sobre.html`, `adm.html`, `config.js`, `catalogo.json`, `.nojekyll`, e as pastas `css`, `js`, `img` e `fotos`. (A pasta `docs` com este guia é opcional.)
 3. **Não envie** `.superpowers`, `_rodadas`, `.git` nem `node_modules`: o upload pelo navegador não respeita o `.gitignore` e essas pastas têm anotações de trabalho que não devem ficar públicas. As pastas `tests`, `ferramentas`, `apps-script` e `dados-iniciais` também não são necessárias para o site funcionar (o `apps-script` você cola no Google, passo 6). O arquivo `.nojekyll` (vazio, começa com ponto) diz ao GitHub Pages para publicar os arquivos como estão, sem processá-los.
 4. O GitHub aceita até 100 arquivos por vez. Se a pasta tiver mais, envie em duas ou três levas (por exemplo, primeiro as páginas `.html`, `css`, `js` e `img`; depois `fotos`, `catalogo.json` e o resto).
 5. Em cada leva, role até o fim, deixe marcado **Commit directly to the main branch** e clique em **Commit changes**.
@@ -216,6 +216,7 @@ Não envie esse token por WhatsApp ou e-mail, e nunca o cole em arquivo do site.
 3. **Executar como**: **Eu**. **Quem tem acesso**: **Qualquer pessoa**.
 4. Clique em **Implantar** e autorize se pedir.
 5. Copie o **URL do app da Web**. É o endereço da Área Adm. A senha protege o acesso.
+6. Para ter um endereço fácil, abra o `config.js` no GitHub (como no passo 3), cole esse URL no campo `urlAdm` (entre as aspas) e salve. Em poucos minutos, https://triokids.github.io/adm.html passa a abrir a Área Adm. A página não aparece no Google e a senha continua sendo pedida.
 
 Se já existe uma implantação do formulário antigo, ou se mudar o código do Apps Script no futuro, use **Implantar → Gerenciar implantações → editar (lápis) → Versão: Nova versão**. O endereço continua o mesmo.
 
