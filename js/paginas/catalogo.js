@@ -1,7 +1,7 @@
 import { montarLayout } from '../ui/layout.js';
 import { filtrarPecas, ordenarPecas } from '../loja/filtros.js';
-import { lerFiltrosDaUrl, filtrosParaUrl, esgotadasNoFim } from '../loja/filtros-url.js';
-import { htmlCartao, htmlFiltros } from '../ui/html.js';
+import { lerFiltrosDaUrl, filtrosParaUrl, esgotadasNoFim, filtrosDoFormulario } from '../loja/filtros-url.js';
+import { htmlCartao, htmlFiltros, htmlTituloCatalogo } from '../ui/html.js';
 import { ligarCartoes } from '../ui/cartoes.js';
 
 try {
@@ -10,7 +10,7 @@ try {
   const categorias = [...new Set(catalogo.pecas.map((p) => p.categoria).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
-  principal.innerHTML = `<h1 class="titulo-pagina">Catálogo</h1>
+  principal.innerHTML = `<h1 class="titulo-pagina" id="titulo-catalogo">Catálogo</h1>
 <div class="filtros-caixa" id="filtros-caixa"></div>
 <p class="contador-pecas" id="contador-pecas" role="status" aria-live="polite"></p>
 <div id="resultado"></div>`;
@@ -20,7 +20,14 @@ try {
     caixa.innerHTML = htmlFiltros(categorias, filtros);
   }
 
+  function sincronizarBusca(filtros) {
+    document.getElementById('titulo-catalogo').innerHTML = htmlTituloCatalogo(filtros.busca);
+    const campo = document.getElementById('busca-campo');
+    if (campo) campo.value = filtros.busca ?? '';
+  }
+
   function desenharResultado(filtros) {
+    sincronizarBusca(filtros);
     const lista = esgotadasNoFim(ordenarPecas(filtrarPecas(catalogo.pecas, filtros), filtros.ordem));
     document.getElementById('contador-pecas').textContent = `${lista.length} ${lista.length === 1 ? 'peça' : 'peças'}`;
     document.getElementById('resultado').innerHTML = lista.length
@@ -30,9 +37,7 @@ try {
 
   function lerFormulario() {
     const f = new FormData(document.getElementById('painel-filtros'));
-    const q = new URLSearchParams();
-    for (const [k, v] of f.entries()) q.set(k, String(v));
-    return lerFiltrosDaUrl(`?${q}`);
+    return filtrosDoFormulario(f.entries(), lerFiltrosDaUrl(location.search).busca);
   }
 
   function aplicar(filtros) {

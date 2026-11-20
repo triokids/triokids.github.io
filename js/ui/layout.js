@@ -4,7 +4,9 @@ import { carregarCatalogo } from '../dados/carregar.js';
 import { formatarPreco } from '../dados/csv.js';
 import { criarCarrinho, revalidarItens, totalDosItens } from '../loja/carrinho.js';
 import { montarMensagem, linkWhatsApp, podeFinalizar } from '../loja/whatsapp.js';
-import { esc, htmlTituloColorido, htmlItemCarrinho, htmlFaixaReserva, htmlIconeCarrinho } from './html.js';
+import { esc, htmlTituloColorido, htmlItemCarrinho, htmlFaixaReserva, htmlIconeCarrinho, htmlCampoBusca } from './html.js';
+import { lerFiltrosDaUrl } from '../loja/filtros-url.js';
+import { ligarBusca } from './busca.js';
 
 const MENU = [
   ['inicio', 'index.html', 'Início'],
@@ -21,7 +23,7 @@ const ICONE_INSTAGRAM = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hi
 export const FOCAVEIS = 'a[href], button:not([disabled]), input:not([disabled]), textarea, select, [tabindex]:not([tabindex="-1"])';
 const instagramUrl = `https://www.instagram.com/${CONFIG.instagram}/`;
 
-function htmlCabecalho(pagina) {
+function htmlCabecalho(pagina, termo = '') {
   const links = MENU.map(([id, href, rotulo]) =>
     `<a href="${href}"${id === pagina ? ' aria-current="page"' : ''}>${rotulo}</a>`).join('');
   return `<a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -31,6 +33,7 @@ function htmlCabecalho(pagina) {
       <img src="img/logo.png" alt="" width="48" height="48">
       <span class="marca-nome">${htmlTituloColorido('TRIO KIDS')}</span>
     </a>
+    ${htmlCampoBusca(termo)}
     <div class="cabecalho-acoes">
       <a class="botao-icone" href="${instagramUrl}" target="_blank" rel="noopener" aria-label="Instagram @${esc(CONFIG.instagram)}">${ICONE_INSTAGRAM}</a>
       <button type="button" class="botao-icone botao-carrinho" id="abrir-carrinho" aria-label="Abrir carrinho, 0 itens" aria-haspopup="dialog">
@@ -211,7 +214,7 @@ function montarGaveta({ carrinho, getCatalogo, numero }) {
 }
 
 export async function montarLayout({ pagina }) {
-  document.body.insertAdjacentHTML('afterbegin', htmlCabecalho(pagina));
+  document.body.insertAdjacentHTML('afterbegin', htmlCabecalho(pagina, pagina === 'catalogo' ? lerFiltrosDaUrl(location.search).busca || '' : ''));
   document.body.insertAdjacentHTML('beforeend', htmlRodape());
   const principal = document.getElementById('conteudo');
   const carrinho = criarCarrinho(undefined, CONFIG.chaveCarrinho);
@@ -236,5 +239,6 @@ export async function montarLayout({ pagina }) {
   }
   document.body.insertAdjacentHTML('beforeend', htmlGaveta() + botaoWhats(numero));
   const abrirGaveta = montarGaveta({ carrinho, getCatalogo: () => catalogo, numero });
+  ligarBusca({ getCatalogo: () => catalogo });
   return { catalogo, carrinho, origem, abrirGaveta };
 }

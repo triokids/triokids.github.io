@@ -145,6 +145,10 @@ function opcoes(lista, atual) {
   return lista.map(([valor, rotulo]) => `<option value="${esc(valor)}"${valor === atual ? ' selected' : ''}>${esc(rotulo)}</option>`).join('');
 }
 
+export function htmlTituloCatalogo(busca) {
+  return busca ? `Resultados para “${esc(busca)}”` : 'Catálogo';
+}
+
 export function htmlFiltros(categorias, filtros = {}) {
   const valor = (n) => (n == null ? '' : ` value="${esc(n)}"`);
   return `<button type="button" class="botao botao-filtrar" id="abrir-filtros" aria-expanded="false" aria-controls="painel-filtros">Filtrar</button>
@@ -290,4 +294,33 @@ export function htmlEspiar(peca, variante, { desconto, tamanho = '', quantidade 
   <p class="peca-aviso" id="espiar-aviso" role="status">${esc(mensagem || (tamanho ? '' : 'Escolha um tamanho'))}</p>
   <a href="peca.html?c=${esc(encodeURIComponent(variante.codigo))}">Ver detalhes</a>
 </div>`;
+}
+
+// --- Busca no cabeçalho ---
+
+function htmlIconeLupa(tamanho = 20) {
+  return `<svg ${SVG_ATRIBUTOS} width="${tamanho}" height="${tamanho}"><circle ${TRACO} cx="11" cy="11" r="7"/><path ${TRACO} d="M20 20l-4-4"/></svg>`;
+}
+
+// Funciona sem JS: envio GET comum para o catálogo.
+export function htmlCampoBusca(termo = '') {
+  return `<form class="busca" role="search" action="catalogo.html" method="get">
+  <input id="busca-campo" name="busca" type="search" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="busca-sugestoes" aria-autocomplete="list" placeholder="O que você está buscando?" aria-label="O que você está buscando?" value="${esc(termo)}">
+  <button type="submit" class="busca-botao" aria-label="Buscar">${htmlIconeLupa()}</button>
+  <ul id="busca-sugestoes" class="busca-sugestoes" role="listbox" aria-label="Sugestões" hidden></ul>
+</form>`;
+}
+
+export function htmlSugestoes(pecas, termo) {
+  if (!pecas.length) return '';
+  const itens = pecas.map((p, i) => {
+    const primeira = p.variantes[0];
+    const foto = primeira && primeira.fotos > 0
+      ? `<img src="${esc(urlFoto(primeira.codigo, 1))}" alt="" loading="lazy" width="48" height="64">`
+      : '<img src="img/logo.png" alt="" width="48" height="48">';
+    const selo = esgotada(p) ? ' <span class="selo-esgotado">esgotado</span>' : '';
+    return `<li role="option" id="sug-${i}"><a class="sugestao" href="peca.html?c=${esc(encodeURIComponent(p.id))}">${foto}<span class="sugestao-texto"><span class="sugestao-nome">${esc(p.nome)}</span><span class="sugestao-preco">${formatarPreco(menorPreco(p))}${selo}</span></span></a></li>`;
+  }).join('');
+  const params = new URLSearchParams({ busca: termo });
+  return `${itens}<li role="option" id="sug-todos"><a class="sugestao sugestao-todos" href="catalogo.html?${esc(params.toString())}">Ver todos os resultados</a></li>`;
 }

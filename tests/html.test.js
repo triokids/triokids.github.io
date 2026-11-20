@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { esc, urlFoto, htmlTituloColorido, htmlPontinhos, htmlCartao, htmlItemCarrinho, htmlFaixaReserva } from '../js/ui/html.js';
+import { esc, urlFoto, htmlTituloColorido, htmlPontinhos, htmlCartao, htmlItemCarrinho, htmlFaixaReserva, htmlCampoBusca, htmlSugestoes } from '../js/ui/html.js';
 
 const peca = (extra = {}, estoque = { 4: 1 }, campanha = true) => ({
   id: 'x-1', nome: 'Vestido Teste', categoria: 'Vestido', colecao: 'Linha Petit', descricao: '', destaque: false, ordem: 1,
@@ -137,4 +137,38 @@ test('htmlCartao com duas cores e só uma com estoque: lista de tamanhos da cor 
   const h = htmlCartao(p, 10);
   assert.match(h, /data-acao="comprar"[^>]*aria-expanded="false"/);
   assert.match(h, /class="cartao-tam" data-acao="tamanho" data-codigo="x-2" data-tamanho="2"/);
+});
+
+// --- Busca no cabeçalho ---
+
+test('htmlCampoBusca: escapa o termo e tem combobox, action e name', () => {
+  const h = htmlCampoBusca('<b>');
+  assert.ok(h.includes('value="&lt;b&gt;"'));
+  assert.ok(h.includes('role="combobox"'));
+  assert.ok(h.includes('action="catalogo.html"'));
+  assert.ok(h.includes('name="busca"'));
+  assert.ok(h.includes('placeholder="O que você está buscando?"'));
+  assert.ok(h.includes('id="busca-sugestoes"'));
+});
+
+test('htmlSugestoes: link da peça, nome, preço e "Ver todos os resultados"', () => {
+  const h = htmlSugestoes([peca()], 've');
+  assert.ok(h.includes('peca.html?c=x-1'));
+  assert.ok(h.includes('Vestido Teste'));
+  assert.ok(h.includes('R$'));
+  assert.ok(h.includes('href="catalogo.html?busca=ve"'));
+  assert.ok(h.includes('Ver todos os resultados'));
+  assert.ok(h.includes('id="sug-0"') && h.includes('id="sug-todos"'));
+});
+
+test('htmlSugestoes: esgotada tem selo e peça sem foto usa o logo', () => {
+  assert.ok(htmlSugestoes([peca({}, { 4: 0 })], 've').includes('esgotado'));
+  const semFoto = peca();
+  semFoto.variantes[0].fotos = 0;
+  assert.ok(htmlSugestoes([semFoto], 've').includes('img/logo.png'));
+});
+
+test('htmlSugestoes: lista vazia dá "" e o termo é codificado', () => {
+  assert.equal(htmlSugestoes([], 've'), '');
+  assert.ok(htmlSugestoes([peca()], 'a&b').includes('busca=a%26b'));
 });

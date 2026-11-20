@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { lerFiltrosDaUrl, filtrosParaUrl, esgotadasNoFim } from '../js/loja/filtros-url.js';
-import { htmlFiltros } from '../js/ui/html.js';
+import { lerFiltrosDaUrl, filtrosParaUrl, esgotadasNoFim, filtrosDoFormulario } from '../js/loja/filtros-url.js';
+import { htmlFiltros, htmlTituloCatalogo } from '../js/ui/html.js';
 
 const peca = (id, estoque) => ({ id, nome: id, variantes: [{ codigo: id, preco: 10, estoque }] });
 
@@ -43,4 +43,17 @@ test('htmlFiltros: categorias escapadas, valores marcados, botão Filtrar', () =
   assert.match(h, /<option value="menor-preco" selected>/);
   assert.match(h, /aria-controls="painel-filtros"/);
   assert.match(h, />Filtrar</);
+});
+
+test('htmlTituloCatalogo: sem termo é Catálogo; com termo mostra Resultados para “termo” escapado', () => {
+  assert.equal(htmlTituloCatalogo(undefined), 'Catálogo');
+  assert.equal(htmlTituloCatalogo(''), 'Catálogo');
+  assert.equal(htmlTituloCatalogo('bata'), 'Resultados para “bata”');
+  assert.equal(htmlTituloCatalogo('<b>x'), 'Resultados para “&lt;b&gt;x”');
+});
+
+test('filtrosDoFormulario mantém a busca da URL ao mudar outro filtro', () => {
+  const f = filtrosDoFormulario([['categoria', 'Vestido'], ['tamanho', '4'], ['ordem', 'novidades']], 'bata');
+  assert.deepEqual(f, { busca: 'bata', categoria: 'Vestido', tamanho: '4', ordem: 'novidades' });
+  assert.deepEqual(filtrosDoFormulario([['tamanho', '4']], undefined), { tamanho: '4', ordem: 'novidades' });
 });

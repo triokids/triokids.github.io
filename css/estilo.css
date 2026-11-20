@@ -61,10 +61,10 @@ h1, h2, h3 { font-family: var(--f-titulo); color: var(--titulo); line-height: 1.
 
 /* Cabeçalho */
 .cabecalho { background: var(--cartao); border-bottom: 1px solid var(--linha); position: sticky; top: 0; z-index: 20; }
-.cabecalho-linha { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; max-width: 1200px; margin: 0 auto; }
+.cabecalho-linha { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px 16px; padding: 8px 16px; max-width: 1200px; margin: 0 auto; }
 .marca { display: flex; align-items: center; gap: 10px; text-decoration: none; min-height: 44px; }
 .marca-nome { font-family: var(--f-titulo); font-size: 1.25rem; letter-spacing: 0.04em; }
-.cabecalho-acoes { display: flex; gap: 4px; }
+.cabecalho-acoes { display: flex; gap: 4px; grid-column: 3; grid-row: 1; justify-self: end; }
 .botao-icone {
   position: relative; display: inline-flex; align-items: center; justify-content: center;
   min-width: 44px; min-height: 44px; border: 0; background: transparent; color: var(--titulo);
@@ -85,6 +85,32 @@ h1, h2, h3 { font-family: var(--f-titulo); color: var(--titulo); line-height: 1.
 .menu a[aria-current="page"] { background: var(--peche); color: var(--titulo); }
 @media (max-width: 600px) {
   .menu { flex-wrap: wrap; justify-content: center; overflow-x: visible; }
+}
+
+/* Busca */
+.busca { position: relative; width: 100%; max-width: 520px; justify-self: center; }
+.busca input {
+  width: 100%; min-height: 44px; padding: 0 48px 0 16px; border: 1px solid var(--linha); border-radius: 22px;
+  background: var(--fundo); color: var(--texto); font: 1rem var(--f-texto);
+}
+.busca-botao {
+  position: absolute; top: 0; right: 0; min-width: 44px; min-height: 44px; border: 0; background: transparent;
+  color: var(--titulo); border-radius: 50%; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+}
+.busca-sugestoes {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30; margin: 0; padding: 6px; list-style: none;
+  background: var(--cartao); box-shadow: var(--sombra); border-radius: var(--raio); border: 1px solid var(--linha);
+}
+.busca-sugestoes[hidden] { display: none; }
+.sugestao { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 10px; color: var(--texto); text-decoration: none; border-radius: 12px; }
+.sugestao img { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; flex: none; }
+.sugestao-texto { display: grid; gap: 2px; }
+.sugestao-nome { font-weight: 700; color: var(--titulo); }
+.sugestao-preco { font-size: 0.9rem; color: var(--secundario); }
+.sugestao-todos { justify-content: center; font-weight: 700; color: var(--rotulo-escuro); }
+.busca-sugestoes li.ativa .sugestao, .sugestao:hover { background: var(--peche); }
+@media (max-width: 767px) {
+  .busca { grid-column: 1 / -1; grid-row: 2; max-width: none; }
 }
 
 /* Faixas */

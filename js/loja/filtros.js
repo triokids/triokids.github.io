@@ -1,4 +1,5 @@
 import { TAMANHOS } from '../dados/catalogo.js';
+import { casaBusca } from './busca.js';
 
 export function menorPreco(peca) {
   return Math.min(...peca.variantes.map(v => v.preco));
@@ -12,9 +13,10 @@ export function esgotada(peca) {
   return tamanhosDisponiveis(peca).length === 0;
 }
 
-export function filtrarPecas(pecas, { categoria, tamanho, precoMin, precoMax } = {}) {
+export function filtrarPecas(pecas, { categoria, tamanho, precoMin, precoMax, busca } = {}) {
   return pecas.filter(p => {
     if (categoria && p.categoria !== categoria) return false;
+    if (busca && !casaBusca(p, busca)) return false;
     if (tamanho && !tamanhosDisponiveis(p).includes(tamanho)) return false;
     const preco = menorPreco(p);
     if (precoMin != null && preco < precoMin) return false;
