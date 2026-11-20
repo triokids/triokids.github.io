@@ -11,8 +11,8 @@ export function normalizar(texto) {
 }
 
 function camposDaPeca(peca) {
-  const campos = [peca.nome, peca.categoria, peca.colecao, peca.descricao, peca.id];
-  for (const v of peca.variantes || []) campos.push(v.cor, v.codigo);
+  const campos = [peca.nome, peca.categoria, peca.colecao];
+  for (const v of peca.variantes || []) campos.push(v.cor);
   return campos.map(normalizar).filter(Boolean);
 }
 

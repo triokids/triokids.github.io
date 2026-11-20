@@ -39,3 +39,20 @@ test('url: busca', () => {
   assert.equal('busca' in lerFiltrosDaUrl('?busca='), false);
   assert.equal(filtrosParaUrl({ busca: 'a&b #', ordem: 'novidades' }), '?busca=a%26b+%23');
 });
+
+test('casaBusca só olha nome, categoria, coleção e cor', () => {
+  const p = { ...peca('ZZ9', 'Bata', 'Blusas', 0, [v('QQ7', 'Rosa', 10, { '2': 1 })]), descricao: 'lindo vestido de festa' };
+  assert.equal(casaBusca(p, 'vestido'), false);
+  assert.equal(casaBusca(p, 'zz9'), false);
+  assert.equal(casaBusca(p, 'qq7'), false);
+  const c = { ...p, colecao: 'Verão' };
+  assert.equal(casaBusca(c, 'verao'), true);
+  assert.equal(casaBusca(c, 'rosa'), true);
+});
+
+test('casaBusca ignora acento nos dois sentidos', () => {
+  const sem = peca('A1', 'Julia', 'Vestidos', 0, [v('A1', 'Cru', 10, { '2': 1 })]);
+  const com = peca('A2', 'Júlia', 'Vestidos', 0, [v('A2', 'Cru', 10, { '2': 1 })]);
+  assert.equal(casaBusca(sem, 'júlia'), true);
+  assert.equal(casaBusca(com, 'julia'), true);
+});
