@@ -236,3 +236,44 @@ main { max-width: 1200px; margin: 0 auto; padding: 16px 16px 48px; min-height: 6
   .filtros { display: grid; grid-template-columns: repeat(4, 1fr) auto; align-items: end; margin-top: 0; }
   .filtros-acoes .botao { display: none; }
 }
+
+/* Página da peça */
+.migalha { margin-bottom: 12px; }
+.migalha a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; }
+.peca { display: grid; gap: 20px; }
+.galeria { position: relative; }
+.galeria-faixa {
+  display: flex; overflow-x: auto; scroll-snap-type: x mandatory; border-radius: var(--raio);
+  background: var(--peche); -webkit-overflow-scrolling: touch;
+}
+.galeria-faixa img { flex: 0 0 100%; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; scroll-snap-align: center; }
+.galeria-vazia { aspect-ratio: 3 / 4; background: var(--peche); border-radius: var(--raio); }
+.galeria-indicador {
+  position: absolute; right: 10px; bottom: 10px; margin: 0; padding: 2px 10px; border-radius: 10px;
+  background: var(--cartao); color: var(--secundario); font-weight: 700; font-size: 0.85rem;
+}
+.peca-info { display: grid; gap: 12px; align-content: start; }
+.peca-nome { font-size: 1.7rem; }
+.peca-cor, .peca-aviso, .peca-info p { margin: 0; }
+.peca-aviso { min-height: 1.4em; color: var(--rotulo); font-weight: 700; }
+.peca-sub { font-size: 1rem; margin: 0; }
+.preco-grande { font-size: 1.5rem; padding: 6px 14px; }
+.preco-campanha a { color: var(--selo); font-weight: 700; }
+.tamanhos-opcoes, .cores-opcoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.tam, .cor {
+  min-width: 48px; min-height: 48px; padding: 0 14px; border: 1px solid #c9b49d; border-radius: 24px; background: var(--cartao);
+  color: var(--secundario); font: 700 1rem var(--f-texto); cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.tam-ultima { font-size: 0.7rem; font-weight: 400; color: var(--rotulo-escuro); }
+.tam[aria-pressed="true"], .cor[aria-pressed="true"] { background: var(--titulo); color: #fff; border-color: var(--titulo); }
+.tam[aria-pressed="true"] .tam-ultima { color: #fff; }
+.tam:disabled { cursor: not-allowed; }
+.qtd { display: inline-flex; align-items: center; gap: 12px; }
+.qtd button { min-width: 48px; min-height: 48px; border: 1px solid var(--linha); background: var(--cartao); color: var(--titulo); border-radius: 24px; font: 700 1.2rem var(--f-texto); cursor: pointer; }
+.qtd button:disabled { opacity: 0.45; cursor: not-allowed; }
+.qtd output { min-width: 28px; text-align: center; font-weight: 700; font-size: 1.1rem; }
+.botao-adicionar { width: 100%; }
+@media (min-width: 761px) {
+  .peca { grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+  .peca-fotos { max-width: 520px; }
+}

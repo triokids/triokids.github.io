@@ -143,3 +143,41 @@ export function htmlFiltros(categorias, filtros = {}) {
   </div>
 </form>`;
 }
+
+// --- Página da peça ---
+
+export function htmlGaleria(variante, nome) {
+  if (!variante || !(variante.fotos > 0)) {
+    return '<div class="galeria"><div class="sem-foto galeria-vazia"><img src="img/logo.png" alt="" width="96" height="96"></div></div>';
+  }
+  const cor = variante.cor ? ` — ${variante.cor}` : '';
+  const imgs = Array.from({ length: variante.fotos }, (_, i) => {
+    const n = i + 1;
+    return `<img src="${esc(urlFoto(variante.codigo, n))}" alt="${esc(`${nome}${cor} — foto ${n}`)}"${n > 1 ? ' loading="lazy"' : ''} width="600" height="800">`;
+  }).join('');
+  const indicador = variante.fotos > 1
+    ? `<p class="galeria-indicador" id="galeria-indicador" aria-hidden="true">1 / ${variante.fotos}</p>`
+    : '';
+  return `<div class="galeria"><div class="galeria-faixa" id="galeria-faixa" tabindex="0" role="group" aria-label="Fotos de ${esc(nome)}">${imgs}</div>${indicador}</div>`;
+}
+
+export function htmlSeletorTamanho(variante) {
+  const botoes = TAMANHOS.filter((t) => Object.hasOwn(variante.estoque, t)).map((t) => {
+    const n = variante.estoque[t];
+    if (!(n > 0)) {
+      return `<button type="button" class="tam tam-esgotado" data-tamanho="${esc(t)}" disabled aria-label="Tamanho ${esc(t)}, esgotado">${esc(t)}</button>`;
+    }
+    const ultima = n === 1 ? '<small class="tam-ultima">última unidade</small>' : '';
+    return `<button type="button" class="tam" data-tamanho="${esc(t)}" aria-pressed="false">${esc(t)}${ultima}</button>`;
+  });
+  return `<div class="tamanhos-opcoes" role="group" aria-label="Tamanho">${botoes.join('')}</div>`;
+}
+
+export function htmlSeletorCor(peca, codigoAtual) {
+  if (!peca || peca.variantes.length < 2) return '';
+  const botoes = peca.variantes.map((v) => {
+    const atual = v.codigo === codigoAtual;
+    return `<button type="button" class="cor" data-codigo="${esc(v.codigo)}" aria-pressed="${atual}">${esc(v.cor || v.codigo)}</button>`;
+  }).join('');
+  return `<div class="cores-opcoes" role="group" aria-label="Cor">${botoes}</div>`;
+}
