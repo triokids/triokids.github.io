@@ -181,3 +181,33 @@ export function htmlSeletorCor(peca, codigoAtual) {
   }).join('');
   return `<div class="cores-opcoes" role="group" aria-label="Cor">${botoes}</div>`;
 }
+
+// Página Trio Kids Abraça. Parágrafos "- " consecutivos formam uma só lista.
+export function htmlCampanha(paragrafos, desconto) {
+  const linhas = (Array.isArray(paragrafos) ? paragrafos : []).map((p) => String(p ?? '').trim()).filter(Boolean);
+  const blocos = [];
+  let itens = null;
+  for (const linha of linhas) {
+    if (linha.startsWith('- ')) {
+      if (!itens) { itens = []; blocos.push(itens); }
+      itens.push(linha.slice(2).trim());
+    } else {
+      itens = null;
+      blocos.push(linha);
+    }
+  }
+  const texto = blocos.length
+    ? blocos.map((b) => (Array.isArray(b)
+      ? `<ul class="campanha-lista">${b.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`
+      : `<p>${esc(b)}</p>`)).join('\n')
+    : '<p>As regras da campanha estão sendo atualizadas. Fale com a Anne no WhatsApp.</p>';
+  return `<section class="campanha">
+  <h1 class="titulo-pagina">${htmlTituloColorido('Trio Kids Abraça')}</h1>
+  <p class="campanha-lema">DOE • CUIDE • COMPARTILHE</p>
+  <p class="campanha-selo">${esc(desconto)}% de desconto</p>
+  <div class="campanha-texto">
+${texto}
+  </div>
+  <a class="botao" href="catalogo.html">Ver o catálogo</a>
+</section>`;
+}
