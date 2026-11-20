@@ -255,9 +255,9 @@ main { max-width: 1200px; margin: 0 auto; padding: 16px 16px 48px; min-height: 6
 }
 .espiar-caixa {
   position: relative; width: 100%; height: 100%; overflow-y: auto; background: var(--cartao); border-radius: 0;
-  display: grid; grid-template-columns: 1fr; gap: 16px; align-content: start; padding: 56px 16px 24px;
+  display: grid; grid-template-columns: 1fr; gap: 16px; align-content: start; padding: 8px 16px 24px;
 }
-.espiar-fechar { position: absolute; top: 4px; right: 4px; z-index: 2; background: var(--cartao); }
+.espiar-fechar { position: sticky; top: 0; justify-self: end; grid-column: 1 / -1; z-index: 2; background: var(--cartao); }
 .espiar-info { display: grid; gap: 12px; align-content: start; }
 .espiar-info h2 { margin: 0; font-size: 1.3rem; }
 @media (min-width: 761px) {

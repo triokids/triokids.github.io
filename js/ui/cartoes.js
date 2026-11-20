@@ -42,7 +42,13 @@ function garantirEspiar() {
       }
     }
     if (seletorFoco) {
-      const el = caixa.querySelector(seletorFoco);
+      let el = caixa.querySelector(seletorFoco);
+      if (el && el.disabled) {
+        // Controle desabilitado não recebe foco: usa o botão irmão ou, na falta, o Adicionar.
+        const irmao = { 'espiar-menos': 'espiar-mais', 'espiar-mais': 'espiar-menos' }[el.id];
+        const alt = irmao && document.getElementById(irmao);
+        el = alt && !alt.disabled ? alt : document.getElementById('espiar-adicionar');
+      }
       if (el && !el.disabled) el.focus();
     }
   }
@@ -124,6 +130,7 @@ function garantirEspiar() {
     const indicador = document.getElementById('espiar-galeria-indicador');
     if (!indicador) return;
     const total = faixa.querySelectorAll('img').length;
+    if (!faixa.clientWidth) return;
     const i = Math.min(total, Math.round(faixa.scrollLeft / faixa.clientWidth) + 1);
     indicador.textContent = `${i} / ${total}`;
   }, { capture: true, passive: true });
@@ -138,7 +145,7 @@ function garantirEspiar() {
     const ultimo = foco[foco.length - 1];
     if (e.shiftKey && (document.activeElement === primeiro || !dialogo.contains(document.activeElement))) {
       e.preventDefault(); ultimo.focus();
-    } else if (!e.shiftKey && document.activeElement === ultimo) {
+    } else if (!e.shiftKey && (document.activeElement === ultimo || !dialogo.contains(document.activeElement))) {
       e.preventDefault(); primeiro.focus();
     }
   });
@@ -172,7 +179,9 @@ export function ligarCartoes(raiz, { catalogo, carrinho, abrirGaveta }) {
   }
 
   function abrirEspiar(peca, origem) {
-    const variante = varianteParaComprar(peca) || peca.variantes[0];
+    const variante = varianteParaComprar(peca)
+      || peca.variantes.find((v) => Object.values(v.estoque).some((n) => n > 0))
+      || peca.variantes[0];
     if (!variante) return;
     garantirEspiar().abrir(peca, variante, ctx, origem);
   }
