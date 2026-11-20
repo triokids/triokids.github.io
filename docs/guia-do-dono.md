@@ -51,12 +51,15 @@ Escolha **uma** das duas formas.
 4. Escreva "Site inicial" na caixa **Summary** e clique em **Commit to main**.
 5. Clique em **Publish repository** (ou **Push origin**). Desmarque "Keep this code private" se aparecer.
 
+O GitHub Desktop respeita o arquivo `.gitignore`, então as pastas de trabalho privadas não sobem. Se você editar o `config.js` pelo site do GitHub (passo 3), clique em **Fetch origin** e depois **Pull** no GitHub Desktop antes de fazer um novo commit pelo computador; senão ele acusa que está desatualizado.
+
 **Forma B: pelo site do GitHub (arrastando arquivos)**
 
 1. Na página do repositório, clique em **uploading an existing file** (ou **Add file → Upload files**).
-2. Abra a pasta do site no computador, selecione **o conteúdo** da pasta (não a pasta em si) e arraste para a janela do navegador.
-3. O GitHub aceita até 100 arquivos por vez. Se a pasta tiver mais, envie em duas ou três levas (por exemplo, primeiro as páginas `.html`, `css`, `js` e `img`; depois `fotos`, `catalogo.json` e o resto).
-4. Em cada leva, role até o fim, deixe marcado **Commit directly to the main branch** e clique em **Commit changes**.
+2. Abra a pasta do site no computador e arraste **somente** estes itens para a janela do navegador: `index.html`, `catalogo.html`, `peca.html`, `campanha.html`, `tamanhos.html`, `sobre.html`, `config.js`, `catalogo.json`, `.nojekyll`, e as pastas `css`, `js`, `img` e `fotos`. (A pasta `docs` com este guia é opcional.)
+3. **Não envie** `.superpowers`, `_rodadas`, `.git` nem `node_modules`: o upload pelo navegador não respeita o `.gitignore` e essas pastas têm anotações de trabalho que não devem ficar públicas. As pastas `tests`, `ferramentas`, `apps-script` e `dados-iniciais` também não são necessárias para o site funcionar (o `apps-script` você cola no Google, passo 6). O arquivo `.nojekyll` (vazio, começa com ponto) diz ao GitHub Pages para publicar os arquivos como estão, sem processá-los.
+4. O GitHub aceita até 100 arquivos por vez. Se a pasta tiver mais, envie em duas ou três levas (por exemplo, primeiro as páginas `.html`, `css`, `js` e `img`; depois `fotos`, `catalogo.json` e o resto).
+5. Em cada leva, role até o fim, deixe marcado **Commit directly to the main branch** e clique em **Commit changes**.
 
 > Quem está montando o site para você também pode enviar tudo para o GitHub, desde que você autorize. Se preferir assim, só crie a conta e o repositório (1.1 e 1.2) e avise.
 
@@ -129,7 +132,7 @@ Faça **três vezes** (Peças, Config, Campanha):
 4. Clique em **Publicar** e confirme. Copie o endereço que aparece e cole num bloco de notas, anotando de qual aba é.
 5. Para a próxima aba, volte ao mesmo menu e escolha a aba seguinte.
 
-Agora cole os três endereços no `config.js`:
+O número do WhatsApp da loja **não** fica na planilha: ele está no `config.js` (campo `whatsapp`, com 55 e DDD, só números). Para trocar o número, edite esse arquivo como abaixo. Agora cole os três endereços no `config.js`:
 
 1. No GitHub, abra o repositório e clique no arquivo `config.js`.
 2. Clique no lápis (**Edit this file**).
