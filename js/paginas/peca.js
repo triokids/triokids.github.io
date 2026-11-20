@@ -4,11 +4,7 @@ import { precoComCampanha } from '../loja/campanha.js';
 import { esgotada } from '../loja/filtros.js';
 import { formatarPreco } from '../dados/csv.js';
 import { esc, htmlCartao, htmlGaleria, htmlSeletorTamanho, htmlSeletorCor } from '../ui/html.js';
-
-const MOTIVOS = {
-  'sem-tamanho': 'Esse tamanho não está disponível.',
-  esgotado: 'Esse tamanho esgotou.',
-};
+import { mensagemCarrinho } from '../loja/compra-rapida.js';
 
 try {
   const { catalogo, carrinho, abrirGaveta } = await montarLayout({ pagina: 'catalogo' });
@@ -146,9 +142,7 @@ ${combina.length ? `<section class="bloco"><h2 class="titulo-secao">Combina com<
           abrirGaveta();
           return;
         }
-        mensagem = r.motivo === 'limite'
-          ? `Só temos ${variante.estoque[tamanho]} no tamanho ${tamanho}`
-          : (MOTIVOS[r.motivo] || 'Não foi possível adicionar.');
+        mensagem = mensagemCarrinho(r, variante, tamanho);
         document.getElementById('peca-aviso').textContent = mensagem;
       }
     });
