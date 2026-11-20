@@ -245,7 +245,7 @@ function enviarComTrava_(props, codigo, trocar, arquivos) {
   }
 }
 
-// ---------- Área da Anne: entrada e passe ----------
+// ---------- Área Adm: entrada e passe ----------
 
 function assinar_(props) {
   return function (texto) {
@@ -322,7 +322,7 @@ function listarPecasArea(passe) {
   });
 }
 
-// ---------- Área da Anne: peças ----------
+// ---------- Área Adm: peças ----------
 
 // O site lê estes campos da primeira linha de cada nome; por isso valem para todas as cores.
 var CAMPOS_NIVEL_PECA = ['categoria', 'colecao', 'descricao', 'destaque'];
@@ -422,7 +422,7 @@ function criarPeca(passe, campos) {
   });
 }
 
-// ---------- Área da Anne: apagar foto ----------
+// ---------- Área Adm: apagar foto ----------
 
 var MENSAGEM_FOTO_SUMIU = 'Essa foto não existe mais. Atualize a lista.';
 

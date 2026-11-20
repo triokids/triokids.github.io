@@ -1,4 +1,4 @@
-// Lógica pura da Área da Anne e do envio de fotos (sem APIs do Google nem do Node).
+// Lógica pura da Área Adm e do envio de fotos (sem APIs do Google nem do Node).
 // Funções globais, compatíveis com Apps Script V8.
 
 var MAX_ARQUIVOS = 8;
@@ -69,7 +69,7 @@ function mesmoConteudoReserva(jsonA, jsonB) {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
-// ---- Área da Anne ----
+// ---- Área Adm ----
 
 var TAMANHOS_PLANILHA = ['P', 'M', 'G', '1', '2', '3', '4', '6'];
 var VALIDADE_PASSE_MS = 28800000;
