@@ -15,5 +15,5 @@ export const CONFIG = {
   githubDono: 'triokids',
   githubRepo: 'triokids.github.io',
   urlSite: 'https://triokids.github.io/',
-  urlAdm: '',  // endereço da Área Adm (URL do app da Web do Apps Script, termina em /exec); usado por adm.html
+  urlAdm: 'https://script.google.com/macros/s/AKfycby9OPhKUiZq9EwFItzYATwow3SvUNi_FaCpxOEbINpyXugnR0sHig1kXoPR8nKM619Q/exec',  // endereço da Área Adm (URL do app da Web do Apps Script, termina em /exec); usado por adm.html
 };
