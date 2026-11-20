@@ -288,6 +288,13 @@ main { max-width: 1200px; margin: 0 auto; padding: 16px 16px 48px; min-height: 6
 .campanha-texto { display: grid; gap: 12px; margin-bottom: 20px; }
 .campanha-texto p, .campanha-lista { margin: 0; }
 .campanha-lista { padding-left: 22px; display: grid; gap: 6px; }
+.campanha-subtitulo, .sobre-subtitulo { font-family: var(--f-titulo); font-weight: 700; color: var(--titulo); font-size: 1.15rem; margin: 12px 0 0; }
+.sobre-blocos { display: grid; gap: 16px; margin: 20px 0; }
+.sobre-bloco { background: var(--cartao); border-radius: 18px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(103, 70, 56, 0.08); }
+.sobre-bloco p, .sobre-bloco ul { margin: 8px 0 0; }
+.sobre-valores { padding-left: 22px; display: grid; gap: 4px; }
+.sobre-fecho { font-family: var(--f-frase); font-style: italic; font-size: 1.2rem; color: var(--secundario); }
+@media (min-width: 961px) { .sobre-blocos { grid-template-columns: 1fr 1fr 1fr; } }
 .tabela-rolagem { overflow-x: auto; max-width: 100%; border: 1px solid var(--linha); border-radius: 14px; background: var(--cartao); }
 .tabela-medidas { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 0.95rem; }
 .tabela-medidas caption { text-align: left; padding: 12px 14px; font-family: var(--f-titulo); font-weight: 700; color: var(--titulo); }

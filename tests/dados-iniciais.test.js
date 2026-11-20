@@ -62,6 +62,9 @@ test('logo tem canal alfa (PNG RGBA), sem fundo opaco', () => {
 test('config e campanha', () => {
   assert.equal(cat.config.whatsapp, '5562993379366');
   assert.equal(cat.config.descontoCampanha, 10);
-  assert.equal(cat.campanha.length, 3);
-  assert.ok(cat.campanha.every((t) => t.startsWith('[texto provisório — a Anne substitui na planilha]')));
+  assert.ok(!cat.campanha.some((t) => t.includes('provisório')));
+  for (const titulo of ['## Nosso propósito', '## Como funciona', '## O que aceitamos', '## Não receberemos']) {
+    assert.ok(cat.campanha.includes(titulo), titulo);
+  }
+  assert.ok(cat.campanha.includes('- Roupa íntima usada'));
 });

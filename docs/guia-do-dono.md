@@ -277,7 +277,7 @@ Faça depois que os passos 1 a 7 estiverem prontos. Tenha um cronômetro e um pa
 
 ## Regras da campanha
 
-Os textos que estão hoje na aba **Campanha** são **provisórios**. Cada linha começa com `[texto provisório — a Anne substitui na planilha]`. Antes de divulgar a campanha Trio Kids Abraça, troque os textos pelo que a loja realmente combinou (como entregar a doação, qual é o desconto e quais peças participam). Cada linha da aba vira um parágrafo na página da campanha. O desconto padrão é de 10% e está na aba `Config` (linha `desconto_campanha`). Quem decide quais peças participam é a coluna `campanha` (`sim` ou `nao`) na aba Peças.
+A aba **Campanha** já vem com o texto das artes da loja: Nosso propósito, Como funciona, O que aceitamos e Não receberemos. Cada linha vira um parágrafo; linha que começa com `## ` vira subtítulo e linha que começa com `- ` vira item de lista. Confira a linha "Combine a entrega da doação com a Anne pelo WhatsApp." e ajuste se a entrega for de outro jeito. O desconto padrão é de 10% e está na aba `Config` (linha `desconto_campanha`); se mudar, ajuste também o texto de "Como funciona". Quem decide quais peças participam é a coluna `campanha` (`sim` ou `nao`) na aba Peças.
 
 ## Fotos iniciais
 

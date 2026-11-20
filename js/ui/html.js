@@ -191,15 +191,20 @@ export function htmlCampanha(paragrafos, desconto) {
     if (linha.startsWith('- ')) {
       if (!itens) { itens = []; blocos.push(itens); }
       itens.push(linha.slice(2).trim());
+    } else if (linha.startsWith('## ')) {
+      itens = null;
+      blocos.push({ subtitulo: linha.slice(3).trim() });
     } else {
       itens = null;
       blocos.push(linha);
     }
   }
   const texto = blocos.length
-    ? blocos.map((b) => (Array.isArray(b)
-      ? `<ul class="campanha-lista">${b.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`
-      : `<p>${esc(b)}</p>`)).join('\n')
+    ? blocos.map((b) => {
+      if (Array.isArray(b)) return `<ul class="campanha-lista">${b.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`;
+      if (typeof b === 'object') return `<h2 class="campanha-subtitulo">${esc(b.subtitulo)}</h2>`;
+      return `<p>${esc(b)}</p>`;
+    }).join('\n')
     : '<p>As regras da campanha estão sendo atualizadas. Fale com a Anne no WhatsApp.</p>';
   return `<section class="campanha">
   <h1 class="titulo-pagina">${htmlTituloColorido('Trio Kids Abraça')}</h1>

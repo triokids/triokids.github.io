@@ -46,12 +46,25 @@ PECAS = [
 DESTAQUES = 9  # as 9 primeiras linhas (8 peças, o Vestido Clara ocupa 2)
 
 CONFIG = [["chave", "valor"], ["desconto_campanha", "10"], ["aviso_topo", ""]]
-MARCA = "[texto provisório — a Anne substitui na planilha]"
-CAMPANHA = [
-    [f"{MARCA} Doe uma peça infantil em bom estado e ajude outra família a vestir a infância com carinho."],
-    [f"{MARCA} Quem doa ganha 10% de desconto nas peças participantes da campanha Trio Kids Abraça."],
-    [f"{MARCA} A entrega da doação é combinada pelo WhatsApp, no melhor horário para você."],
-]
+# Texto das artes da campanha Trio Kids Abraça ("## " = subtítulo, "- " = item de lista).
+CAMPANHA = [[linha] for linha in [
+    "## Nosso propósito",
+    "Algumas roupas ficam pequenas muito antes de perderem sua história.",
+    "O Trio Kids Abraça nasceu para fazer essas peças continuarem levando cuidado, dignidade e carinho para outras crianças.",
+    "O que não serve mais para o seu filho pode ser exatamente o que outra criança precisa para se sentir amada.",
+    "## Como funciona",
+    "Doe uma peça infantil em bom estado e ganhe 10% de desconto nas peças participantes da campanha.",
+    "Combine a entrega da doação com a Anne pelo WhatsApp.",
+    "## O que aceitamos",
+    "Aceitamos roupas infantis em bom estado de uso, como vestidos, conjuntos, camisetas, shorts, calças, bodies, macacões, casacos e outras peças infantis.",
+    "## Não receberemos",
+    "Não receberemos roupas íntimas usadas, peças molhadas, mofadas ou sem condições adequadas de reutilização.",
+    "- Roupa íntima usada",
+    "- Peça molhada",
+    "- Peça mofada",
+    "- Peças danificadas ou sem condições de uso",
+    "Doe com carinho: a peça precisa estar pronta para continuar uma nova história.",
+]]
 
 
 def fotos_da_pagina(doc, numero):

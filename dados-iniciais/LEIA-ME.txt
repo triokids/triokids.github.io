@@ -24,7 +24,9 @@ ABA CONFIG
 - aviso_topo: texto da faixa no alto do site. Deixe vazio para não mostrar.
 
 ABA CAMPANHA
-- Cada linha é um parágrafo da página da campanha. Troque os textos provisórios pelos reais.
+- Cada linha é um parágrafo da página da campanha.
+- Linha que começa com "## " (dois jogos da velha e um espaço) vira subtítulo. Ex.: ## O que aceitamos
+- Linha que começa com "- " (hífen e espaço) vira item de lista. Linhas seguidas com "- " formam uma lista só.
 
 QUANTO TEMPO LEVA
 - Depois de salvar, a mudança pode levar até 10 minutos para aparecer no site. Isso é normal. Atualize a página do site para ver.
