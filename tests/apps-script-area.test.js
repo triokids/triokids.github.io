@@ -45,3 +45,31 @@ test('Area.html mantém a redução de fotos e os alvos de toque', () => {
   assert.match(html, /MAX_FOTOS = 8/);
   assert.match(html, /min-height: 44px/);
 });
+
+test('Area.html salva só o que mudou e avisa quando não há nada', () => {
+  const html = ler(AREA);
+  assert.match(html, /function camposAlterados\(/);
+  assert.match(html, /Nada para salvar\./);
+  const salvar = html.slice(html.indexOf("$('btn-salvar').addEventListener"));
+  assert.match(salvar.slice(0, salvar.indexOf('}).salvarPeca(')), /camposAlterados\(\)/);
+  assert.match(salvar, /salvarPeca\(passe, atual\.codigo, campos\)/);
+  // a base de comparação passa a ser a peça devolvida pelo servidor
+  assert.match(salvar.slice(0, salvar.indexOf('}).salvarPeca(')), /substituirPeca\(r\.peca\)/);
+});
+
+test('Area.html trava botões de foto, Salvar e Nova cor durante o envio ou a exclusão', () => {
+  const html = ler(AREA);
+  assert.match(html, /\['btn-trocar', 'btn-salvar', 'btn-nova-cor'\]/);
+  assert.match(html, /#galeria button, #confirmar-foto button/);
+  const apagar = html.slice(html.indexOf('function apagarFotoAtual('), html.indexOf('function semEstoque('));
+  assert.match(apagar, /travarFotos\(true\)/);
+  const enviar = html.slice(html.indexOf('function enviarDaPeca('), html.indexOf('// ---------- nova peça'));
+  assert.match(enviar, /travarFotos\(true\)/);
+});
+
+test('Area.html recarrega a lista quando criar ou salvar volta ok sem peca', () => {
+  const html = ler(AREA);
+  assert.match(html, /if \(!r\.peca\) \{ recarregarComAviso\('aviso-lista'/);
+  assert.match(html, /if \(!r\.peca\) \{ liberar\(\); recarregarComAviso\(/);
+  assert.match(html, /function recarregarComAviso[\s\S]*carregarLista\(/);
+});

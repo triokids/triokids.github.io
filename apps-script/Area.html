@@ -208,7 +208,7 @@
   var passe = null;
   var pecas = [], categorias = [], colecoes = [];
   var filtro = 'todas', busca = '';
-  var atual = null, rascunho = null, modoArquivo = null, apagando = null;
+  var atual = null, rascunho = null, modoArquivo = null, apagando = null, emFotos = false;
   var nova = { tamanhos: {}, arquivos: [] };
 
   // ---------- utilidades de DOM (texto sempre por textContent/value) ----------
@@ -424,13 +424,20 @@
       (function (n) {
         g.appendChild(el('div', { classe: 'foto' }, [
           fotoImg(atual.codigo, n, true),
-          el('button', { type: 'button', classe: 'apagar', texto: 'apagar', 'aria-label': 'Apagar a foto ' + n, aoClicar: function () { apagando = n; desenharConfirmacao(); } })
+          el('button', { type: 'button', classe: 'apagar', texto: 'apagar', 'aria-label': 'Apagar a foto ' + n, aoClicar: function () { if (emFotos) return; apagando = n; desenharConfirmacao(); aplicarTravaFotos(); } })
         ]));
       })(n);
     }
-    g.appendChild(el('button', { type: 'button', classe: 'add', texto: '+', 'aria-label': 'Acrescentar fotos', aoClicar: function () { escolherArquivos('acrescentar'); } }));
+    g.appendChild(el('button', { type: 'button', classe: 'add', texto: '+', 'aria-label': 'Acrescentar fotos', aoClicar: function () { if (!emFotos) escolherArquivos('acrescentar'); } }));
     desenharConfirmacao();
+    aplicarTravaFotos();
   }
+  // Enquanto uma foto é enviada ou apagada, nada que mexa em fotos ou salve a peça fica ativo.
+  function aplicarTravaFotos() {
+    ['btn-trocar', 'btn-salvar', 'btn-nova-cor'].forEach(function (id) { $(id).disabled = emFotos; });
+    Array.prototype.forEach.call(document.querySelectorAll('#galeria button, #confirmar-foto button'), function (b) { b.disabled = emFotos; });
+  }
+  function travarFotos(sim) { emFotos = sim; aplicarTravaFotos(); }
   function desenharConfirmacao() {
     var c = $('confirmar-foto');
     c.replaceChildren();
@@ -445,13 +452,17 @@
     ]));
   }
   function apagarFotoAtual(n, botao) {
+    if (emFotos) return;
     ocupado(botao, 'Apagando...', 'Sim, apagar', true);
+    travarFotos(true);
     servidor(function (r) {
+      emFotos = false;
       apagando = null;
       if (r.ok) atual.fotos = typeof r.fotos === 'number' ? r.fotos : Math.max(0, atual.fotos - 1);
       aviso('aviso-editar', r.mensagem || '', r.ok ? 'ok' : 'erro');
       desenharGaleria();
     }, function () {
+      emFotos = false;
       apagando = null;
       aviso('aviso-editar', 'Não consegui apagar. Confira a internet e tente de novo.', 'erro');
       desenharGaleria();
@@ -489,20 +500,46 @@
   });
   $('voltar-editar').addEventListener('click', function () { mostrarTela('lista'); desenharLista(); });
 
+  // Só o que mudou desde que a peça foi aberta (ou desde o último salvamento) vai para o servidor.
+  function camposAlterados() {
+    var c = {};
+    var preco = $('ed-preco').value;
+    if (preco.trim() !== (atual.preco === null ? '' : virgula(atual.preco))) c.preco = preco;
+    [['categoria', 'ed-categoria'], ['colecao', 'ed-colecao'], ['descricao', 'ed-descricao']].forEach(function (par) {
+      var v = $(par[1]).value;
+      if (v !== (atual[par[0]] || '')) c[par[0]] = v;
+    });
+    CHAVES.forEach(function (par) { if (!!rascunho[par[0]] !== !!atual[par[0]]) c[par[0]] = rascunho[par[0]]; });
+    var est = {};
+    TAMANHOS.forEach(function (t) {
+      var novo = semEstoque(rascunho.estoque[t]) ? '' : rascunho.estoque[t];
+      var velho = semEstoque(atual.estoque[t]) ? '' : atual.estoque[t];
+      if (novo !== velho) est[t] = novo;
+    });
+    if (Object.keys(est).length) c.estoque = est;
+    return c;
+  }
+  // Resposta ok sem a peça: recarrega a lista em vez de usar um valor vazio.
+  function recarregarComAviso(idAviso, texto) {
+    carregarLista(function () { aviso(idAviso, texto, 'ok'); });
+  }
+
   $('btn-salvar').addEventListener('click', function () {
     var botao = $('btn-salvar');
-    var campos = {
-      preco: $('ed-preco').value, categoria: $('ed-categoria').value, colecao: $('ed-colecao').value,
-      descricao: $('ed-descricao').value, estoque: {},
-      ativo: rascunho.ativo, destaque: rascunho.destaque, campanha: rascunho.campanha
-    };
-    TAMANHOS.forEach(function (t) { campos.estoque[t] = rascunho.estoque[t]; });
+    if (emFotos) return;
+    var campos = camposAlterados();
+    if (!Object.keys(campos).length) { aviso('aviso-editar', 'Nada para salvar.', 'info'); return; }
     aviso('aviso-editar', '', 'ok');
     ocupado(botao, 'Salvando...', 'Salvar alterações', true);
     servidor(function (r) {
       ocupado(botao, '', 'Salvar alterações', false);
       if (!r.ok) { aviso('aviso-editar', r.mensagem || 'Não consegui salvar.', 'erro'); return; }
-      if (r.peca) substituirPeca(r.peca);
+      if (!r.peca) { recarregarComAviso('aviso-lista', r.mensagem || 'Salvo!'); return; }
+      substituirPeca(r.peca);
+      rascunho = { estoque: {}, ativo: r.peca.ativo, destaque: r.peca.destaque, campanha: r.peca.campanha };
+      TAMANHOS.forEach(function (t) { rascunho.estoque[t] = r.peca.estoque[t]; });
+      desenharEstoque();
+      desenharChaves();
       aviso('aviso-editar', r.mensagem || 'Salvo!', 'ok');
     }, function () {
       ocupado(botao, '', 'Salvar alterações', false);
@@ -530,7 +567,7 @@
     $('arquivo').value = '';
     $('arquivo').click();
   }
-  $('btn-trocar').addEventListener('click', function () { escolherArquivos('trocar'); });
+  $('btn-trocar').addEventListener('click', function () { if (!emFotos) escolherArquivos('trocar'); });
   $('nv-btn-fotos').addEventListener('click', function () { escolherArquivos('nova'); });
   $('arquivo').addEventListener('change', function () {
     var arquivos = Array.prototype.slice.call($('arquivo').files);
@@ -586,9 +623,8 @@
   function enviarDaPeca(arquivos, trocar) {
     var codigo = atual.codigo;
     var area = $('progresso-editar');
-    var botoes = [$('btn-trocar'), $('btn-salvar')];
-    botoes.forEach(function (b) { b.disabled = true; });
-    var liberar = function () { botoes.forEach(function (b) { b.disabled = false; }); area.textContent = ''; };
+    travarFotos(true);
+    var liberar = function () { emFotos = false; area.textContent = ''; aplicarTravaFotos(); };
     prepararFotos(arquivos, function (t) { area.textContent = t; }).then(function (prontas) {
       area.textContent = 'Enviando... pode levar um pouco.';
       servidor(function (r) {
@@ -655,6 +691,7 @@
     var liberar = function () { ocupado(botao, '', 'Cadastrar peça', false); };
     servidor(function (r) {
       if (!r.ok) { liberar(); aviso('aviso-nova', r.mensagem || 'Não consegui cadastrar.', 'erro'); return; }
+      if (!r.peca) { liberar(); recarregarComAviso('aviso-lista', 'Peça cadastrada! Abra-a na lista para ajustar o estoque e enviar as fotos.'); return; }
       var criada = r.peca;
       pecas.push(criada);
       lembrarNomes(criada);

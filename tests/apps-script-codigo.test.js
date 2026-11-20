@@ -207,6 +207,42 @@ test('criarPeca acrescenta na última linha com código gerado e fotos 0', () =>
   assert.equal(amb.travas.total, 1);
 });
 
+test('criarPeca de nova cor herda categoria, colecao, descricao e destaque da peça e salvar não apaga as outras cores', () => {
+  const amb = ambiente();
+  const passe = entrarOk(amb);
+  for (const i of [1, 2]) {
+    amb.pecas[i][col('destaque')] = 'sim';
+    amb.pecas[i][col('descricao')] = 'Descricao do dono';
+  }
+  const r = j(amb.ctx.criarPeca(passe, {
+    nome: '  Vestido   Lua ', cor: 'Verde', categoria: 'Outra', colecao: 'Outra', descricao: 'ignorada', destaque: false,
+    preco: '120', estoque: { P: 0 },
+  }));
+  assert.equal(r.ok, true);
+  const nova = amb.pecas[amb.pecas.length - 1];
+  assert.equal(nova[col('categoria')], 'Vestido');
+  assert.equal(nova[col('colecao')], 'Linha Petit');
+  assert.equal(nova[col('descricao')], 'Descricao do dono');
+  assert.equal(nova[col('destaque')], 'sim');
+  assert.equal(r.peca.descricao, 'Descricao do dono');
+  assert.equal(r.peca.destaque, true);
+  const s = j(amb.ctx.salvarPeca(passe, r.codigo, { estoque: { P: 3 } }));
+  assert.equal(s.ok, true);
+  for (const l of amb.pecas.slice(1, 3)) {
+    assert.equal(l[col('destaque')], 'sim');
+    assert.equal(l[col('descricao')], 'Descricao do dono');
+  }
+  assert.equal(amb.pecas[amb.pecas.length - 1][col('P')], 3);
+});
+
+test('criarPeca de nome novo continua com descricao e destaque vazios', () => {
+  const amb = ambiente();
+  const passe = entrarOk(amb);
+  const r = j(amb.ctx.criarPeca(passe, { nome: 'Saia Nova', cor: '', categoria: 'Saia', preco: '10', descricao: 'minha', destaque: true }));
+  assert.equal(r.ok, true);
+  assert.equal(amb.pecas[4][col('descricao')], 'minha');
+});
+
 test('criarPeca com nome "=HACK" grava texto com apóstrofo', () => {
   const amb = ambiente();
   const passe = entrarOk(amb);

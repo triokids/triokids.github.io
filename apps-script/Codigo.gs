@@ -402,6 +402,19 @@ function criarPeca(passe, campos) {
       var existentes = [];
       for (var i = 1; i < tabela.length; i++) existentes.push(String(tabela[i][iCodigo]).trim());
       var valores = validacao.valores;
+      // Nova cor de peça que já existe: os campos de nível da peça vêm da primeira linha do mesmo nome.
+      var iNome = cab.indexOf('nome');
+      var chaveNova = chaveNome_(valores.nome);
+      if (iNome !== -1 && chaveNova !== '') {
+        for (var l = 1; l < tabela.length; l++) {
+          if (chaveNome_(tabela[l][iNome]) !== chaveNova) continue;
+          for (var n = 0; n < CAMPOS_NIVEL_PECA.length; n++) {
+            var cn = cab.indexOf(CAMPOS_NIVEL_PECA[n]);
+            if (cn !== -1) valores[CAMPOS_NIVEL_PECA[n]] = tabela[l][cn];
+          }
+          break;
+        }
+      }
       var codigo = gerarCodigo(valores.nome, valores.cor, existentes);
       valores.codigo = codigo;
       valores.fotos = 0;
