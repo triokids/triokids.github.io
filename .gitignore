@@ -1,2 +1,4 @@
 _rodadas/
 .superpowers/
+node_modules/
+*.local.*
