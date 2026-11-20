@@ -1,5 +1,6 @@
 # ADR-001 - Usar planilha Google como painel e Apps Script para fotos
 
+**Emendada por:** ADR-002
 **Status:** Aceito
 **Data:** 20/11/2026
 
