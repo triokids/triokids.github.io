@@ -114,3 +114,32 @@ test('sem armazenamento disponivel segue sem cache', async () => {
   const r = await carregarCatalogo(config, { buscar: buscarPlanilhaOk, armazenamento: null });
   assert.equal(r.origem, 'planilha');
 });
+
+test('planilha que nunca responde: estoura o tempo e cai na reserva', async () => {
+  const buscar = (url, opcoes) => (url.startsWith('u/') ? new Promise(() => {}) : buscarPlanilhaOk(url));
+  const r = await carregarCatalogo(config, { buscar, armazenamento: armazenamentoFalso(), timeoutMs: 20 });
+  assert.equal(r.origem, 'reserva');
+});
+
+test('planilha que nunca responde e ha cache: origem cache', async () => {
+  const arm = armazenamentoFalso();
+  await carregarCatalogo(config, { buscar: buscarPlanilhaOk, armazenamento: arm });
+  const buscar = (url) => (url.startsWith('u/') ? new Promise(() => {}) : buscarPlanilhaOk(url));
+  const r = await carregarCatalogo(config, { buscar, armazenamento: arm, timeoutMs: 20 });
+  assert.equal(r.origem, 'cache');
+});
+
+test('busca da planilha recebe um signal de cancelamento', async () => {
+  const sinais = [];
+  const buscar = (url, opcoes) => { if (url.startsWith('u/')) sinais.push(opcoes && opcoes.signal); return buscarPlanilhaOk(url); };
+  await carregarCatalogo(config, { buscar, armazenamento: armazenamentoFalso() });
+  assert.equal(sinais.length, 3);
+  assert.ok(sinais.every((s) => s && typeof s.aborted === 'boolean'));
+});
+
+test('cabeçalho "Código" com acento e maiúscula é aceito', async () => {
+  const csv = CSV_PECAS.replace('codigo,', 'Código,');
+  const buscar = (url) => (url === 'u/pecas' ? Promise.resolve(resp(csv)) : buscarPlanilhaOk(url));
+  const r = await carregarCatalogo(config, { buscar, armazenamento: armazenamentoFalso() });
+  assert.equal(r.origem, 'planilha');
+});

@@ -10,25 +10,48 @@ function armazenamentoPadrao() {
   }
 }
 
-function tabelaPecasValida(pecas) {
-  if (!Array.isArray(pecas) || pecas.length < 2) return false;
-  return (pecas[0] || []).some((c) => String(c).trim().toLowerCase() === 'codigo');
+const TIMEOUT_PADRAO_MS = 6000;
+
+function semAcento(texto) {
+  return String(texto).normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
 }
 
-async function buscarAba(buscar, url) {
+function tabelaPecasValida(pecas) {
+  if (!Array.isArray(pecas) || pecas.length < 2) return false;
+  return (pecas[0] || []).some((c) => semAcento(c) === 'codigo');
+}
+
+// Busca com limite de tempo: estourou, vale como falha (segue para cache e reserva).
+async function buscarComTempo(buscar, url, timeoutMs) {
+  const controlador = new AbortController();
+  let relogio;
+  const estouro = new Promise((_, rejeitar) => {
+    relogio = setTimeout(() => {
+      controlador.abort();
+      rejeitar(new Error('tempo-esgotado'));
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([buscar(url, { signal: controlador.signal }), estouro]);
+  } finally {
+    clearTimeout(relogio);
+  }
+}
+
+async function buscarAba(buscar, url, timeoutMs) {
   if (!url) throw new Error('url-vazia');
-  const resposta = await buscar(url);
+  const resposta = await buscarComTempo(buscar, url, timeoutMs);
   if (!resposta || !resposta.ok) throw new Error('resposta-invalida');
   const texto = await resposta.text();
   if (String(texto).trimStart().startsWith('<')) throw new Error('resposta-html');
   return parseCsv(texto);
 }
 
-async function daPlanilha(config, buscar) {
+async function daPlanilha(config, buscar, timeoutMs) {
   const [pecas, cfg, campanha] = await Promise.all([
-    buscarAba(buscar, config.csv?.pecas),
-    buscarAba(buscar, config.csv?.config),
-    buscarAba(buscar, config.csv?.campanha),
+    buscarAba(buscar, config.csv?.pecas, timeoutMs),
+    buscarAba(buscar, config.csv?.config, timeoutMs),
+    buscarAba(buscar, config.csv?.campanha, timeoutMs),
   ]);
   if (!tabelaPecasValida(pecas)) throw new Error('pecas-invalida');
   return { pecas, config: cfg, campanha };
@@ -61,7 +84,7 @@ export async function carregarCatalogo(config, opcoes = {}) {
   const montar = (tabelas, origem) => ({ catalogo: montarCatalogo(tabelas, padrao), origem });
 
   try {
-    const tabelas = await daPlanilha(config, buscar);
+    const tabelas = await daPlanilha(config, buscar, opcoes.timeoutMs ?? TIMEOUT_PADRAO_MS);
     const resultado = montar(tabelas, 'planilha');
     try {
       armazenamento.setItem(config.chaveCache, JSON.stringify({ tabelas, salvoEm: new Date().toISOString() }));
