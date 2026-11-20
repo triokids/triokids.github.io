@@ -69,11 +69,11 @@ test('htmlCartao com preços diferentes mostra "a partir de"', () => {
   assert.match(htmlCartao(p, 10), /a partir de/i);
 });
 
-test('htmlCartao lista pílulas de tamanhos disponíveis', () => {
+test('htmlCartao não mostra pílulas de tamanho no corpo do cartão', () => {
   const h = htmlCartao(peca({}, { 2: 1, 4: 1, 6: 0 }), 10);
-  assert.match(h, />2</);
-  assert.match(h, />4</);
-  assert.ok(!h.includes('>6<'));
+  assert.doesNotMatch(h, /class="pilulas"/);
+  const corpo = h.slice(h.indexOf('cartao-corpo'));
+  assert.doesNotMatch(corpo, /<li>/);
 });
 
 test('htmlItemCarrinho escapa nome e cor e mostra aviso da situação', () => {

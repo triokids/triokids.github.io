@@ -2,7 +2,7 @@
 import { formatarPreco } from '../dados/csv.js';
 import { precoComCampanha } from '../loja/campanha.js';
 import { TAMANHOS } from '../dados/catalogo.js';
-import { menorPreco, tamanhosDisponiveis, esgotada } from '../loja/filtros.js';
+import { menorPreco, esgotada } from '../loja/filtros.js';
 import { modoComprar, varianteParaComprar } from '../loja/compra-rapida.js';
 
 export function esc(texto) {
@@ -50,9 +50,6 @@ export function htmlCartao(peca, descontoCampanha) {
     : '';
 
   const fim = esgotada(peca);
-  const pilulas = fim
-    ? '<span class="selo-esgotado">esgotado</span>'
-    : `<ul class="pilulas" aria-label="Tamanhos disponíveis">${tamanhosDisponiveis(peca).map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`;
 
   const modo = modoComprar(peca);
   const nome = esc(peca.nome);
@@ -68,7 +65,6 @@ export function htmlCartao(peca, descontoCampanha) {
     <h3 class="cartao-nome"><a class="cartao-link" href="peca.html?c=${encodeURIComponent(peca.id)}">${nome}</a></h3>
     <p class="preco">${variavel ? '<span class="a-partir">a partir de</span> ' : ''}${formatarPreco(menor)}</p>
     ${blocoCampanha}
-    ${pilulas}
   </div>
 </article>`;
 }
