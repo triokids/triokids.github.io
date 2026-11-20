@@ -1,6 +1,7 @@
 // Funções puras que devolvem HTML (string). Sem DOM, sem acesso a js/paginas.
 import { formatarPreco } from '../dados/csv.js';
 import { precoComCampanha } from '../loja/campanha.js';
+import { TAMANHOS } from '../dados/catalogo.js';
 import { menorPreco, tamanhosDisponiveis, esgotada } from '../loja/filtros.js';
 
 export function esc(texto) {
@@ -105,4 +106,40 @@ export function htmlItemCarrinho(item) {
 
 export function htmlFaixaReserva() {
   return '<div class="faixa-reserva" role="status">O catálogo pode estar desatualizado. Confirme disponibilidade e preços no WhatsApp.</div>';
+}
+
+const ORDENS_ROTULO = [['novidades', 'Novidades'], ['menor-preco', 'Menor preço'], ['maior-preco', 'Maior preço']];
+
+function opcoes(lista, atual) {
+  return lista.map(([valor, rotulo]) => `<option value="${esc(valor)}"${valor === atual ? ' selected' : ''}>${esc(rotulo)}</option>`).join('');
+}
+
+export function htmlFiltros(categorias, filtros = {}) {
+  const valor = (n) => (n == null ? '' : ` value="${esc(n)}"`);
+  return `<button type="button" class="botao botao-filtrar" id="abrir-filtros" aria-expanded="false" aria-controls="painel-filtros">Filtrar</button>
+<form class="filtros" id="painel-filtros" method="get" action="catalogo.html">
+  <div class="campo">
+    <label for="f-categoria">Categoria</label>
+    <select id="f-categoria" name="categoria"><option value="">Todas</option>${opcoes(categorias.map((c) => [c, c]), filtros.categoria)}</select>
+  </div>
+  <div class="campo">
+    <label for="f-tamanho">Tamanho</label>
+    <select id="f-tamanho" name="tamanho"><option value="">Todos</option>${opcoes(TAMANHOS.map((t) => [t, t]), filtros.tamanho)}</select>
+  </div>
+  <div class="campo campo-preco">
+    <label for="f-min">Preço (R$)</label>
+    <div class="par">
+      <input id="f-min" name="precoMin" type="text" inputmode="decimal" placeholder="mín"${valor(filtros.precoMin)} aria-label="Preço mínimo">
+      <input id="f-max" name="precoMax" type="text" inputmode="decimal" placeholder="máx"${valor(filtros.precoMax)} aria-label="Preço máximo">
+    </div>
+  </div>
+  <div class="campo">
+    <label for="f-ordem">Ordenar por</label>
+    <select id="f-ordem" name="ordem">${opcoes(ORDENS_ROTULO, filtros.ordem || 'novidades')}</select>
+  </div>
+  <div class="filtros-acoes">
+    <button type="submit" class="botao">Aplicar</button>
+    <a class="limpar" href="catalogo.html">Limpar filtros</a>
+  </div>
+</form>`;
 }
