@@ -55,9 +55,10 @@ function htmlGaveta() {
   return `<div class="fundo-gaveta" id="fundo-gaveta" hidden></div>
 <aside class="gaveta" id="gaveta" role="dialog" aria-modal="true" aria-labelledby="gaveta-titulo" hidden>
   <div class="gaveta-topo">
-    <h2 id="gaveta-titulo">Seu carrinho</h2>
+    <h2 id="gaveta-titulo" tabindex="-1">Seu carrinho</h2>
     <button type="button" class="botao-icone" id="fechar-gaveta" aria-label="Fechar carrinho">&times;</button>
   </div>
+  <p class="so-leitor" id="gaveta-anuncio" role="status" aria-live="polite"></p>
   <div class="gaveta-corpo">
     <p class="gaveta-vazio" id="gaveta-vazio">Seu carrinho está vazio.</p>
     <ul class="itens" id="gaveta-itens"></ul>
@@ -98,6 +99,10 @@ function montarGaveta({ carrinho, getCatalogo, numero }) {
   }
 
   function renderizar() {
+    // Guarda qual controle da lista tinha o foco, para devolvê-lo depois de redesenhar.
+    const foco = document.activeElement;
+    const liFoco = foco && lista.contains(foco) ? foco.closest('li[data-codigo]') : null;
+    const memoria = liFoco ? { codigo: liFoco.dataset.codigo, tamanho: liFoco.dataset.tamanho, acao: foco.dataset.acao } : null;
     const itens = revalidados();
     const qtd = itens.reduce((s, i) => s + (i.situacao === 'removida' || i.situacao === 'esgotado' ? 0 : i.quantidade), 0);
     const contador = $('contador-carrinho');
@@ -110,6 +115,21 @@ function montarGaveta({ carrinho, getCatalogo, numero }) {
     total.hidden = itens.length === 0;
     total.innerHTML = `Total <strong>${formatarPreco(totalDosItens(itens))}</strong>`;
     atualizarBotao();
+    if (memoria && aberta) restaurarFoco(memoria);
+  }
+
+  function restaurarFoco({ codigo, tamanho, acao }) {
+    const li = [...lista.querySelectorAll('li[data-codigo]')]
+      .find((el) => el.dataset.codigo === codigo && el.dataset.tamanho === tamanho);
+    const botao = li && (li.querySelector(`button[data-acao="${acao}"]`) || li.querySelector('button[data-acao]'));
+    // Item sumiu: o foco vai para o título da gaveta, sem sair dela.
+    (botao || $('gaveta-titulo')).focus();
+  }
+
+  function anunciar(texto) {
+    const regiao = $('gaveta-anuncio');
+    regiao.textContent = '';
+    regiao.textContent = texto;
   }
 
   function abrir() {
@@ -156,9 +176,15 @@ function montarGaveta({ carrinho, getCatalogo, numero }) {
     const atual = carrinho.itens().find((i) => i.codigo === codigo && i.tamanho === tamanho);
     if (!atual) return;
     const catalogo = getCatalogo();
-    if (botao.dataset.acao === 'remover') carrinho.remover(codigo, tamanho);
-    else if (botao.dataset.acao === 'mais') carrinho.alterar(codigo, tamanho, atual.quantidade + 1, catalogo);
-    else if (botao.dataset.acao === 'menos') carrinho.alterar(codigo, tamanho, atual.quantidade - 1, catalogo);
+    if (botao.dataset.acao === 'remover') {
+      carrinho.remover(codigo, tamanho);
+      anunciar('Item removido do carrinho.');
+    } else {
+      const nova = atual.quantidade + (botao.dataset.acao === 'mais' ? 1 : -1);
+      carrinho.alterar(codigo, tamanho, nova, catalogo);
+      const depois = carrinho.itens().find((i) => i.codigo === codigo && i.tamanho === tamanho);
+      anunciar(depois ? `Quantidade: ${depois.quantidade}.` : 'Item removido do carrinho.');
+    }
   });
 
   $('gaveta-form').addEventListener('input', atualizarBotao);

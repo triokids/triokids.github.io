@@ -94,7 +94,7 @@ export function htmlItemCarrinho(item) {
     ${aviso}
     <div class="item-qtd">
       ${bloqueado ? '' : `<button type="button" data-acao="menos" aria-label="Diminuir quantidade de ${nome}">−</button>
-      <span aria-live="polite">${item.quantidade}</span>
+      <span>${item.quantidade}</span>
       <button type="button" data-acao="mais" aria-label="Aumentar quantidade de ${nome}">+</button>`}
       <button type="button" class="item-remover" data-acao="remover" aria-label="Remover ${nome} do carrinho">Remover</button>
     </div>
