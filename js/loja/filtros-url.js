@@ -45,3 +45,12 @@ export function filtrosParaUrl(filtros) {
 export function esgotadasNoFim(pecas) {
   return [...pecas.filter((p) => !esgotada(p)), ...pecas.filter((p) => esgotada(p))];
 }
+
+// Filtros a partir das entradas do formulário do painel; o painel não tem
+// campo de busca, então o termo atual da URL é mantido.
+export function filtrosDoFormulario(entradas, busca) {
+  const q = new URLSearchParams();
+  for (const [k, v] of entradas) q.set(k, String(v));
+  if (busca) q.set('busca', busca);
+  return lerFiltrosDaUrl(`?${q}`);
+}

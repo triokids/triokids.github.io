@@ -145,6 +145,10 @@ function opcoes(lista, atual) {
   return lista.map(([valor, rotulo]) => `<option value="${esc(valor)}"${valor === atual ? ' selected' : ''}>${esc(rotulo)}</option>`).join('');
 }
 
+export function htmlTituloCatalogo(busca) {
+  return busca ? `Resultados para “${esc(busca)}”` : 'Catálogo';
+}
+
 export function htmlFiltros(categorias, filtros = {}) {
   const valor = (n) => (n == null ? '' : ` value="${esc(n)}"`);
   return `<button type="button" class="botao botao-filtrar" id="abrir-filtros" aria-expanded="false" aria-controls="painel-filtros">Filtrar</button>
