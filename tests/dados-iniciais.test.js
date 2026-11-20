@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { montarCatalogo } from '../js/dados/catalogo.js';
+import { destaques } from '../js/loja/filtros.js';
 
 const raiz = new URL('../', import.meta.url);
 const bruto = JSON.parse(readFileSync(new URL('catalogo.json', raiz), 'utf8'));
@@ -12,25 +13,26 @@ test('catalogo.json tem o formato esperado', () => {
   assert.deepEqual(Object.keys(bruto).sort(), ['campanha', 'config', 'geradoEm', 'pecas']);
 });
 
-test('carga inicial: 14 peças agrupadas por nome', () => {
-  assert.equal(cat.pecas.length, 14);
+// O catalogo.json é regerado pela Área Adm a partir da planilha: peças, estoque,
+// destaques e fotos mudam com o uso. Estes testes conferem a estrutura, nunca
+// quantidades ou valores de uma peça específica.
+
+test('catálogo tem peças, cada uma com nome e ao menos uma variante com preço', () => {
+  assert.ok(cat.pecas.length > 0);
+  for (const p of cat.pecas) {
+    assert.ok(p.nome, `peça ${p.id} sem nome`);
+    assert.ok(p.variantes.length >= 1, `peça ${p.id} sem variante`);
+    for (const v of p.variantes) assert.ok(v.preco > 0, `${v.codigo} sem preço`);
+  }
 });
 
-test('Vestido Clara tem 2 variantes', () => {
-  const clara = cat.pecas.find((p) => p.nome === 'Vestido Clara');
-  assert.equal(clara.variantes.length, 2);
-  assert.deepEqual(clara.variantes.map((v) => v.cor), ['Cru', 'Safira']);
+test('códigos de variante não se repetem', () => {
+  const codigos = cat.pecas.flatMap((p) => p.variantes.map((v) => v.codigo));
+  assert.equal(new Set(codigos).size, codigos.length);
 });
 
-test('Jardineira Antonella tem estoque 2:2 e 3:1', () => {
-  const j = cat.pecas.find((p) => p.nome === 'Jardineira Antonella');
-  assert.deepEqual(j.variantes[0].estoque, { 2: 2, 3: 1 });
-  assert.equal(j.variantes[0].preco, 119.9);
-});
-
-test('8 peças em destaque, todas com campanha ativa', () => {
-  assert.equal(cat.pecas.filter((p) => p.destaque).length, 8);
-  assert.ok(cat.pecas.every((p) => p.variantes.every((v) => v.campanha)));
+test('no máximo 8 peças aparecem em destaque na página inicial', () => {
+  assert.ok(destaques(cat.pecas).length <= 8);
 });
 
 test('toda foto declarada existe em disco', () => {
@@ -43,13 +45,7 @@ test('toda foto declarada existe em disco', () => {
   }
 });
 
-test('toda variante tem foto, exceto a Safira (sem foto própria), e o logo existe', () => {
-  for (const p of cat.pecas) for (const v of p.variantes) {
-    if (v.codigo !== 'vestido-clara-safira') assert.ok(v.fotos >= 1, v.codigo);
-  }
-  const safira = cat.pecas.flatMap((p) => p.variantes).find((v) => v.codigo === 'vestido-clara-safira');
-  assert.equal(safira.fotos, 0);
-  assert.equal(existsSync(new URL('fotos/vestido-clara-safira-1.jpg', raiz)), false);
+test('o logo existe (é o substituto de peça sem foto)', () => {
   assert.ok(existsSync(new URL('img/logo.png', raiz)));
 });
 
