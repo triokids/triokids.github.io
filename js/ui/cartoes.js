@@ -1,5 +1,5 @@
 // Controlador dos botões Comprar e Espiar dos cartões de produto e do diálogo Espiar.
-import { htmlEspiar } from './html.js';
+import { htmlEspiar, urlFoto, altFoto } from './html.js';
 import { FOCAVEIS } from './layout.js';
 import { modoComprar, varianteParaComprar, mensagemCarrinho } from '../loja/compra-rapida.js';
 
@@ -23,24 +23,16 @@ function garantirEspiar() {
 
   const estoqueEscolhido = () => (estado.tamanho ? estado.variante.estoque[estado.tamanho] || 0 : 0);
 
+  // manterGaleria: true quando a cor não mudou (mantém a foto que a cliente estava vendo).
   function desenhar(seletorFoco, manterGaleria) {
-    const faixaAntes = manterGaleria ? document.getElementById('espiar-galeria-faixa') : null;
-    const posicao = faixaAntes ? faixaAntes.scrollLeft : 0;
+    if (!manterGaleria) estado.foto = 1;
     caixa.innerHTML = htmlEspiar(estado.peca, estado.variante, {
       desconto: contexto.catalogo.config.descontoCampanha,
       tamanho: estado.tamanho,
       quantidade: estado.quantidade,
       mensagem: estado.mensagem,
+      foto: estado.foto,
     });
-    const faixa = document.getElementById('espiar-galeria-faixa');
-    if (faixa && posicao > 0) {
-      faixa.scrollLeft = posicao;
-      const indicador = document.getElementById('espiar-galeria-indicador');
-      const total = faixa.querySelectorAll('img').length;
-      if (indicador && faixa.clientWidth) {
-        indicador.textContent = `${Math.min(total, Math.round(posicao / faixa.clientWidth) + 1)} / ${total}`;
-      }
-    }
     if (seletorFoco) {
       let el = caixa.querySelector(seletorFoco);
       if (el && el.disabled) {
@@ -53,9 +45,25 @@ function garantirEspiar() {
     }
   }
 
+  // Troca a foto grande sem redesenhar o diálogo (mesma lógica da página da peça).
+  function mostrarFoto(n) {
+    const total = estado.variante.fotos;
+    const foto = document.getElementById('espiar-galeria-foto');
+    if (!foto || !(total > 1)) return;
+    estado.foto = ((n - 1 + total) % total) + 1;
+    foto.src = urlFoto(estado.variante.codigo, estado.foto);
+    foto.alt = altFoto(estado.variante, estado.peca.nome, estado.foto);
+    caixa.querySelectorAll('.galeria-mini').forEach((b) => {
+      if (Number(b.dataset.foto) === estado.foto) b.setAttribute('aria-current', 'true');
+      else b.removeAttribute('aria-current');
+    });
+    const indicador = document.getElementById('espiar-galeria-indicador');
+    if (indicador) indicador.textContent = `${estado.foto} / ${total}`;
+  }
+
   function abrir(peca, variante, ctx, origem) {
     contexto = ctx;
-    estado = { peca, variante, tamanho: '', quantidade: 1, mensagem: '' };
+    estado = { peca, variante, tamanho: '', quantidade: 1, mensagem: '', foto: 1 };
     acionador = origem;
     desenhar();
     dialogo.hidden = false;
@@ -77,6 +85,10 @@ function garantirEspiar() {
   dialogo.addEventListener('click', (e) => {
     if (!aberto) return;
     if (e.target === dialogo || e.target.closest('[data-acao="fechar-espiar"]')) { fechar(); return; }
+    const mini = e.target.closest('.galeria-mini');
+    if (mini) { mostrarFoto(Number(mini.dataset.foto)); return; }
+    if (e.target.closest('.galeria-anterior')) { mostrarFoto(estado.foto - 1); return; }
+    if (e.target.closest('.galeria-proxima')) { mostrarFoto(estado.foto + 1); return; }
     const cor = e.target.closest('.cor');
     if (cor) {
       const destino = estado.peca.variantes.find((v) => v.codigo === cor.dataset.codigo);
@@ -124,16 +136,6 @@ function garantirEspiar() {
 
   fundo.addEventListener('click', fechar);
 
-  dialogo.addEventListener('scroll', (e) => {
-    const faixa = e.target;
-    if (!faixa || faixa.id !== 'espiar-galeria-faixa') return;
-    const indicador = document.getElementById('espiar-galeria-indicador');
-    if (!indicador) return;
-    const total = faixa.querySelectorAll('img').length;
-    if (!faixa.clientWidth) return;
-    const i = Math.min(total, Math.round(faixa.scrollLeft / faixa.clientWidth) + 1);
-    indicador.textContent = `${i} / ${total}`;
-  }, { capture: true, passive: true });
 
   document.addEventListener('keydown', (e) => {
     if (!aberto) return;

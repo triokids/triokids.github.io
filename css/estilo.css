@@ -301,16 +301,32 @@ main { max-width: 1200px; margin: 0 auto; padding: 16px 16px 48px; min-height: 6
 .migalha a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; }
 .peca { display: grid; gap: 20px; }
 .galeria { position: relative; }
-.galeria-faixa {
-  display: flex; overflow-x: auto; scroll-snap-type: x mandatory; border-radius: var(--raio);
-  background: var(--peche); -webkit-overflow-scrolling: touch;
-}
-.galeria-faixa img { flex: 0 0 100%; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; scroll-snap-align: center; }
 .galeria-vazia { aspect-ratio: 3 / 4; background: var(--peche); border-radius: var(--raio); }
 .galeria-indicador {
   position: absolute; right: 10px; bottom: 10px; margin: 0; padding: 2px 10px; border-radius: 10px;
   background: var(--cartao); color: var(--secundario); font-weight: 700; font-size: 0.85rem;
 }
+/* Foto grande + miniaturas: no celular as miniaturas ficam embaixo; no computador, à esquerda. */
+.galeria-com-miniaturas { display: grid; gap: 10px; }
+.galeria-principal { position: relative; border-radius: var(--raio); overflow: hidden; background: var(--peche); }
+.galeria-principal > img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.galeria-seta {
+  position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border: 0; border-radius: 50%;
+  background: var(--cartao); color: var(--titulo); box-shadow: var(--sombra); font: 700 1.6rem/1 var(--f-texto);
+  cursor: pointer; opacity: 0.9;
+}
+.galeria-seta:hover { opacity: 1; }
+.galeria-anterior { left: 10px; }
+.galeria-proxima { right: 10px; }
+.galeria-miniaturas { display: flex; gap: 8px; overflow-x: auto; padding: 2px; scrollbar-width: none; }
+.galeria-miniaturas::-webkit-scrollbar { display: none; }
+.galeria-mini {
+  flex: 0 0 64px; padding: 0; border: 2px solid transparent; border-radius: 10px; overflow: hidden;
+  background: var(--peche); cursor: pointer; opacity: 0.7; transition: opacity 0.15s, border-color 0.15s;
+}
+.galeria-mini img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.galeria-mini:hover { opacity: 1; }
+.galeria-mini[aria-current="true"] { border-color: var(--titulo); opacity: 1; }
 .peca-info { display: grid; gap: 12px; align-content: start; }
 .peca-nome { font-size: 1.7rem; }
 .peca-cor, .peca-aviso, .peca-info p { margin: 0; }
@@ -334,7 +350,10 @@ main { max-width: 1200px; margin: 0 auto; padding: 16px 16px 48px; min-height: 6
 .botao-adicionar { width: 100%; }
 @media (min-width: 761px) {
   .peca { grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
-  .peca-fotos { max-width: 520px; }
+  .peca-fotos { max-width: 600px; }
+  .galeria-com-miniaturas { grid-template-columns: 76px 1fr; gap: 12px; }
+  .galeria-com-miniaturas .galeria-miniaturas { order: -1; flex-direction: column; overflow: visible; }
+  .galeria-com-miniaturas .galeria-mini { flex: 0 0 auto; width: 100%; }
 }
 
 /* Campanha, guia de tamanhos e sobre */

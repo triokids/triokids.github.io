@@ -37,20 +37,48 @@ test('galeria sem fotos mostra o marcador com logo', () => {
   assert.match(h, /img\/logo\.png/);
 });
 
-test('galeria usa urlFoto, alt com nome e cor, lazy só a partir da segunda', () => {
+test('galeria mostra a foto grande (sem lazy) e uma miniatura por foto', () => {
   const h = htmlGaleria(safira, 'Vestido Clara');
+  const principal = h.match(/<img[^>]*id="galeria-foto"[^>]*>/)[0];
+  assert.ok(principal.includes(`src="${urlFoto(safira.codigo, 1)}"`));
+  assert.ok(!/loading="lazy"/.test(principal));
+  assert.match(principal, /alt="Vestido Clara — Safira — foto 1"/);
+  const minis = [...h.matchAll(/<button[^>]*class="galeria-mini"[^>]*>/g)].map((m) => m[0]);
+  assert.equal(minis.length, 3);
+  assert.deepEqual(minis.map((b) => b.match(/data-foto="(\d+)"/)[1]), ['1', '2', '3']);
+  assert.match(minis[0], /aria-current="true"/);
+  assert.ok(!/aria-current/.test(minis[1]));
   for (const n of [1, 2, 3]) assert.ok(h.includes(`src="${urlFoto(safira.codigo, n)}"`));
-  assert.match(h, /alt="Vestido Clara — Safira — foto 2"/);
-  const imgs = [...h.matchAll(/<img[^>]*>/g)].map((m) => m[0]);
-  assert.ok(!/loading="lazy"/.test(imgs[0]));
-  assert.match(imgs[1], /loading="lazy"/);
-  assert.match(h, /scroll-snap|galeria-faixa/);
+  assert.match(h, /aria-label="Ver foto 2 de 3"/);
   assert.match(h, /1 \/ 3/);
+  assert.ok(!/galeria-faixa|scroll-snap/.test(h));
 });
 
-test('htmlGaleria com idBase usa ids próprios; sem idBase mantém galeria-faixa', () => {
-  assert.match(htmlGaleria(safira, 'V', 'espiar-galeria'), /id="espiar-galeria-faixa"[\s\S]*id="espiar-galeria-indicador"/);
-  assert.match(htmlGaleria(safira, 'V'), /id="galeria-faixa"/);
+test('galeria abre na foto pedida e tem setas anterior/próxima', () => {
+  const h = htmlGaleria(safira, 'Vestido Clara', 2);
+  assert.ok(h.match(/<img[^>]*id="galeria-foto"[^>]*>/)[0].includes(`src="${urlFoto(safira.codigo, 2)}"`));
+  assert.match(h, /data-foto="2"[^>]*aria-current="true"/);
+  assert.match(h, /2 \/ 3/);
+  assert.match(h, /class="galeria-seta galeria-anterior"/);
+  assert.match(h, /class="galeria-seta galeria-proxima"/);
+});
+
+test('galeria com foto fora do intervalo volta para a primeira', () => {
+  const h = htmlGaleria(safira, 'Vestido Clara', 9);
+  assert.match(h, /data-foto="1"[^>]*aria-current="true"/);
+});
+
+test('galeria com uma foto só não mostra miniaturas, setas nem indicador', () => {
+  const h = htmlGaleria(cru, 'Vestido Clara');
+  assert.match(h, /id="galeria-foto"/);
+  assert.ok(!/galeria-mini|galeria-seta|galeria-indicador/.test(h));
+});
+
+test('htmlGaleria com idBase usa ids próprios; sem idBase mantém galeria-foto e galeria-indicador', () => {
+  const espiar = htmlGaleria(safira, 'V', 2, 'espiar-galeria');
+  assert.match(espiar, /id="espiar-galeria-foto"[\s\S]*id="espiar-galeria-indicador"[^>]*>2 \/ 3</);
+  assert.doesNotMatch(espiar, /id="galeria-(foto|indicador)"/);
+  assert.match(htmlGaleria(safira, 'V'), /id="galeria-foto"[\s\S]*id="galeria-indicador"/);
 });
 test('htmlSeletorTamanho com escolhido marca só ele; sem escolhido nada marcado', () => {
   const h = htmlSeletorTamanho(safira, '2');

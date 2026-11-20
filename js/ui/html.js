@@ -177,19 +177,34 @@ export function htmlFiltros(categorias, filtros = {}) {
 
 // --- Página da peça ---
 
-export function htmlGaleria(variante, nome, idBase = 'galeria') {
+export function altFoto(variante, nome, n) {
+  const cor = variante.cor ? ` — ${variante.cor}` : '';
+  return `${nome}${cor} — foto ${n}`;
+}
+
+// Foto grande + coluna de miniaturas (à esquerda no computador, embaixo no celular).
+// atual: número da foto aberta (1..fotos); fora do intervalo vira 1.
+// idBase: prefixo dos ids (o Espiar usa outro para não colidir com a página da peça).
+export function htmlGaleria(variante, nome, atual = 1, idBase = 'galeria') {
   if (!variante || !(variante.fotos > 0)) {
     return '<div class="galeria"><div class="sem-foto galeria-vazia"><img src="img/logo.png" alt="" width="96" height="96"></div></div>';
   }
-  const cor = variante.cor ? ` — ${variante.cor}` : '';
-  const imgs = Array.from({ length: variante.fotos }, (_, i) => {
-    const n = i + 1;
-    return `<img src="${esc(urlFoto(variante.codigo, n))}" alt="${esc(`${nome}${cor} — foto ${n}`)}"${n > 1 ? ' loading="lazy"' : ''} width="600" height="800">`;
+  const total = variante.fotos;
+  const n = Number.isInteger(atual) && atual >= 1 && atual <= total ? atual : 1;
+  const principal = `<img id="${esc(idBase)}-foto" src="${esc(urlFoto(variante.codigo, n))}" alt="${esc(altFoto(variante, nome, n))}" width="600" height="800">`;
+  if (total < 2) {
+    return `<div class="galeria"><div class="galeria-principal">${principal}</div></div>`;
+  }
+  const minis = Array.from({ length: total }, (_, i) => {
+    const k = i + 1;
+    return `<button type="button" class="galeria-mini" data-foto="${k}"${k === n ? ' aria-current="true"' : ''} aria-label="Ver foto ${k} de ${total}"><img src="${esc(urlFoto(variante.codigo, k))}" alt="" loading="lazy" width="120" height="160"></button>`;
   }).join('');
-  const indicador = variante.fotos > 1
-    ? `<p class="galeria-indicador" id="${esc(idBase)}-indicador" aria-hidden="true">1 / ${variante.fotos}</p>`
-    : '';
-  return `<div class="galeria"><div class="galeria-faixa" id="${esc(idBase)}-faixa" tabindex="0" role="group" aria-label="Fotos de ${esc(nome)}">${imgs}</div>${indicador}</div>`;
+  return `<div class="galeria galeria-com-miniaturas" data-total="${total}">
+<div class="galeria-principal">${principal}
+<button type="button" class="galeria-seta galeria-anterior" aria-label="Foto anterior">&lsaquo;</button>
+<button type="button" class="galeria-seta galeria-proxima" aria-label="Próxima foto">&rsaquo;</button>
+<p class="galeria-indicador" id="${esc(idBase)}-indicador" aria-live="polite">${n} / ${total}</p></div>
+<div class="galeria-miniaturas" role="group" aria-label="Fotos de ${esc(nome)}">${minis}</div></div>`;
 }
 
 export function htmlSeletorTamanho(variante, escolhido = '') {
@@ -257,10 +272,10 @@ ${texto}
 }
 
 // Conteúdo do diálogo Espiar: a peça numa cor, com tamanho, quantidade e adicionar ao carrinho.
-export function htmlEspiar(peca, variante, { desconto, tamanho = '', quantidade = 1, mensagem = '' }) {
+export function htmlEspiar(peca, variante, { desconto, tamanho = '', quantidade = 1, mensagem = '', foto = 1 }) {
   const max = tamanho ? variante.estoque[tamanho] || 0 : 0;
   return `<button type="button" class="botao-icone espiar-fechar" data-acao="fechar-espiar" aria-label="Fechar">&times;</button>
-<div class="espiar-fotos">${htmlGaleria(variante, peca.nome, 'espiar-galeria')}</div>
+<div class="espiar-fotos">${htmlGaleria(variante, peca.nome, foto, 'espiar-galeria')}</div>
 <div class="espiar-info">
   <h2 id="espiar-nome">${esc(peca.nome)}</h2>
   ${htmlSeletorCor(peca, variante.codigo)}
