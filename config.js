@@ -1,9 +1,9 @@
 // Configuração pública do site (nada secreto aqui).
 export const CONFIG = {
   csv: {
-    pecas: '',     // preencher após publicar a planilha
-    config: '',    // preencher após publicar a planilha
-    campanha: '',  // preencher após publicar a planilha
+    pecas: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwIxWKVj5sLe_yfNGGiHH2cLjIcGA-gL2STLEtd2cWjCWC95SOM6vdHHTrYafSSl9y6uprDX2zKdTX/pub?gid=0&single=true&output=csv',
+    config: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwIxWKVj5sLe_yfNGGiHH2cLjIcGA-gL2STLEtd2cWjCWC95SOM6vdHHTrYafSSl9y6uprDX2zKdTX/pub?gid=2030621086&single=true&output=csv',
+    campanha: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwIxWKVj5sLe_yfNGGiHH2cLjIcGA-gL2STLEtd2cWjCWC95SOM6vdHHTrYafSSl9y6uprDX2zKdTX/pub?gid=2000533000&single=true&output=csv',
   },
   reserva: 'catalogo.json',
   whatsapp: '5562992339674',
