@@ -97,8 +97,8 @@
   /* versão de computador: o celular (até 899px) não muda */
   @media (min-width: 900px) {
     main { max-width: 1100px; }
-    .btn:hover, .chip:hover, .fab:hover, .add:hover, .tam .ctl button:hover { filter: brightness(.95); }
-    .btn.sec:hover, .chip:hover, .add:hover { background: var(--menta); }
+    .btn:hover, .chip:not(.on):hover, .fab:hover, .add:hover, .tam .ctl button:hover { filter: brightness(.95); }
+    .btn.sec:hover, .chip:not(.on):hover, .add:hover { background: var(--menta); }
     .item:hover { box-shadow: 0 4px 14px rgba(103,70,56,.2); transform: translateY(-2px); }
     .tog:hover { background: var(--pessego); }
     .barra button:hover { background: var(--pessego); border-radius: 10px; }
@@ -383,6 +383,15 @@
       if (depois) depois();
     }).listarPecasArea(passe);
   }
+  // Atualiza a lista local sem trocar de tela nem avisar; falha aqui é ignorada.
+  function recarregarEmSilencio() {
+    servidor(function (r) {
+      if (!r.ok) return;
+      pecas = r.pecas || []; categorias = r.categorias || []; colecoes = r.colecoes || [];
+      atualizarListasDeNomes();
+      desenharLista();
+    }, function () {}).listarPecasArea(passe);
+  }
   function atualizarListasDeNomes() {
     var c = $('lista-categorias'), o = $('lista-colecoes');
     c.replaceChildren(); o.replaceChildren();
@@ -584,7 +593,7 @@
       ocupado(botao, '', 'Salvar alterações', false);
       aplicarTravaFotos();
       // A pessoa já abriu outra peça: só a lista local é atualizada, a edição aberta não é tocada.
-      if (!atual || atual.codigo !== enviada) { if (r.ok && r.peca) substituirPeca(r.peca, false); return; }
+      if (!atual || atual.codigo !== enviada) { if (r.ok && r.peca) substituirPeca(r.peca, false); else recarregarEmSilencio(); return; }
       if (!r.ok) { aviso('aviso-editar', r.mensagem || 'Não consegui salvar.', 'erro'); return; }
       if (!r.peca) { recarregarComAviso('aviso-lista', r.mensagem || 'Salvo!'); return; }
       substituirPeca(r.peca);
@@ -598,6 +607,7 @@
       ocupado(botao, '', 'Salvar alterações', false);
       aplicarTravaFotos();
       if (atual && atual.codigo === enviada) aviso('aviso-editar', MSG_REDE, 'erro');
+      else recarregarEmSilencio();
     }).salvarPeca(passe, enviada, campos);
   });
   // Mantém a lista local igual à planilha: a peça salva e os 4 campos que valem para todas as cores.

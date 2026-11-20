@@ -99,3 +99,13 @@ test('Area.html ignora resposta de salvar de outra peça e mantém Salvar travad
   assert.match(salvar, /atual\.codigo !== enviada/);
   assert.match(salvar, /substituirPeca\(r\.peca, false\)/);
 });
+
+test('Area.html: hover não apaga o chip selecionado e salvar de outra peça recarrega a lista em silêncio', () => {
+  const html = ler(AREA);
+  const dentro = html.slice(html.indexOf('@media (min-width: 900px)'), html.indexOf('</style>'));
+  assert.doesNotMatch(dentro, /\.chip:hover/);
+  assert.match(dentro, /\.chip:not\(\.on\):hover/);
+  assert.match(html, /function recarregarEmSilencio\(\)[\s\S]*?listarPecasArea\(passe\)/);
+  const salvar = html.slice(html.indexOf("$('btn-salvar').addEventListener"), html.indexOf('function substituirPeca('));
+  assert.equal((salvar.match(/recarregarEmSilencio\(\)/g) || []).length, 2);
+});
