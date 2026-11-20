@@ -83,6 +83,9 @@ h1, h2, h3 { font-family: var(--f-titulo); color: var(--titulo); line-height: 1.
 }
 .menu a:hover { background: var(--peche); }
 .menu a[aria-current="page"] { background: var(--peche); color: var(--titulo); }
+@media (max-width: 600px) {
+  .menu { flex-wrap: wrap; justify-content: center; overflow-x: visible; }
+}
 
 /* Faixas */
 .faixa-reserva, .aviso-topo { padding: 10px 16px; text-align: center; font-size: 0.9rem; }

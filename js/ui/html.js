@@ -15,7 +15,7 @@ export function esc(texto) {
 
 // Única função que monta caminho de foto (ADR-001).
 export function urlFoto(codigo, n) {
-  return `fotos/${codigo}-${n}.jpg`;
+  return `fotos/${encodeURIComponent(codigo)}-${n}.jpg`;
 }
 
 export function htmlTituloColorido(texto) {

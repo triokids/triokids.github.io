@@ -12,6 +12,10 @@ test('esc escapa & < > " \'', () => {
   assert.equal(esc('<b>"&\''), '&lt;b&gt;&quot;&amp;&#39;');
 });
 
+test('urlFoto codifica o código (#, ? e % não quebram a imagem)', () => {
+  assert.equal(urlFoto('a#b?c%d', 1), 'fotos/a%23b%3Fc%25d-1.jpg');
+});
+
 test('urlFoto monta caminho relativo', () => {
   assert.equal(urlFoto('conjunto-joab', 2), 'fotos/conjunto-joab-2.jpg');
 });

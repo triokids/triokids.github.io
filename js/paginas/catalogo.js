@@ -55,7 +55,7 @@ try {
     document.getElementById('abrir-filtros').setAttribute('aria-expanded', 'false');
   });
   caixa.addEventListener('change', (e) => {
-    if (e.target.tagName === 'SELECT') aplicar(lerFormulario());
+    if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') aplicar(lerFormulario());
   });
   document.getElementById('resultado').addEventListener('click', (e) => {
     if (e.target.closest('#limpar-filtros')) limpar();

@@ -54,7 +54,10 @@ try {
     }
 
     // seletorFoco: seletor CSS do controle que deve receber o foco depois de redesenhar.
-    function desenhar(seletorFoco) {
+    // manterGaleria: true quando a variante não mudou (mantém a foto que a cliente estava vendo).
+    function desenhar(seletorFoco, manterGaleria) {
+      const faixaAntes = manterGaleria ? document.getElementById('galeria-faixa') : null;
+      const posicao = faixaAntes ? faixaAntes.scrollLeft : 0;
       const max = estoqueEscolhido();
       principal.innerHTML = `<nav class="migalha" aria-label="Caminho"><a href="catalogo.html">&larr; Catálogo</a></nav>
 <div class="peca">
@@ -87,6 +90,15 @@ ${combina.length ? `<section class="bloco"><h2 class="titulo-secao">Combina com<
         }
       }
       ligarGaleria();
+      const faixaNova = document.getElementById('galeria-faixa');
+      if (faixaNova && posicao > 0) {
+        faixaNova.scrollLeft = posicao;
+        const indicador = document.getElementById('galeria-indicador');
+        const total = faixaNova.querySelectorAll('img').length;
+        if (indicador && faixaNova.clientWidth) {
+          indicador.textContent = `${Math.min(total, Math.round(posicao / faixaNova.clientWidth) + 1)} / ${total}`;
+        }
+      }
       if (seletorFoco) {
         const el = principal.querySelector(seletorFoco);
         if (el && !el.disabled) el.focus();
@@ -111,26 +123,26 @@ ${combina.length ? `<section class="bloco"><h2 class="titulo-secao">Combina com<
         tamanho = tam.dataset.tamanho;
         quantidade = Math.min(quantidade, Math.max(1, estoqueEscolhido()));
         mensagem = '';
-        desenhar(`.tam[data-tamanho="${CSS.escape(tamanho)}"]`);
+        desenhar(`.tam[data-tamanho="${CSS.escape(tamanho)}"]`, true);
         return;
       }
       if (e.target.closest('#qtd-menos') && quantidade > 1) {
         quantidade -= 1;
         mensagem = '';
-        desenhar('#qtd-menos');
+        desenhar('#qtd-menos', true);
         return;
       }
       if (e.target.closest('#qtd-mais') && quantidade < estoqueEscolhido()) {
         quantidade += 1;
         mensagem = '';
-        desenhar('#qtd-mais');
+        desenhar('#qtd-mais', true);
         return;
       }
       if (e.target.closest('#adicionar') && tamanho) {
         const r = carrinho.adicionar(variante.codigo, tamanho, quantidade, catalogo);
         if (r.ok) {
           mensagem = '';
-          desenhar('#adicionar');
+          desenhar('#adicionar', true);
           abrirGaveta();
           return;
         }
