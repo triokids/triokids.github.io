@@ -89,3 +89,13 @@ test('Area.html tem versão de computador (900px) sem mexer no celular', () => {
   // o celular não ganha regra nova de grade na lista fora da media query
   assert.doesNotMatch(fora, /auto-fill/);
 });
+
+test('Area.html ignora resposta de salvar de outra peça e mantém Salvar travado enquanto salva', () => {
+  const html = ler(AREA);
+  assert.match(html, /emFotos = false, salvando = false;/);
+  assert.match(html, /\$\(id\)\.disabled = emFotos \|\| \(id === 'btn-salvar' && salvando\)/);
+  const salvar = html.slice(html.indexOf("$('btn-salvar').addEventListener"), html.indexOf('function substituirPeca('));
+  assert.match(salvar, /var enviada = atual\.codigo/);
+  assert.match(salvar, /atual\.codigo !== enviada/);
+  assert.match(salvar, /substituirPeca\(r\.peca, false\)/);
+});

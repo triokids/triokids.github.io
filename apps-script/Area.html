@@ -254,7 +254,7 @@
   var passe = null;
   var pecas = [], categorias = [], colecoes = [];
   var filtro = 'todas', busca = '';
-  var atual = null, rascunho = null, modoArquivo = null, apagando = null, emFotos = false;
+  var atual = null, rascunho = null, modoArquivo = null, apagando = null, emFotos = false, salvando = false;
   var nova = { tamanhos: {}, arquivos: [] };
 
   // ---------- utilidades de DOM (texto sempre por textContent/value) ----------
@@ -318,7 +318,7 @@
       .withFailureHandler(function () { aoFalhar(); });
   }
   function sair(mensagem) {
-    passe = null; pecas = []; atual = null; rascunho = null;
+    passe = null; pecas = []; atual = null; rascunho = null; salvando = false;
     $('senha').value = '';
     ocupado($('btn-entrar'), '', 'Entrar', false);
     mostrarTela('entrar');
@@ -480,7 +480,7 @@
   }
   // Enquanto uma foto é enviada ou apagada, nada que mexa em fotos ou salve a peça fica ativo.
   function aplicarTravaFotos() {
-    ['btn-trocar', 'btn-salvar', 'btn-nova-cor'].forEach(function (id) { $(id).disabled = emFotos; });
+    ['btn-trocar', 'btn-salvar', 'btn-nova-cor'].forEach(function (id) { $(id).disabled = emFotos || (id === 'btn-salvar' && salvando); });
     Array.prototype.forEach.call(document.querySelectorAll('#galeria button, #confirmar-foto button'), function (b) { b.disabled = emFotos; });
   }
   function travarFotos(sim) { emFotos = sim; aplicarTravaFotos(); }
@@ -576,9 +576,15 @@
     var campos = camposAlterados();
     if (!Object.keys(campos).length) { aviso('aviso-editar', 'Nada para salvar.', 'info'); return; }
     aviso('aviso-editar', '', 'ok');
+    var enviada = atual.codigo;
+    salvando = true;
     ocupado(botao, 'Salvando...', 'Salvar alterações', true);
     servidor(function (r) {
+      salvando = false;
       ocupado(botao, '', 'Salvar alterações', false);
+      aplicarTravaFotos();
+      // A pessoa já abriu outra peça: só a lista local é atualizada, a edição aberta não é tocada.
+      if (!atual || atual.codigo !== enviada) { if (r.ok && r.peca) substituirPeca(r.peca, false); return; }
       if (!r.ok) { aviso('aviso-editar', r.mensagem || 'Não consegui salvar.', 'erro'); return; }
       if (!r.peca) { recarregarComAviso('aviso-lista', r.mensagem || 'Salvo!'); return; }
       substituirPeca(r.peca);
@@ -588,12 +594,14 @@
       desenharChaves();
       aviso('aviso-editar', r.mensagem || 'Salvo!', 'ok');
     }, function () {
+      salvando = false;
       ocupado(botao, '', 'Salvar alterações', false);
-      aviso('aviso-editar', MSG_REDE, 'erro');
-    }).salvarPeca(passe, atual.codigo, campos);
+      aplicarTravaFotos();
+      if (atual && atual.codigo === enviada) aviso('aviso-editar', MSG_REDE, 'erro');
+    }).salvarPeca(passe, enviada, campos);
   });
   // Mantém a lista local igual à planilha: a peça salva e os 4 campos que valem para todas as cores.
-  function substituirPeca(salva) {
+  function substituirPeca(salva, abrir) {
     var nome = chaveNome(salva.nome);
     pecas = pecas.map(function (p) {
       if (p.codigo === salva.codigo) return salva;
@@ -603,7 +611,7 @@
       c.categoria = salva.categoria; c.colecao = salva.colecao; c.descricao = salva.descricao; c.destaque = salva.destaque;
       return c;
     });
-    atual = salva;
+    if (abrir !== false) atual = salva;
     lembrarNomes(salva);
   }
 
