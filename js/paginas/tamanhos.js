@@ -23,6 +23,7 @@ const erro = $('calc-erro');
 const resultado = $('calc-resultado');
 
 for (const o of IDADES) idade.add(new Option(o.rotulo, o.valor));
+$('guia-whats').href = linkWhatsApp(CONFIG.whatsapp, `Olá, ${CONFIG.vendedora}! Estou no guia de tamanhos e fiquei com uma dúvida.`);
 
 function nota(texto) {
   const li = document.createElement('li');

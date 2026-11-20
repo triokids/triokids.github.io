@@ -20,22 +20,30 @@
 <body data-pagina="tamanhos">
   <main id="conteudo" tabindex="-1">
   <section class="guia">
-    <h1 class="titulo-pagina">Guia de tamanhos</h1>
+    <header class="guia-topo">
+      <h1 class="titulo-pagina">Guia de tamanhos</h1>
+      <p class="guia-lede">Aqui o tamanho vai pela <strong>altura da criança</strong>, não pela idade. Meça, calcule e escolha sem medo.</p>
+    </header>
 
-    <section class="calc" aria-labelledby="calc-titulo">
+    <section class="calc guia-bloco" aria-labelledby="calc-titulo">
       <p class="calc-rotulo">Calculadora de tamanho</p>
       <h2 id="calc-titulo" class="calc-titulo">Descubra o tamanho certo em segundos</h2>
-      <p class="calc-sub">Aqui quem decide o tamanho é a altura da criança. Conte a estatura e a idade e a gente sugere o tamanho.</p>
+      <p class="calc-sub">Informe a estatura e, se quiser, a idade. A gente sugere o tamanho.</p>
       <form id="calc-form" class="calc-form" novalidate>
         <div class="calc-campo">
-          <label for="calc-estatura">Estatura <span class="calc-unidade">(em cm)</span></label>
-          <input id="calc-estatura" name="estatura" type="number" inputmode="decimal" min="40" max="150" step="0.5" placeholder="Ex.: 74" required aria-describedby="calc-erro">
+          <label for="calc-estatura">Estatura</label>
+          <div class="calc-caixa calc-caixa-cm">
+            <input id="calc-estatura" name="estatura" type="number" inputmode="decimal" min="40" max="150" step="0.5" placeholder="Ex.: 74" required aria-describedby="calc-erro">
+            <span class="calc-sufixo" aria-hidden="true">cm</span>
+          </div>
         </div>
         <div class="calc-campo">
           <label for="calc-idade">Idade <span class="calc-unidade">(opcional)</span></label>
-          <select id="calc-idade" name="idade">
-            <option value="">Selecione</option>
-          </select>
+          <div class="calc-caixa calc-caixa-seta">
+            <select id="calc-idade" name="idade">
+              <option value="">Selecione</option>
+            </select>
+          </div>
         </div>
         <button type="submit" class="botao calc-botao">Descobrir o tamanho</button>
       </form>
@@ -54,35 +62,47 @@
       </div>
     </section>
 
-    <section class="medir" aria-labelledby="medir-titulo">
-      <h2 id="medir-titulo">Como medir a altura em casa</h2>
-      <ol>
-        <li>Tire os sapatos da criança e encoste ela de costas numa parede, com os calcanhares juntinhos da parede.</li>
-        <li>Deite um livro reto em cima da cabeça, encostado na parede, e faça um risquinho de lápis embaixo dele.</li>
-        <li>Meça com a fita métrica do chão até o risquinho. Esse número é a estatura.</li>
+    <section class="guia-bloco medir" aria-labelledby="medir-titulo">
+      <p class="calc-rotulo">Passo a passo</p>
+      <h2 id="medir-titulo" class="bloco-titulo">Como medir a altura em casa</h2>
+      <ol class="passos">
+        <li><span class="passo-num" aria-hidden="true">1</span><p><strong>Na parede.</strong> Criança descalça, de costas, com os calcanhares encostados na parede.</p></li>
+        <li><span class="passo-num" aria-hidden="true">2</span><p><strong>Livro na cabeça.</strong> Apoie um livro reto no alto da cabeça e faça um risquinho de lápis embaixo dele.</p></li>
+        <li><span class="passo-num" aria-hidden="true">3</span><p><strong>Fita métrica.</strong> Meça do chão até o risquinho. Esse número é a estatura.</p></li>
       </ol>
-      <p><strong>Bebê que ainda não fica em pé?</strong> Meça deitado, com as perninhas esticadas, do alto da cabeça até o calcanhar.</p>
+      <p class="aviso-bebe"><strong>Bebê que ainda não fica em pé?</strong> Meça deitado, com as perninhas esticadas, do alto da cabeça até o calcanhar.</p>
     </section>
 
-    <h2 class="guia-subtitulo">Tabela de medidas</h2>
-    <p class="guia-texto">A estatura é o <strong>limite máximo</strong> de cada tamanho: passou do limite, vá para o tamanho seguinte.</p>
-    <div class="tabela-rolagem" role="region" aria-label="Tabela de medidas, role para o lado para ver todas as colunas" tabindex="0">
-      <table class="tabela-medidas">
-        <caption>Medidas por tamanho (em cm)</caption>
-        <thead><tr><th scope="col">Tamanho</th><th scope="col">Idade</th><th scope="col">Estatura</th><th scope="col">Tórax</th><th scope="col">Cintura</th><th scope="col">Quadril</th></tr></thead>
-        <tbody>
-          <tr><th scope="row">P</th><td>2–4 meses</td><td>até 62 cm</td><td>42–44</td><td>30–41</td><td>42–44</td></tr>
-          <tr><th scope="row">M</th><td>3–6 meses</td><td>até 68 cm</td><td>44–46</td><td>41–43</td><td>44–46</td></tr>
-          <tr><th scope="row">G</th><td>6–9 meses</td><td>até 73 cm</td><td>46–48</td><td>43–44</td><td>46–48</td></tr>
-          <tr><th scope="row">01</th><td>9–12 meses</td><td>até 80 cm</td><td>48–50</td><td>45–48</td><td>48–50</td></tr>
-          <tr><th scope="row">02</th><td>12–24 meses</td><td>até 90 cm</td><td>50–53</td><td>48–52</td><td>50–54</td></tr>
-          <tr><th scope="row">03 e 04</th><td>3–4 anos</td><td>até 103 cm</td><td>54–57</td><td>52–56</td><td>55–61</td></tr>
-          <tr><th scope="row">06</th><td>5–6 anos</td><td>até 116 cm</td><td>58–61</td><td>56–58</td><td>61–65</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="dica"><strong>Dica com carinho:</strong> crianças da mesma idade podem ter alturas bem diferentes, por isso vá pela estatura e não pela idade.</p>
-    <a class="botao" href="catalogo.html">Ver o catálogo</a>
+    <section class="guia-bloco" aria-labelledby="tabela-titulo">
+      <p class="calc-rotulo">Referência</p>
+      <h2 id="tabela-titulo" class="bloco-titulo">Tabela de medidas</h2>
+      <p class="bloco-sub">A estatura é o <strong>limite máximo</strong> de cada tamanho. Passou do limite? Vá para o tamanho seguinte.</p>
+      <div class="tabela-rolagem" role="region" aria-label="Tabela de medidas, role para o lado para ver todas as colunas" tabindex="0">
+        <table class="tabela-medidas">
+          <caption class="sr-only">Medidas por tamanho (em cm)</caption>
+          <thead><tr><th scope="col">Tamanho</th><th scope="col">Idade</th><th scope="col" class="col-destaque">Estatura</th><th scope="col">Tórax</th><th scope="col">Cintura</th><th scope="col">Quadril</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">P</th><td>2–4 meses</td><td class="col-destaque">até 62 cm</td><td>42–44</td><td>30–41</td><td>42–44</td></tr>
+            <tr><th scope="row">M</th><td>3–6 meses</td><td class="col-destaque">até 68 cm</td><td>44–46</td><td>41–43</td><td>44–46</td></tr>
+            <tr><th scope="row">G</th><td>6–9 meses</td><td class="col-destaque">até 73 cm</td><td>46–48</td><td>43–44</td><td>46–48</td></tr>
+            <tr><th scope="row">01</th><td>9–12 meses</td><td class="col-destaque">até 80 cm</td><td>48–50</td><td>45–48</td><td>48–50</td></tr>
+            <tr><th scope="row">02</th><td>12–24 meses</td><td class="col-destaque">até 90 cm</td><td>50–53</td><td>48–52</td><td>50–54</td></tr>
+            <tr><th scope="row">03 e 04</th><td>3–4 anos</td><td class="col-destaque">até 103 cm</td><td>54–57</td><td>52–56</td><td>55–61</td></tr>
+            <tr><th scope="row">06</th><td>5–6 anos</td><td class="col-destaque">até 116 cm</td><td>58–61</td><td>56–58</td><td>61–65</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="dica"><strong>Dica com carinho:</strong> as medidas da tabela são do corpo da criança, não da roupa. Meça com a fita encostada, sem apertar.</p>
+    </section>
+
+    <section class="guia-fim" aria-labelledby="fim-titulo">
+      <h2 id="fim-titulo" class="bloco-titulo">Achou o tamanho?</h2>
+      <p>Agora é só escolher a peça. Se ainda ficou dúvida, a gente ajuda pelo WhatsApp.</p>
+      <div class="guia-fim-acoes">
+        <a class="botao" href="catalogo.html">Ver o catálogo</a>
+        <a id="guia-whats" class="botao botao-whats" href="https://wa.me/" target="_blank" rel="noopener">Falar no WhatsApp</a>
+      </div>
+    </section>
   </section>
 </main>
   <script type="module" src="js/paginas/tamanhos.js"></script>
