@@ -22,7 +22,7 @@
 - Preço em tela: `R$ 139,90` (formato pt-BR, duas casas).
 - Textos do site em português do Brasil.
 - Mensagem do WhatsApp exatamente no formato da seção 5.5 da spec, com a linha de campanha da seção 5.8.
-- Testes: `npm test` (= `node --test tests/`). Cada task termina com todos os testes passando.
+- Testes: `npm test` (= `node --test`, que descobre `tests/*.test.js`). Cada task termina com todos os testes passando.
 - Commits por caminho explícito (`git add <arquivos>`), nunca `git add .`.
 
 ## Review Focus
@@ -76,7 +76,7 @@ docs/guia-do-dono.md
 // Catalogo = { pecas: Peca[] /* só ativas */, config: { whatsapp, descontoCampanha, avisoTopo },
 //              campanha: string[] /* parágrafos */ }
 
-// ItemCarrinho = { codigo, tamanho, quantidade }
+// ItemCarrinho = { codigo, tamanho, quantidade, precoVisto: number }
 ```
 
 ---
@@ -88,9 +88,9 @@ docs/guia-do-dono.md
 - Test: `tests/csv.test.js`
 
 **Interfaces:**
-- Produces: `parseCsv(texto: string) -> string[][]`; `parsePreco(valor: string) -> number | null`; `formatarPreco(n: number) -> string`; `export const CONFIG` em `config.js` com `{ csv: { pecas, config, campanha }, reserva: 'catalogo.json', whatsapp: '5562993379366', vendedora: 'Anne', instagram: 'triokid_s', descontoCampanha: 10, chaveCache: 'triokids:catalogo', chaveCarrinho: 'triokids:carrinho' }` (URLs de CSV como string vazia com comentário "preencher após publicar a planilha").
+- Produces: `parseCsv(texto: string) -> string[][]`; `parsePreco(valor: string) -> number | null`; `formatarPreco(n: number) -> string`; `export const CONFIG` em `config.js` com `{ csv: { pecas, config, campanha }, reserva: 'catalogo.json', whatsapp: '5562993379366', vendedora: 'Anne', instagram: 'triokid_s', descontoCampanha: 10, chaveCache: 'triokids:catalogo', chaveCarrinho: 'triokids:carrinho', githubDono: 'triokids', githubRepo: 'triokids.github.io', urlSite: 'https://triokids.github.io/' }` (URLs de CSV como string vazia com comentário "preencher após publicar a planilha").
 
-- [ ] **Step 1:** `git init` na raiz `loja-roupa-infantil/`; `.gitignore` com `node_modules/`, `_rodadas/`, `*.local.*`; `package.json` com `{"name":"trio-kids","private":true,"type":"module","scripts":{"test":"node --test tests/"}}`.
+- [ ] **Step 1:** o repositório git já existe (branch `feat/site`); acrescentar ao `.gitignore` existente `node_modules/` e `*.local.*`; `package.json` com `{"name":"trio-kids","private":true,"type":"module","scripts":{"test":"node --test"}}`.
 - [ ] **Step 2: Testes que falham** em `tests/csv.test.js`:
 
 ```js
@@ -106,7 +106,8 @@ assert.equal(parsePreco('R$ 1.139,90'), 1139.9);
 assert.equal(parsePreco(''), null);
 assert.equal(parsePreco('abc'), null);
 assert.equal(formatarPreco(125.91), 'R$ 125,91');
-assert.equal(formatarPreco(1139.9), 'R$ 1.139,90');
+assert.equal(formatarPreco(1139.9), 'R$ 1.139,90');   // espaço comum, nunca NBSP
+assert.ok(!formatarPreco(1).includes('\u00a0'));
 ```
 
 - [ ] **Step 3:** Rodar `npm test` → FAIL (módulo inexistente).
@@ -206,13 +207,15 @@ assert.deepEqual(tamanhosDisponiveis(clara), ['1','2','4','6']);  // 6 vem da co
 - Consumes: `Catalogo`, `Variante`.
 - Produces:
   - `criarCarrinho(armazenamento, chave) -> { itens(): ItemCarrinho[], adicionar(codigo, tamanho, qtd, catalogo) -> {ok:boolean, motivo?: 'sem-tamanho'|'esgotado'|'limite'}, alterar(codigo, tamanho, qtd, catalogo), remover(codigo, tamanho), limpar(), aoMudar(fn) }` — persiste em JSON a cada mudança (try/catch; sem armazenamento funciona só em memória).
-  - `revalidarItens(itens, catalogo) -> Array<ItemCarrinho & { variante?, peca?, situacao: 'ok'|'removida'|'esgotado'|'reduzido', precoUnit?: number }>` — `reduzido` limita a quantidade ao estoque.
-  - `encontrarVariante(catalogo, codigo) -> { peca, variante } | null`.
+  - `revalidarItens(itens, catalogo) -> Array<ItemCarrinho & { variante?, peca?, situacao: 'ok'|'removida'|'esgotado'|'reduzido'|'preco-mudou', precoUnit?: number }>` — `reduzido` limita a quantidade ao estoque; `preco-mudou` quando `precoVisto` difere do preço atual (o item segue válido para o pedido, com o preço atual).
+  - `totalDosItens(itensRevalidados) -> number` — soma `precoUnit × quantidade` dos itens com situação `ok`, `reduzido` ou `preco-mudou`; usado pela gaveta (Task 8) e pela mensagem (Task 6).
+  - `encontrarVariante(catalogo, codigo) -> { peca, variante } | null` (sempre nessa ordem de argumentos).
+- O acesso ao `localStorage` padrão fica dentro de try/catch (pode lançar no próprio acesso).
 
 - [ ] **Step 1: Testes que falham:**
   - adicionar 1x tamanho 4 → `ok`; adicionar o mesmo de novo soma; passar do estoque → `{ok:false, motivo:'limite'}` e quantidade fica no estoque;
   - tamanho inexistente → `sem-tamanho`; tamanho com 0 → `esgotado`;
-  - carrinho salvo com código que sumiu → `removida`; estoque caiu de 2 para 1 com qtd 2 → `reduzido` e quantidade 1; estoque 0 → `esgotado`; preço vem sempre do catálogo atual;
+  - carrinho salvo com código que sumiu → `removida`; estoque caiu de 2 para 1 com qtd 2 → `reduzido` e quantidade 1; estoque 0 → `esgotado`; preço vem sempre do catálogo atual; `precoVisto` 139,90 e preço atual 129,90 → `preco-mudou` com `precoUnit` 129,90; `totalDosItens` ignora `removida` e `esgotado`;
   - JSON corrompido no armazenamento → carrinho vazio, sem exceção.
 - [ ] **Step 2–4:** FAIL → implementar → PASS.
 - [ ] **Step 5:** Commit `feat: carrinho com persistência e revalidação`.
@@ -224,8 +227,8 @@ assert.deepEqual(tamanhosDisponiveis(clara), ['1','2','4','6']);  // 6 vem da co
 - Test: `tests/whatsapp.test.js`
 
 **Interfaces:**
-- Consumes: `revalidarItens` (Task 5), `formatarPreco` (Task 1), `precoComCampanha` (Task 4).
-- Produces: `montarMensagem({ vendedora, itens /* revalidados, só situacao ok|reduzido */, nome, cidade, querCampanha, descontoCampanha }) -> string`; `linkWhatsApp(numero: string, mensagem: string) -> string` (`https://wa.me/<numero>?text=<encodeURIComponent>`); `podeFinalizar({ itens, nome, cidade }) -> boolean` (nome e cidade com texto após trim, ao menos um item válido).
+- Consumes: `revalidarItens`, `totalDosItens` (Task 5), `formatarPreco` (Task 1), `precoComCampanha` (Task 4).
+- Produces: `montarMensagem({ vendedora, itens /* revalidados, só situacao ok|reduzido|preco-mudou */, nome, cidade, querCampanha, descontoCampanha }) -> string`; `linkWhatsApp(numero: string, mensagem: string) -> string` (`https://wa.me/<numero>?text=<encodeURIComponent>`); `podeFinalizar({ itens, nome, cidade }) -> boolean` (nome e cidade com texto após trim, ao menos um item válido).
 
 Formato exato (cor entre parênteses só quando a variante tem cor; subtotal entre parênteses só quando qtd > 1):
 
@@ -279,7 +282,7 @@ Fonte: `../Catalogo_Trio_Kids_Linha_Petit_Tabela_Divertida.pdf` (caminho passado
 | camisa-arthur | Camisa Arthur | | Camisa | 49,90 | 2:2 4:2 6:2 | 16 |
 | short-moletinho | Short Moletinho | | Shorts | 45,50 | 2:2 4:2 | 17 |
 
-Todas: coleção `Linha Petit`, ativo `sim`, campanha `sim`, destaque `sim` nas 8 primeiras, descrição vazia. Tamanhos não listados ficam vazios. Fotos: imagens embutidas das páginas indicadas com lado maior ≥ 500 px, em ordem de aparição, salvas como `fotos/<codigo>-N.jpg` reduzidas a 1600 px no lado maior, JPEG qualidade 80; a página 6 alimenta as duas cores do Vestido Clara; coluna `fotos` = quantidade salva. Logo: a imagem da página 1 que contém o cabide (a que fica no topo; menor que 500 px de largura), salva em `img/logo.png` — conferir visualmente. Config: `whatsapp,5562993379366`; `desconto_campanha,10`; `aviso_topo,` vazio. Campanha: 3 parágrafos provisórios marcados "[texto provisório — a Anne substitui na planilha]" descrevendo: doe uma peça infantil em bom estado; ganha 10% nas peças participantes; a entrega da doação é combinada pelo WhatsApp.
+Todas: coleção `Linha Petit`, ativo `sim`, campanha `sim`, destaque `sim` nas 9 primeiras linhas (= 8 peças, porque o Vestido Clara ocupa 2), descrição vazia. Tamanhos não listados ficam vazios. Fotos: imagens embutidas das páginas indicadas com lado maior ≥ 500 px, em ordem de aparição, salvas como `fotos/<codigo>-N.jpg` reduzidas a 1600 px no lado maior, JPEG qualidade 80; a página 6 alimenta as duas cores do Vestido Clara; coluna `fotos` = quantidade salva. Logo: a imagem da página 1 que contém o cabide (a que fica no topo; menor que 500 px de largura), salva em `img/logo.png` — conferir visualmente. Config: `whatsapp,5562993379366`; `desconto_campanha,10`; `aviso_topo,` vazio. Campanha: 3 parágrafos provisórios marcados "[texto provisório — a Anne substitui na planilha]" descrevendo: doe uma peça infantil em bom estado; ganha 10% nas peças participantes; a entrega da doação é combinada pelo WhatsApp.
 
 - [ ] **Step 1: Teste que falha** em `tests/dados-iniciais.test.js`: lê `catalogo.json`, passa por `montarCatalogo` e confere 14 peças, Vestido Clara com 2 variantes, Jardineira com `{'2':2,'3':1}`, todo `fotos/<codigo>-1.jpg` de variante com `fotos ≥ 1` existe em disco, `whatsapp === '5562993379366'`.
 - [ ] **Step 2:** `npm test` → FAIL.
@@ -297,18 +300,19 @@ Todas: coleção `Linha Petit`, ativo `sim`, campanha `sim`, destaque `sim` nas 
 - Consumes: Tasks 1–6.
 - Produces (em `js/ui/html.js`, todas puras, retornam string):
   - `esc(texto) -> string` (escapa `& < > " '`);
+  - `urlFoto(codigo, n) -> string` — `fotos/<codigo>-<n>.jpg`; **única** função que monta caminho de foto (ADR-001); a Task 10 usa esta.
   - `htmlTituloColorido(texto) -> string` (cada letra não-espaço num `<span>` com classe `c1`…`c5` em ciclo; espaços preservados; `aria-label` com o texto inteiro);
   - `htmlPontinhos() -> string`;
   - `htmlCartao(peca, descontoCampanha) -> string` (link `peca.html?c=<id>`, primeira foto da primeira variante ou marcador com logo, nome, preço ou "a partir de", preço com a campanha quando alguma variante participa, pílulas de `tamanhosDisponiveis`, selo "esgotado");
   - `htmlItemCarrinho(itemRevalidado) -> string`;
   - `htmlFaixaReserva() -> string`.
-- Produces (em `js/ui/layout.js`): `montarLayout({ pagina: string }) -> Promise<{ catalogo, carrinho, origem }>` — injeta cabeçalho (logo, nome, link Instagram, ícone do carrinho com contador), menu (Início, Catálogo, Trio Kids Abraça, Guia de tamanhos, Sobre), rodapé (frase de marca, Instagram, faixa de 5 cores), botão flutuante do WhatsApp (sem texto pré-preenchido), faixa de reserva quando `origem !== 'planilha'`, `aviso_topo` quando houver, e a gaveta do carrinho (lista revalidada, campos nome e cidade, caixa da campanha com link para `campanha.html`, botão "Finalizar pelo WhatsApp" desabilitado até `podeFinalizar`). Se `carregarCatalogo` rejeitar, mostra "Não conseguimos carregar o catálogo agora. Fale com a Anne no WhatsApp." com o botão.
+- Produces (em `js/ui/layout.js`): `montarLayout({ pagina: string }) -> Promise<{ catalogo, carrinho, origem, abrirGaveta: () => void }>` — injeta cabeçalho (logo, nome, link Instagram, ícone do carrinho com contador), menu (Início, Catálogo, Trio Kids Abraça, Guia de tamanhos, Sobre), rodapé (frase de marca, Instagram, faixa de 5 cores), botão flutuante do WhatsApp (sem texto pré-preenchido), faixa de reserva quando `origem !== 'planilha'`, `aviso_topo` quando houver, e a gaveta do carrinho (lista revalidada, campos nome e cidade, caixa da campanha com link para `campanha.html`, botão "Finalizar pelo WhatsApp" desabilitado até `podeFinalizar`). Se `carregarCatalogo` rejeitar, mostra "Não conseguimos carregar o catálogo agora. Fale com a Anne no WhatsApp." com o botão.
 
-CSS: tokens em `:root` com as cores das Global Constraints; cartões `border-radius: 18px`; bloco de preço pêssego `#fde3d6`; bloco campanha menta `#e1efe5`; pílulas de tamanho; tamanho esgotado riscado; layout primeiro para celular (grade de 2 colunas em ≤ 600 px, 3 até 960 px, 4 acima); foco visível; contraste AA para texto corrido; `<meta property="og:*">` genéricos com logo e nome da loja em todas as páginas.
+CSS: tokens em `:root` com as cores das Global Constraints; cartões `border-radius: 18px`; bloco de preço pêssego `#fde3d6`; bloco campanha menta `#e1efe5`; pílulas de tamanho; tamanho esgotado riscado; layout primeiro para celular (grade de 2 colunas em ≤ 600 px, 3 até 960 px, 4 acima); foco visível; contraste AA para texto corrido; `<meta property="og:*">` genéricos com nome da loja e `og:image` absoluto `https://triokids.github.io/img/logo.png` em todas as páginas. A gaveta usa `totalDosItens` (Task 5) e mostra aviso por item `removida`/`esgotado`/`reduzido`/`preco-mudou`.
 
 Início (`index.html` + `inicio.js`): logo e "Pequenos looks, grandes histórias."; banner Linha Petit ("Do minimalista ao divertido"); faixa Trio Kids Abraça com link; atalhos de categoria (`catalogo.html?categoria=Vestido`…) e de tamanho (`catalogo.html?tamanho=4`); grade de `destaques`.
 
-- [ ] **Step 1: Testes que falham:** `esc('<b>"&\'')` → `'&lt;b&gt;&quot;&amp;&#39;'`; `htmlCartao` de peça com nome `Body <script>` não contém `<script>`; `htmlCartao` de peça esgotada contém `esgotado`; cartão de peça com campanha contém `R$ 125,91` para 139,90; `htmlTituloColorido('Ab c')` tem 3 spans e um espaço.
+- [ ] **Step 1: Testes que falham:** `urlFoto('conjunto-joab', 2)` → `'fotos/conjunto-joab-2.jpg'`; `htmlItemCarrinho` de item com nome `<b>` sai escapado; `esc('<b>"&\'')` → `'&lt;b&gt;&quot;&amp;&#39;'`; `htmlCartao` de peça com nome `Body <script>` não contém `<script>`; `htmlCartao` de peça esgotada contém `esgotado`; cartão de peça com campanha contém `R$ 125,91` para 139,90; `htmlTituloColorido('Ab c')` tem 3 spans e um espaço.
 - [ ] **Step 2–4:** FAIL → implementar → PASS.
 - [ ] **Step 5:** Verificação manual: `python -m http.server 8080` na raiz, abrir `http://localhost:8080/` em largura 390 px e 1280 px; com URLs de CSV vazias a página deve mostrar a faixa de reserva e os destaques do `catalogo.json`. Tirar print das duas larguras e anexar ao relatório.
 - [ ] **Step 6:** Commit `feat: identidade visual, layout comum e página inicial`.
@@ -316,16 +320,16 @@ Início (`index.html` + `inicio.js`): logo e "Pequenos looks, grandes histórias
 ### Task 9: Página de catálogo
 
 **Files:**
-- Create: `catalogo.html`, `js/paginas/catalogo.js`; Modify: `js/ui/html.js` (função `htmlFiltros`)
+- Create: `catalogo.html`, `js/paginas/catalogo.js` (só liga ao DOM), `js/loja/filtros-url.js` (puro); Modify: `js/ui/html.js` (função `htmlFiltros`)
 - Test: `tests/catalogo-pagina.test.js`
 
 **Interfaces:**
 - Consumes: `montarLayout` (Task 8), `filtrarPecas`, `ordenarPecas` (Task 4), `htmlCartao` (Task 8).
-- Produces: `lerFiltrosDaUrl(search: string) -> { categoria?, tamanho?, precoMin?, precoMax?, ordem }` e `filtrosParaUrl(filtros) -> string` em `js/paginas/catalogo.js` (exportadas para teste); `htmlFiltros(categorias, filtros) -> string`.
+- Produces: `lerFiltrosDaUrl(search: string) -> { categoria?, tamanho?, precoMin?, precoMax?, ordem }` e `filtrosParaUrl(filtros) -> string` em `js/loja/filtros-url.js` (módulo puro; os testes nunca importam `js/paginas/*`), mais `esgotadasNoFim(pecas) -> Peca[]`; `htmlFiltros(categorias, filtros) -> string`.
 
 Comportamento: filtros (categoria, tamanho, faixa de preço) e ordenação refletidos na URL (link compartilhável, voltar do navegador funciona); contador "N peças"; estado vazio "Nenhuma peça com esses filtros" com botão limpar; peças esgotadas vão para o fim da lista.
 
-- [ ] **Step 1: Testes que falham:** `lerFiltrosDaUrl('?categoria=Vestido&tamanho=4')` → `{categoria:'Vestido', tamanho:'4', ordem:'novidades'}`; ida e volta `lerFiltrosDaUrl(filtrosParaUrl(f))` preserva `f`; parâmetro desconhecido ignorado; `precoMin=abc` ignorado.
+- [ ] **Step 1: Testes que falham:** `esgotadasNoFim` mantém a ordem e põe as esgotadas no fim; `lerFiltrosDaUrl('?categoria=Vestido&tamanho=4')` → `{categoria:'Vestido', tamanho:'4', ordem:'novidades'}`; ida e volta `lerFiltrosDaUrl(filtrosParaUrl(f))` preserva `f`; parâmetro desconhecido ignorado; `precoMin=abc` ignorado.
 - [ ] **Step 2–4:** FAIL → implementar → PASS.
 - [ ] **Step 5:** Verificação manual em 390 px: filtrar por tamanho 3 mostra só a Jardineira Antonella.
 - [ ] **Step 6:** Commit `feat: página de catálogo com filtros`.
@@ -342,7 +346,7 @@ Comportamento: filtros (categoria, tamanho, faixa de preço) e ordenação refle
 
 Comportamento: lê `?c=<codigo>`; código inexistente → mensagem "Peça não encontrada" com link ao catálogo; troca de cor faz `history.replaceState` para o código da cor e redesenha galeria e tamanhos; quantidade de 1 até o estoque do tamanho; "Adicionar ao carrinho" desabilitado sem tamanho escolhido; ao adicionar, abre a gaveta; mostra motivo de recusa (`limite`: "Só temos N no tamanho X"); bloco de preço pêssego e bloco "com a Trio Kids Abraça" (link para `campanha.html`) quando a variante participa; link "Qual tamanho escolher?" para `tamanhos.html`; "Combina com": até 4 outras peças da mesma coleção, não esgotadas.
 
-- [ ] **Step 1: Testes que falham:** seletor de tamanho da variante safira tem botões 2, 4, 6 nessa ordem, 6 `disabled`; variante com estoque 1 mostra "última unidade"; `htmlSeletorCor` de peça com 1 variante devolve `''`; galeria com `fotos: 0` contém o marcador.
+- [ ] **Step 1: Testes que falham:** seletor de tamanho da variante safira tem botões 2, 4, 6 nessa ordem, 6 `disabled`; variante com estoque 1 mostra "última unidade"; `htmlSeletorCor` de peça com 1 variante devolve `''`; galeria com `fotos: 0` contém o marcador; galeria usa `urlFoto` (Task 8).
 - [ ] **Step 2–4:** FAIL → implementar → PASS.
 - [ ] **Step 5:** Verificação manual: Vestido Clara, trocar para Safira, escolher 2, adicionar, finalizar com nome e cidade; conferir que o link aberto tem a mensagem do formato da Task 6.
 - [ ] **Step 6:** Commit `feat: página da peça`.
@@ -355,7 +359,7 @@ Comportamento: lê `?c=<codigo>`; código inexistente → mensagem "Peça não e
 
 **Interfaces:**
 - Consumes: `montarLayout`, `Catalogo.campanha`, `Catalogo.config.descontoCampanha`, `esc`.
-- Produces: `htmlCampanha(paragrafos: string[], desconto: number) -> string`.
+- Produces: `htmlCampanha(paragrafos: string[], desconto: number) -> string` em `js/ui/html.js` (puro; testes não importam `js/paginas/*`).
 
 Campanha: título colorido "Trio Kids Abraça", "DOE • CUIDE • COMPARTILHE", selo "{desconto}% de desconto", parágrafos da aba Campanha (escapados; linha começando com `- ` vira item de lista), chamada para o catálogo. Sem parágrafos → "As regras da campanha estão sendo atualizadas. Fale com a Anne no WhatsApp." Guia: tabela da seção 5.2 da spec, com rolagem horizontal no celular, e "Dica com carinho: compare a estatura da criança com a tabela." Sobre: "Três histórias, um amor que veste infância." + texto curto "Moda infantil com delicadeza, conforto e personalidade." (do PDF, pág. 18) + Instagram.
 
@@ -373,12 +377,13 @@ Campanha: título colorido "Trio Kids Abraça", "DOE • CUIDE • COMPARTILHE",
 **Interfaces:**
 - Produces (funções globais, sem `import`/`export`, compatíveis com Apps Script V8):
   - `proximosNomesFotos(codigo, fotosAtuais, quantidade, trocar) -> { criar: string[], apagar: string[] }` — acrescentar: `fotos/<codigo>-(atual+1..)`; trocar: cria de `-1` e apaga os excedentes `-(n+1)..-(atual)`;
-  - `validarEnvio({ senhaInformada, senhaCerta, codigo, codigosValidos, arquivos: [{ tipo, base64 }] }) -> { ok, erro?: 'senha' | 'codigo' | 'sem-arquivo' | 'tipo' | 'grande' }` — tipo deve começar com `image/jpeg`; base64 > 2.000.000 caracteres → `grande`; no máximo 8 arquivos;
-  - `registrarErroSenha(contagem: number) -> { contagem, bloqueado: boolean }` — bloqueia em 5;
-  - `tabelasParaReserva(pecas, config, campanha, agoraIso) -> string` (JSON do `catalogo.json`, chaves `geradoEm, pecas, config, campanha`);
+  - `validarEnvio({ bloqueado, senhaInformada, senhaCerta, codigo, codigosValidos, arquivos: [{ tipo, base64 }] }) -> { ok, erro?: 'bloqueado' | 'senha' | 'codigo' | 'sem-arquivo' | 'muitos' | 'tipo' | 'grande' }` — checa nessa ordem; tipo deve começar com `image/jpeg`; mais de 8 arquivos → `muitos`; base64 > 2.000.000 caracteres → `grande`;
+  - `registrarErroSenha(contagemAnterior: number) -> { contagem: number /* anterior + 1 */, bloqueado: boolean /* contagem >= 5 */ }`;
+  - `contarFotosNaArvore(caminhos: string[], codigo) -> number` — maior N entre `fotos/<codigo>-N.jpg` presentes na árvore do repositório (não confia na coluna `fotos` da planilha);
+  - `tabelasParaReserva(pecas, config, campanha, agoraIso) -> string` — recebe `string[][]` de `getDisplayValues()` (preço como `139,90`) (JSON do `catalogo.json`, chaves `geradoEm, pecas, config, campanha`);
   - `mesmoConteudoReserva(jsonA, jsonB) -> boolean` (ignora `geradoEm`).
 
-- [ ] **Step 1: Testes que falham:** `proximosNomesFotos('conjunto-joab', 2, 3, false).criar` → `['fotos/conjunto-joab-3.jpg','fotos/conjunto-joab-4.jpg','fotos/conjunto-joab-5.jpg']`; trocar com atual 4 e 2 novas → criar `-1,-2`, apagar `-3,-4`; senha errada → `senha`; código fora da lista → `codigo`; `image/png` → `tipo`; quarta tentativa errada não bloqueia, quinta bloqueia; `mesmoConteudoReserva` true quando só `geradoEm` difere.
+- [ ] **Step 1: Testes que falham:** `proximosNomesFotos('conjunto-joab', 2, 3, false).criar` → `['fotos/conjunto-joab-3.jpg','fotos/conjunto-joab-4.jpg','fotos/conjunto-joab-5.jpg']`; trocar com atual 4 e 2 novas → criar `-1,-2`, apagar `-3,-4`; senha errada → `senha`; código fora da lista → `codigo`; `image/png` → `tipo`; `registrarErroSenha(3)` → `{contagem:4, bloqueado:false}` e `registrarErroSenha(4)` → `{contagem:5, bloqueado:true}`; `bloqueado:true` → erro `bloqueado` mesmo com senha certa; 9 arquivos → `muitos`; `contarFotosNaArvore(['fotos/conjunto-joab-1.jpg','fotos/conjunto-joab-3.jpg','fotos/conjunto-joab-x.jpg','fotos/conjunto-joab-10.jpg'], 'conjunto-joab')` → 10; tabela com preço `'139,90'` vinda de `tabelasParaReserva` passa por `montarCatalogo` (Task 2) e dá 139.9; `mesmoConteudoReserva` true quando só `geradoEm` difere.
 - [ ] **Step 2–4:** FAIL → implementar → PASS.
 - [ ] **Step 5:** Commit `feat: lógica pura do formulário de fotos`.
 
@@ -392,7 +397,7 @@ Campanha: título colorido "Trio Kids Abraça", "DOE • CUIDE • COMPARTILHE",
 - Consumes: funções da Task 12.
 - Produces (globais): `doGet()`; `listarPecas() -> [{ codigo, rotulo /* nome + cor */ }]`; `enviarFotos({ senha, codigo, trocar, arquivos }) -> { ok, mensagem }`; `gerarReserva()`; `instalarGatilhoDiario()`.
 
-Regras: Script Properties obrigatórias `SENHA_FORMULARIO`, `GITHUB_TOKEN`, `GITHUB_DONO`, `GITHUB_REPO`, `GITHUB_BRANCH` (padrão `main`), `PLANILHA_ID`, `EMAIL_DONO`; ausente → mensagem clara na tela e nada é enviado. Contagem de erros de senha no `CacheService` por 1 hora. Commit único por envio pela Git Data API (ref → commit base → blobs → tree com criações e `sha: null` para apagar → commit "Fotos: <codigo>" → atualizar ref). Depois do commit: atualizar a coluna `fotos` da linha do código na planilha e chamar `gerarReserva()`. `gerarReserva()` lê as abas Peças, Config e Campanha, monta com `tabelasParaReserva` e só grava `catalogo.json` se `!mesmoConteudoReserva` com o atual (PUT na Contents API). Gatilho diário 6h chama `gerarReserva`; qualquer exceção em `enviarFotos` ou `gerarReserva` envia e-mail para `EMAIL_DONO` com o erro e devolve `{ ok:false, mensagem:'Não consegui enviar. Avise o dono.' }`. `Formulario.html`: identidade da loja (fontes, cores, logo por URL do site), seleção da peça numa lista vinda de `listarPecas`, campo de fotos (`accept="image/*"`, `multiple`, câmera ou galeria), caixa "trocar todas as fotos desta peça", senha, botão enviar; reduz cada foto em canvas para no máximo 1600 px no lado maior, JPEG 0,8, antes de enviar; mostra progresso e o resultado ("Enviado! Aparece no site em alguns minutos."). `appsscript.json`: `timeZone` `America/Sao_Paulo`, `runtimeVersion` `V8`, `webapp` `executeAs: USER_DEPLOYING`, `access: ANYONE_ANONYMOUS`, escopos de planilha, `script.external_request`, `script.send_mail`, `script.scriptapp`.
+Regras: Script Properties obrigatórias `SENHA_FORMULARIO`, `GITHUB_TOKEN`, `GITHUB_DONO`, `GITHUB_REPO`, `GITHUB_BRANCH` (padrão `main`), `PLANILHA_ID`, `EMAIL_DONO`; ausente → mensagem clara na tela e nada é enviado. Contagem de erros de senha no `CacheService` por 1 hora. Commit único por envio pela Git Data API (ref → commit base → árvore atual para `contarFotosNaArvore` → blobs → tree com as fotos criadas, `sha: null` para apagar **e o `catalogo.json` atualizado na mesma árvore** → commit "Fotos: <codigo>" → atualizar ref): um envio = um build. Antes de montar o `catalogo.json` do commit, gravar na coluna `fotos` da linha do código o novo total. Abas lidas sempre com `getDisplayValues()`. Script Property `URL_SITE` (padrão `https://<GITHUB_DONO>.github.io/`) dá a URL absoluta do logo no formulário. `gerarReserva()` (gatilho diário) lê as abas Peças, Config e Campanha, monta com `tabelasParaReserva` e só grava `catalogo.json` se `!mesmoConteudoReserva` com o atual (PUT na Contents API). Gatilho diário 6h chama `gerarReserva`; qualquer exceção em `enviarFotos` ou `gerarReserva` envia e-mail para `EMAIL_DONO` com o erro e devolve `{ ok:false, mensagem:'Não consegui enviar. Avise o dono.' }`. `Formulario.html`: identidade da loja (fontes, cores, logo por URL do site), seleção da peça numa lista vinda de `listarPecas`, campo de fotos (`accept="image/*"`, `multiple`, câmera ou galeria), caixa "trocar todas as fotos desta peça", senha, botão enviar; reduz cada foto em canvas para no máximo 1600 px no lado maior, JPEG 0,8, antes de enviar; mostra progresso e o resultado ("Enviado! Aparece no site em alguns minutos."). `appsscript.json`: `timeZone` `America/Sao_Paulo`, `runtimeVersion` `V8`, `webapp` `executeAs: USER_DEPLOYING`, `access: ANYONE_ANONYMOUS`, escopos de planilha, `script.external_request`, `script.send_mail`, `script.scriptapp`.
 
 - [ ] **Step 1:** Implementar os três arquivos.
 - [ ] **Step 2:** Verificação estática: `node --check` não se aplica a `.gs`; rodar `node -e "new Function(require('fs').readFileSync('apps-script/Codigo.gs','utf8'))"` para garantir sintaxe válida, e `npm test` (Task 12 continua passando).
@@ -407,5 +412,5 @@ Regras: Script Properties obrigatórias `SENHA_FORMULARIO`, `GITHUB_TOKEN`, `GIT
 Conteúdo do guia (passo a passo para leigo, com o que clicar): (1) criar a conta do GitHub da loja e o repositório; enviar os arquivos; ativar o Pages (branch `main`, pasta raiz); (2) criar a Google Planilha na conta do dono com as abas Peças, Config, Campanha e LEIA-ME, importar os três CSVs de `dados-iniciais/`; validações (preço número, estoque inteiro ≥ 0, `ativo`/`destaque`/`campanha` lista sim/não), congelar `codigo`, proteger cabeçalho; (3) publicar cada aba como CSV (Arquivo → Compartilhar → Publicar na Web) e colar os três endereços em `config.js`; (4) compartilhar a planilha com a conta Google da Anne como editora; (5) criar o token fine-grained (só este repositório, só Contents: leitura e escrita; sem expiração se a conta permitir, senão lembrete na agenda para 1 ano); (6) criar o projeto Apps Script, colar os três arquivos, preencher as Script Properties (a senha do formulário é digitada **só** ali), implantar como aplicativo da web, rodar `instalarGatilhoDiario` uma vez; (7) colocar o atalho do formulário na tela inicial do celular da Anne; (8) roteiro do teste de 2 horas; (9) o que fazer se der erro (e-mail de falha, contingência de subir foto pelo GitHub). `LEIA-ME.txt`: as regras da planilha para a Anne (vazio = não tem o tamanho, 0 = esgotado, a última linha é a novidade, não apagar a coluna `codigo`, tempo de até 10 min para aparecer).
 
 - [ ] **Step 1:** Escrever os dois arquivos.
-- [ ] **Step 2:** Conferir que nenhum arquivo do repositório contém a senha do formulário: `git grep -n -i "senha" -- . ':!docs/' ':!apps-script/' ':!tests/'` não deve trazer valor literal de senha.
+- [ ] **Step 2:** Conferir que nenhum segredo foi commitado: `git grep -n -E "github_pat_|ghp_|@gmail\.com"` não traz resultado; o relatório confirma que `git grep -n -i senha` não mostra senha literal.
 - [ ] **Step 3:** Commit `docs: guia do dono e LEIA-ME da planilha`.

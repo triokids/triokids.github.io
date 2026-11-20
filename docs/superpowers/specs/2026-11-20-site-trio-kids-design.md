@@ -113,7 +113,7 @@ Abre `https://wa.me/<whatsapp>?text=<mensagem codificada>`:
 Olá, Anne! Quero fazer este pedido:
 
 • Vestido Maria Júlia – Tam 4 – 1x – R$ 139,90
-• Vestido Clara (Safira) – Tam 2 – 2x – R$ 259,80
+• Vestido Clara (Safira) – Tam 2 – 2x – R$ 129,90 (R$ 259,80)
 
 Total: R$ 399,70
 Quero participar da Trio Kids Abraça (doação de peça). ← só se marcado
