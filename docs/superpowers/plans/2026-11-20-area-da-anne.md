@@ -277,3 +277,26 @@ git add apps-script/Area.html tests/apps-script-area.test.js docs/guia-do-dono.m
 git rm apps-script/Formulario.html
 git commit -m "feat(area): página da Área da Anne e guias"
 ```
+
+---
+
+### Task 4: Versão de computador da Área Adm (pedido do dono, 20/11/2026)
+
+**Files:**
+- Modify: `apps-script/Area.html` (só CSS e, se preciso, marcação de agrupamento; nenhuma mudança de comportamento)
+- Test: `tests/apps-script-area.test.js`
+
+**Interfaces:** nenhuma nova; mesmas chamadas ao servidor.
+
+Celular (até 899 px) fica exatamente como está. A partir de 900 px:
+- Conteúdo com `max-width: 1100px`, centralizado; barra do topo e rodapé fixo acompanham essa largura.
+- **Entrar**: cartão centralizado de ~420 px.
+- **Minhas peças**: busca e filtros na mesma linha; cartões em grade (`grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))`), foto maior em cima e dados embaixo; botão "+ Nova peça" vira botão normal no topo, ao lado da busca (sem flutuar).
+- **Editar peça** e **Nova peça**: duas colunas — esquerda (~40%) fotos grandes em grade e ações de foto; direita os campos, estoque em 4 colunas, chaves; "Salvar"/"Cadastrar" no fim da coluna direita (não fixo na base).
+- Hover visível em cartões e botões; foco por teclado visível (`:focus-visible`).
+
+- [ ] **Step 1: Teste que falha**: `Area.html` tem `@media (min-width: 900px)` e, dentro dele, regra com `grid-template-columns` para a lista; o celular continua com `max-width: 520px` fora da media query.
+- [ ] **Step 2: Rodar e ver falhar** — `npm test`.
+- [ ] **Step 3: Implementar o CSS** conforme acima.
+- [ ] **Step 4: Rodar** — `npm test` → todos passam.
+- [ ] **Step 5: Commit** `feat(area): versão de computador da Área Adm`.
