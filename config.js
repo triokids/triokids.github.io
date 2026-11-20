@@ -6,7 +6,7 @@ export const CONFIG = {
     campanha: '',  // preencher após publicar a planilha
   },
   reserva: 'catalogo.json',
-  whatsapp: '5562999212827',
+  whatsapp: '5562992339674',
   vendedora: 'Anne',
   instagram: 'triokid_s',
   descontoCampanha: 10,

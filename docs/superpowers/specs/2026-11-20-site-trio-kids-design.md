@@ -145,7 +145,7 @@ Primeiro o teste de 2 horas no celular da vendedora (ADR-001, item 5). Depois o 
 - **Preço no CSV**: o site aceita `139,90` e `139.90`.
 - **Configuração**: `config.js` no repositório guarda o endereço dos CSVs e o número do WhatsApp (o número já é público da loja), para o botão funcionar mesmo sem planilha. A aba Config pode sobrepor `desconto_campanha` e `aviso_topo`. O `catalogo.json` traz Peças, Config e Campanha.
 - **Prévia de link (Open Graph)**: genérica, com logo e nome da loja, em todas as páginas (escolha do dono). Prévia com foto por peça fica para depois, se fizer falta.
-- **WhatsApp da vendedora (Anne)**: `5562999212827` (decisão do dono; trocado em 20/11/2026, antes era `5562993379366`). Mensagem começa com "Olá, Anne!".
+- **WhatsApp da vendedora (Anne)**: `5562992339674` (decisão do dono; trocado em 20/11/2026, antes era `5562999212827` e, antes disso, `5562993379366`). Mensagem começa com "Olá, Anne!".
 - **Conta do GitHub**: será uma conta própria da loja, ainda sendo criada pelo dono. Usuário e nome do repositório entram como parâmetros (`config.js` e Script Properties); todos os caminhos do site são relativos, para funcionar em `/` (`<usuario>.github.io`) ou em `/<repo>/`.
 - **Carga inicial**: o PDF tem texto extraível; nomes, preços e estoque vêm dele. Categoria derivada do nome (Vestido, Conjunto, Bata, Camisa, Shorts, Jardineira); coleção "Linha Petit"; cores só no Vestido Clara (Cru, Safira). As fotos do PDF são da própria marca e entram como iniciais; o dono pode trocar.
 
