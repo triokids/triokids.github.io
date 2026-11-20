@@ -97,3 +97,38 @@ test('htmlItemCarrinho de item removida não quebra', () => {
 test('htmlFaixaReserva avisa para confirmar no WhatsApp', () => {
   assert.match(htmlFaixaReserva(), /WhatsApp/);
 });
+
+test('htmlCartao: article com link para a peça e botões Comprar e Espiar com nome escapado', () => {
+  const h = htmlCartao(peca({ nome: 'A<b> & "c"' }), 10);
+  assert.match(h, /^<article class="cartao" data-peca="x-1">/);
+  assert.match(h, /<a class="cartao-link" href="peca\.html\?c=x-1">/);
+  assert.match(h, /data-acao="comprar"[^>]*aria-label="Comprar A&lt;b&gt; &amp; &quot;c&quot;"/);
+  assert.match(h, /data-acao="espiar"[^>]*aria-label="Espiar A&lt;b&gt;/);
+  assert.doesNotMatch(h, /<a[\s>][^>]*>(?:(?!<\/a>)[\s\S])*<button/); // nenhum botão dentro de link (<a , não <article)
+});
+test('htmlCartao esgotada: só Espiar, sem tamanhos rápidos', () => {
+  const h = htmlCartao(peca({}, { 4: 0 }), 10);
+  assert.doesNotMatch(h, /data-acao="comprar"/);
+  assert.match(h, /data-acao="espiar"/);
+  assert.doesNotMatch(h, /cartao-tamanhos/);
+});
+test('htmlCartao com uma cor: Comprar controla a lista de tamanhos com estoque', () => {
+  const h = htmlCartao(peca({}, { 2: 1, 4: 0, 6: 3 }), 10);
+  assert.match(h, /data-acao="comprar"[^>]*aria-expanded="false"[^>]*aria-controls="tam-x-1"/);
+  const tams = [...h.matchAll(/class="cartao-tam" data-acao="tamanho" data-codigo="x-1" data-tamanho="([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(tams, ['2', '6']);
+});
+test('htmlCartao com duas cores com estoque: Comprar abre diálogo e não há lista no cartão', () => {
+  const p = peca();
+  p.variantes.push({ codigo: 'x-2', cor: 'Rosa', preco: 139.9, campanha: false, fotos: 1, estoque: { 2: 1 } });
+  const h = htmlCartao(p, 10);
+  assert.match(h, /data-acao="comprar"[^>]*aria-haspopup="dialog"/);
+  assert.doesNotMatch(h, /cartao-tamanhos/);
+});
+test('htmlCartao com duas cores e só uma com estoque: lista de tamanhos da cor com estoque', () => {
+  const p = peca({}, { 4: 0 });
+  p.variantes.push({ codigo: 'x-2', cor: 'Rosa', preco: 139.9, campanha: false, fotos: 1, estoque: { 2: 1 } });
+  const h = htmlCartao(p, 10);
+  assert.match(h, /data-acao="comprar"[^>]*aria-expanded="false"/);
+  assert.match(h, /class="cartao-tam" data-acao="tamanho" data-codigo="x-2" data-tamanho="2"/);
+});

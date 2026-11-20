@@ -1,9 +1,7 @@
 import { montarLayout } from '../ui/layout.js';
 import { encontrarVariante } from '../loja/carrinho.js';
-import { precoComCampanha } from '../loja/campanha.js';
 import { esgotada } from '../loja/filtros.js';
-import { formatarPreco } from '../dados/csv.js';
-import { esc, htmlCartao, htmlGaleria, htmlSeletorTamanho, htmlSeletorCor } from '../ui/html.js';
+import { esc, htmlCartao, htmlGaleria, htmlSeletorTamanho, htmlSeletorCor, htmlBlocoPreco } from '../ui/html.js';
 import { mensagemCarrinho } from '../loja/compra-rapida.js';
 
 try {
@@ -31,13 +29,6 @@ try {
 
     const estoqueEscolhido = () => (tamanho ? variante.estoque[tamanho] || 0 : 0);
 
-    function htmlBlocoPreco() {
-      const campanha = variante.campanha
-        ? `<p class="preco-campanha">Com a <a href="campanha.html">Trio Kids Abraça</a> <strong>${formatarPreco(precoComCampanha(variante.preco, desconto))}</strong></p>`
-        : '';
-      return `<p class="preco preco-grande">${formatarPreco(variante.preco)}</p>${campanha}`;
-    }
-
     function ligarGaleria() {
       const faixa = document.getElementById('galeria-faixa');
       const indicador = document.getElementById('galeria-indicador');
@@ -62,9 +53,9 @@ try {
     <h1 class="peca-nome">${esc(peca.nome)}</h1>
     ${variante.cor && peca.variantes.length < 2 ? `<p class="peca-cor">${esc(variante.cor)}</p>` : ''}
     ${htmlSeletorCor(peca, variante.codigo)}
-    ${htmlBlocoPreco()}
+    ${htmlBlocoPreco(variante, desconto)}
     <h2 class="peca-sub">Tamanho</h2>
-    ${htmlSeletorTamanho(variante)}
+    ${htmlSeletorTamanho(variante, tamanho)}
     <p><a href="tamanhos.html">Qual tamanho escolher?</a></p>
     <div class="qtd" role="group" aria-label="Quantidade">
       <button type="button" id="qtd-menos" aria-label="Diminuir quantidade"${quantidade <= 1 ? ' disabled' : ''}>−</button>
@@ -78,13 +69,6 @@ try {
 </div>
 ${combina.length ? `<section class="bloco"><h2 class="titulo-secao">Combina com</h2><div class="grade">${combina.map((p) => htmlCartao(p, desconto)).join('')}</div></section>` : ''}`;
 
-      if (tamanho) {
-        const b = principal.querySelector(`.tam[data-tamanho="${CSS.escape(tamanho)}"]`);
-        if (b) {
-          b.setAttribute('aria-pressed', 'true');
-          b.classList.add('tam-escolhido');
-        }
-      }
       ligarGaleria();
       const faixaNova = document.getElementById('galeria-faixa');
       if (faixaNova && posicao > 0) {

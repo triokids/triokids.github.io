@@ -138,9 +138,39 @@ main { max-width: 1200px; margin: 0 auto; padding: 16px 16px 48px; min-height: 6
 @media (min-width: 601px) { .grade { grid-template-columns: repeat(3, 1fr); gap: 16px; } }
 @media (min-width: 961px) { .grade { grid-template-columns: repeat(4, 1fr); gap: 20px; } }
 .cartao {
-  display: flex; flex-direction: column; background: var(--cartao); border-radius: var(--raio);
-  box-shadow: var(--sombra); overflow: hidden; text-decoration: none; color: var(--texto);
+  position: relative; display: flex; flex-direction: column; background: var(--cartao); border-radius: var(--raio);
+  box-shadow: var(--sombra); overflow: hidden; color: var(--texto);
 }
+/* O link do nome é esticado para cobrir o cartão inteiro; os botões ficam acima dele. */
+.cartao-link { color: inherit; text-decoration: none; }
+.cartao-link::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+.cartao-acoes { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 2; display: grid; gap: 6px; }
+.cartao-botao {
+  width: 100%; min-height: 44px; padding: 0 14px; border: 0; border-radius: 22px; cursor: pointer;
+  background: var(--titulo); color: #fff; font: 700 0.95rem var(--f-texto); box-shadow: var(--sombra);
+}
+.cartao-botao-claro { background: var(--cartao); color: var(--titulo); }
+@media (hover: hover) {
+  .cartao-acoes { opacity: 0; transform: translateY(6px); transition: opacity 0.2s, transform 0.2s; }
+  .cartao:hover .cartao-acoes, .cartao:focus-within .cartao-acoes { opacity: 1; transform: none; }
+}
+.cartao-tamanhos {
+  position: absolute; inset: 0; z-index: 3; display: grid; align-content: center; justify-items: center; gap: 10px;
+  padding: 12px; background: rgba(255, 254, 251, 0.96); text-align: center; color: var(--titulo); font-weight: 700;
+}
+.cartao-tamanhos[hidden] { display: none; }
+.cartao-tamanhos p { margin: 0; }
+.cartao-tam-lista { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.cartao-tam {
+  min-width: 44px; min-height: 44px; padding: 0 12px; border: 1px solid #c9b49d; border-radius: 22px;
+  background: var(--cartao); color: var(--titulo); font: 700 1rem var(--f-texto); cursor: pointer;
+}
+.cartao-tam:hover { background: var(--peche); }
+.cartao-tam-fechar {
+  position: absolute; top: 4px; right: 4px; min-width: 44px; min-height: 44px; border: 0; background: transparent;
+  color: var(--titulo); font: 400 1.6rem var(--f-texto); cursor: pointer;
+}
+.cartao-aviso { color: var(--rotulo); font-size: 0.85rem; }
 .cartao-foto { position: relative; aspect-ratio: 3 / 4; background: var(--peche); }
 .cartao-foto img { width: 100%; height: 100%; object-fit: cover; }
 .sem-foto { height: 100%; display: grid; place-items: center; }

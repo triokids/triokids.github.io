@@ -3,6 +3,7 @@ import { formatarPreco } from '../dados/csv.js';
 import { precoComCampanha } from '../loja/campanha.js';
 import { TAMANHOS } from '../dados/catalogo.js';
 import { menorPreco, tamanhosDisponiveis, esgotada } from '../loja/filtros.js';
+import { modoComprar, varianteParaComprar } from '../loja/compra-rapida.js';
 
 export function esc(texto) {
   return String(texto ?? '')
@@ -53,15 +54,36 @@ export function htmlCartao(peca, descontoCampanha) {
     ? '<span class="selo-esgotado">esgotado</span>'
     : `<ul class="pilulas" aria-label="Tamanhos disponíveis">${tamanhosDisponiveis(peca).map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`;
 
-  return `<a class="cartao${fim ? ' cartao-esgotado' : ''}" href="peca.html?c=${encodeURIComponent(peca.id)}">
-  <div class="cartao-foto">${foto}${fim ? '<span class="selo-esgotado selo-canto">esgotado</span>' : ''}</div>
+  const modo = modoComprar(peca);
+  const nome = esc(peca.nome);
+  const botaoComprar = modo === 'nenhum' ? '' : `<button type="button" class="cartao-botao" data-acao="comprar"${modo === 'tamanhos' ? ` aria-expanded="false" aria-controls="tam-${esc(peca.id)}"` : ' aria-haspopup="dialog"'} aria-label="Comprar ${nome}">Comprar</button>`;
+  const tamanhos = modo === 'tamanhos' ? htmlTamanhosRapidos(varianteParaComprar(peca), peca.id) : '';
+
+  return `<article class="cartao${fim ? ' cartao-esgotado' : ''}" data-peca="${esc(peca.id)}">
+  <div class="cartao-foto">${foto}${fim ? '<span class="selo-esgotado selo-canto">esgotado</span>' : ''}
+    <div class="cartao-acoes">${botaoComprar}<button type="button" class="cartao-botao cartao-botao-claro" data-acao="espiar" aria-haspopup="dialog" aria-label="Espiar ${nome}">Espiar</button></div>
+    ${tamanhos}
+  </div>
   <div class="cartao-corpo">
-    <h3 class="cartao-nome">${esc(peca.nome)}</h3>
+    <h3 class="cartao-nome"><a class="cartao-link" href="peca.html?c=${encodeURIComponent(peca.id)}">${nome}</a></h3>
     <p class="preco">${variavel ? '<span class="a-partir">a partir de</span> ' : ''}${formatarPreco(menor)}</p>
     ${blocoCampanha}
     ${pilulas}
   </div>
-</a>`;
+</article>`;
+}
+
+// Lista de tamanhos com estoque que cobre a foto do cartão (compra rápida de uma cor só).
+export function htmlTamanhosRapidos(variante, idPeca) {
+  const botoes = TAMANHOS.filter((t) => variante.estoque[t] > 0)
+    .map((t) => `<button type="button" class="cartao-tam" data-acao="tamanho" data-codigo="${esc(variante.codigo)}" data-tamanho="${esc(t)}">${esc(t)}</button>`)
+    .join('');
+  return `<div class="cartao-tamanhos" id="tam-${esc(idPeca)}" hidden>
+    <p>Escolha o tamanho</p>
+    <div class="cartao-tam-lista">${botoes}</div>
+    <button type="button" class="cartao-tam-fechar" data-acao="fechar-tamanhos" aria-label="Fechar tamanhos">&times;</button>
+    <p class="cartao-aviso" role="status"></p>
+  </div>`;
 }
 
 const AVISOS = {
@@ -146,7 +168,7 @@ export function htmlFiltros(categorias, filtros = {}) {
 
 // --- Página da peça ---
 
-export function htmlGaleria(variante, nome) {
+export function htmlGaleria(variante, nome, idBase = 'galeria') {
   if (!variante || !(variante.fotos > 0)) {
     return '<div class="galeria"><div class="sem-foto galeria-vazia"><img src="img/logo.png" alt="" width="96" height="96"></div></div>';
   }
@@ -156,21 +178,29 @@ export function htmlGaleria(variante, nome) {
     return `<img src="${esc(urlFoto(variante.codigo, n))}" alt="${esc(`${nome}${cor} — foto ${n}`)}"${n > 1 ? ' loading="lazy"' : ''} width="600" height="800">`;
   }).join('');
   const indicador = variante.fotos > 1
-    ? `<p class="galeria-indicador" id="galeria-indicador" aria-hidden="true">1 / ${variante.fotos}</p>`
+    ? `<p class="galeria-indicador" id="${esc(idBase)}-indicador" aria-hidden="true">1 / ${variante.fotos}</p>`
     : '';
-  return `<div class="galeria"><div class="galeria-faixa" id="galeria-faixa" tabindex="0" role="group" aria-label="Fotos de ${esc(nome)}">${imgs}</div>${indicador}</div>`;
+  return `<div class="galeria"><div class="galeria-faixa" id="${esc(idBase)}-faixa" tabindex="0" role="group" aria-label="Fotos de ${esc(nome)}">${imgs}</div>${indicador}</div>`;
 }
 
-export function htmlSeletorTamanho(variante) {
+export function htmlSeletorTamanho(variante, escolhido = '') {
   const botoes = TAMANHOS.filter((t) => Object.hasOwn(variante.estoque, t)).map((t) => {
     const n = variante.estoque[t];
     if (!(n > 0)) {
       return `<button type="button" class="tam tam-esgotado" data-tamanho="${esc(t)}" disabled aria-label="Tamanho ${esc(t)}, esgotado">${esc(t)}</button>`;
     }
     const ultima = n === 1 ? '<small class="tam-ultima">última unidade</small>' : '';
-    return `<button type="button" class="tam" data-tamanho="${esc(t)}" aria-pressed="false">${esc(t)}${ultima}</button>`;
+    const marcado = escolhido !== '' && t === escolhido;
+    return `<button type="button" class="${marcado ? 'tam tam-escolhido' : 'tam'}" data-tamanho="${esc(t)}" aria-pressed="${marcado}">${esc(t)}${ultima}</button>`;
   });
   return `<div class="tamanhos-opcoes" role="group" aria-label="Tamanho">${botoes.join('')}</div>`;
+}
+
+export function htmlBlocoPreco(variante, desconto) {
+  const campanha = variante.campanha
+    ? `<p class="preco-campanha">Com a <a href="campanha.html">Trio Kids Abraça</a> <strong>${formatarPreco(precoComCampanha(variante.preco, desconto))}</strong></p>`
+    : '';
+  return `<p class="preco preco-grande">${formatarPreco(variante.preco)}</p>${campanha}`;
 }
 
 export function htmlSeletorCor(peca, codigoAtual) {
@@ -215,4 +245,25 @@ ${texto}
   </div>
   <a class="botao" href="catalogo.html">Ver o catálogo</a>
 </section>`;
+}
+
+// Conteúdo do diálogo Espiar: a peça numa cor, com tamanho, quantidade e adicionar ao carrinho.
+export function htmlEspiar(peca, variante, { desconto, tamanho = '', quantidade = 1, mensagem = '' }) {
+  const max = tamanho ? variante.estoque[tamanho] || 0 : 0;
+  return `<button type="button" class="botao-icone espiar-fechar" data-acao="fechar-espiar" aria-label="Fechar">&times;</button>
+<div class="espiar-fotos">${htmlGaleria(variante, peca.nome, 'espiar-galeria')}</div>
+<div class="espiar-info">
+  <h2 id="espiar-nome">${esc(peca.nome)}</h2>
+  ${htmlSeletorCor(peca, variante.codigo)}
+  ${htmlBlocoPreco(variante, desconto)}
+  ${htmlSeletorTamanho(variante, tamanho)}
+  <div class="qtd" role="group" aria-label="Quantidade">
+    <button type="button" id="espiar-menos" aria-label="Diminuir quantidade"${quantidade <= 1 ? ' disabled' : ''}>−</button>
+    <output id="espiar-valor" aria-live="polite">${quantidade}</output>
+    <button type="button" id="espiar-mais" aria-label="Aumentar quantidade"${!tamanho || quantidade >= max ? ' disabled' : ''}>+</button>
+  </div>
+  <button type="button" class="botao botao-adicionar" id="espiar-adicionar"${tamanho ? '' : ' disabled'}>Adicionar ao carrinho</button>
+  <p class="peca-aviso" id="espiar-aviso" role="status">${esc(mensagem || (tamanho ? '' : 'Escolha um tamanho'))}</p>
+  <a href="peca.html?c=${esc(encodeURIComponent(variante.codigo))}">Ver detalhes</a>
+</div>`;
 }
