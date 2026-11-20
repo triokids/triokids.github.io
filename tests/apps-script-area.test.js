@@ -73,3 +73,19 @@ test('Area.html recarrega a lista quando criar ou salvar volta ok sem peca', () 
   assert.match(html, /if \(!r\.peca\) \{ liberar\(\); recarregarComAviso\(/);
   assert.match(html, /function recarregarComAviso[\s\S]*carregarLista\(/);
 });
+
+test('Area.html tem versão de computador (900px) sem mexer no celular', () => {
+  const html = ler(AREA);
+  const css = html.slice(html.indexOf('<style>'), html.indexOf('</style>'));
+  const ini = css.indexOf('@media (min-width: 900px)');
+  assert.ok(ini > 0, 'falta @media (min-width: 900px)');
+  const fora = css.slice(0, ini);
+  const dentro = css.slice(ini);
+  assert.match(fora, /max-width: 520px/);
+  assert.match(dentro, /max-width: 1100px/);
+  assert.match(dentro, /grid-template-columns: repeat\(auto-fill, minmax\(240px, 1fr\)\)/);
+  assert.match(dentro, /:focus-visible/);
+  assert.match(dentro, /:hover/);
+  // o celular não ganha regra nova de grade na lista fora da media query
+  assert.doesNotMatch(fora, /auto-fill/);
+});

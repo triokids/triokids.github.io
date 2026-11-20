@@ -94,6 +94,43 @@
   .codigo { font-family: monospace; background: var(--pessego); padding: 4px 8px; border-radius: 6px; font-size: .85rem; word-break: break-all; }
   .tamanhos { display: flex; flex-wrap: wrap; gap: 6px; }
   .secundaria { margin-top: 16px; }
+  /* versão de computador: o celular (até 899px) não muda */
+  @media (min-width: 900px) {
+    main { max-width: 1100px; }
+    .btn:hover, .chip:hover, .fab:hover, .add:hover, .tam .ctl button:hover { filter: brightness(.95); }
+    .btn.sec:hover, .chip:hover, .add:hover { background: var(--menta); }
+    .item:hover { box-shadow: 0 4px 14px rgba(103,70,56,.2); transform: translateY(-2px); }
+    .tog:hover { background: var(--pessego); }
+    .barra button:hover { background: var(--pessego); border-radius: 10px; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--coral); outline-offset: 2px; }
+    .corpo { padding: 20px 24px 40px; }
+
+    .entrar { max-width: 420px; margin: 0 auto; background: var(--cartao); border-radius: 18px; box-shadow: 0 2px 12px rgba(103,70,56,.12); min-height: 0; margin-top: 8vh; padding: 32px 28px; }
+
+    .ferramentas { display: flex; align-items: center; gap: 12px; }
+    .ferramentas #busca { flex: 1; max-width: 380px; }
+    .ferramentas .chips { margin: 0; flex: 1; min-width: 0; }
+    .fab { position: static; flex: none; margin-left: auto; border-radius: 12px; box-shadow: none; }
+    #itens { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; align-items: start; margin-top: 12px; }
+    #itens > .aviso { grid-column: 1 / -1; }
+    .item { position: relative; flex-direction: column; align-items: stretch; margin: 0; padding: 10px; transition: box-shadow .15s, transform .15s; }
+    .item img { width: 100%; height: auto; aspect-ratio: 3 / 4; }
+    .item .tag { position: absolute; top: 18px; left: 18px; }
+    .item .tag + .tag { top: 42px; }
+
+    .duas { display: grid; grid-template-columns: 2fr 3fr; gap: 32px; align-items: start; }
+    .col-fotos { grid-column: 1; grid-row: 1; }
+    .col-campos { grid-column: 2; grid-row: 1; }
+    .duas > .rodape { grid-column: 2; grid-row: 2; margin-top: 0; }
+    .galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+    .foto, .add { width: auto; }
+    .foto img { width: 100%; height: auto; aspect-ratio: 3 / 4; }
+    .add { min-height: 0; aspect-ratio: 3 / 4; }
+    .estoque { grid-template-columns: repeat(4, 1fr); }
+    .rodape { position: static; max-width: none; margin: 20px 0 0; padding: 0; background: none; border-top: 0; }
+    .rodape .btn { max-width: 320px; }
+    .col-fotos .btn { max-width: 320px; }
+  }
 </style>
 </head>
 <body data-faltando="<?= faltando ?>" data-logo="<?= urlLogo ?>" data-site="<?= urlSite ?>">
@@ -113,24 +150,28 @@
   <section id="tela-lista" hidden>
     <div class="barra"><img id="logo-lista" alt=""><span class="t">Minhas peças</span><button id="btn-sair" type="button">Sair</button></div>
     <div class="corpo">
-      <input id="busca" type="search" placeholder="Buscar por nome, cor ou código" autocomplete="off" aria-label="Buscar peça">
-      <div id="chips" class="chips"></div>
+      <div class="ferramentas">
+        <input id="busca" type="search" placeholder="Buscar por nome, cor ou código" autocomplete="off" aria-label="Buscar peça">
+        <div id="chips" class="chips"></div>
+        <button id="btn-nova" class="fab" type="button">+ Nova peça</button>
+      </div>
       <div id="aviso-lista" role="status"></div>
       <div id="itens"></div>
     </div>
-    <button id="btn-nova" class="fab" type="button">+ Nova peça</button>
   </section>
 
   <section id="tela-editar" hidden>
     <div class="barra"><button id="voltar-editar" class="voltar" type="button" aria-label="Voltar">‹</button><span id="titulo-editar" class="t"></span></div>
-    <div class="corpo">
+    <div class="corpo duas">
+     <div class="col-fotos">
       <div class="rotulo" style="margin-top:0">Fotos</div>
       <div id="galeria" class="galeria"></div>
       <div id="confirmar-foto"></div>
       <div class="dica">Toque em "apagar" para tirar uma foto. As fotos novas aparecem em alguns minutos.</div>
       <button id="btn-trocar" class="btn sec secundaria" type="button">Trocar todas as fotos</button>
       <div id="progresso-editar" class="dica" role="status"></div>
-
+     </div>
+     <div class="col-campos">
       <label for="ed-preco">Preço (R$)</label>
       <input id="ed-preco" inputmode="decimal" autocomplete="off">
       <label for="ed-categoria">Categoria</label>
@@ -152,16 +193,18 @@
         <button id="tog-campanha" class="tog" type="button" role="switch">Participa da Trio Kids Abraça <span class="sw"></span></button>
       </div>
       <button id="btn-nova-cor" class="btn sec secundaria" type="button">Nova cor desta peça</button>
-    </div>
-    <div class="rodape">
-      <div id="aviso-editar" role="status"></div>
-      <button id="btn-salvar" class="btn" type="button">Salvar alterações</button>
+      <div class="rodape">
+        <div id="aviso-editar" role="status"></div>
+        <button id="btn-salvar" class="btn" type="button">Salvar alterações</button>
+      </div>
+     </div>
     </div>
   </section>
 
   <section id="tela-nova" hidden>
     <div class="barra"><button id="voltar-nova" class="voltar" type="button" aria-label="Voltar">‹</button><span class="t">Nova peça</span></div>
-    <div class="corpo">
+    <div class="corpo duas">
+     <div class="col-campos">
       <label for="nv-nome" style="margin-top:0">Nome da peça</label>
       <input id="nv-nome" autocomplete="off">
       <div class="linha2">
@@ -177,14 +220,17 @@
       <span id="nv-codigo" class="codigo"></span>
       <div class="rotulo">Tamanhos que vão ter</div>
       <div id="nv-tamanhos" class="tamanhos"></div>
+     </div>
+     <div class="col-fotos">
       <div class="rotulo">Fotos (opcional)</div>
       <button id="nv-btn-fotos" class="btn sec" type="button">Escolher fotos</button>
       <div id="nv-fotos-info" class="dica"></div>
-    </div>
-    <div class="rodape">
+     </div>
+     <div class="rodape">
       <div id="aviso-nova" role="status"></div>
       <button id="btn-cadastrar" class="btn" type="button">Cadastrar peça</button>
       <div class="dica" style="text-align:center">Depois você ajusta a quantidade de cada tamanho.</div>
+     </div>
     </div>
   </section>
 
