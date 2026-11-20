@@ -52,7 +52,7 @@ test('Area.html salva só o que mudou e avisa quando não há nada', () => {
   assert.match(html, /Nada para salvar\./);
   const salvar = html.slice(html.indexOf("$('btn-salvar').addEventListener"));
   assert.match(salvar.slice(0, salvar.indexOf('}).salvarPeca(')), /camposAlterados\(\)/);
-  assert.match(salvar, /salvarPeca\(passe, atual\.codigo, campos\)/);
+  assert.match(salvar, /salvarPeca\(passe, enviada, campos\)/);
   // a base de comparação passa a ser a peça devolvida pelo servidor
   assert.match(salvar.slice(0, salvar.indexOf('}).salvarPeca(')), /substituirPeca\(r\.peca\)/);
 });
