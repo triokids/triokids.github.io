@@ -3,6 +3,7 @@ LEIA-ME: REGRAS DA PLANILHA TRIO KIDS (para a Anne)
 Esta planilha é o catálogo do site. O que você muda aqui aparece no site. Mexa com calma e confira depois.
 
 ABA PEÇAS
+- O jeito mais fácil é usar a Área Adm no celular (atalho Trio Kids Loja). A planilha continua valendo.
 - Cada linha é uma peça (ou uma cor da peça). O nome é o mesmo nas linhas da mesma peça, só a cor muda.
 - Tamanhos: P, M, G, 1, 2, 3, 4 e 6.
   - Célula VAZIA = a loja não tem esse tamanho.
@@ -16,7 +17,7 @@ ABA PEÇAS
 - Não apague a coluna codigo. Ela é o "RG" da peça: a foto, o carrinho e o pedido dependem dela. NUNCA mude o código de uma peça que já existe ou já tem fotos.
 - Peça nova: crie o código em minúsculas, sem acento, com as palavras separadas por hífen, e ele precisa ser único (não repetir o de outra linha). Exemplo: vestido-clara-safira. Peça com cores diferentes tem um código para cada cor.
 - Não mude os títulos da linha 1.
-- A coluna fotos diz quantas fotos a peça tem. O formulário de fotos atualiza sozinho; não precisa mexer.
+- A coluna fotos diz quantas fotos a peça tem. A Área Adm atualiza sozinha; não precisa mexer.
 
 ABA CONFIG
 - O número do WhatsApp NÃO fica na planilha: para trocar, edite o arquivo config.js do site (campo whatsapp).
@@ -33,4 +34,4 @@ QUANTO TEMPO LEVA
 - Se não aparecer depois de 10 minutos, avise o dono.
 
 FOTOS
-- Para enviar fotos, use o atalho "Fotos Trio Kids" no celular (peça, fotos, senha, enviar). Quem sabe a senha é você e o dono.
+- Para enviar, trocar ou apagar fotos, use a Área Adm pelo atalho "Trio Kids Loja" no celular (abra a peça, mexa nas fotos). A senha é pedida toda vez. Quem sabe a senha é você e o dono.

@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trio Kids - Área Adm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=EB+Garamond:ital,wght@0,400;1,400&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fundo: #fbf6ef; --cartao: #fffefb; --texto: #674638; --titulo: #7a4e2e; --sec: #604431;
+    --coral: #d9795b; --verde: #719779; --selo: #52745d; --rotulo: #b65b43;
+    --pessego: #fbe6d8; --menta: #e6efe8; --linha: #e3d6c6;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: 'Lato', sans-serif; font-size: 17px; line-height: 1.4; }
+  main { max-width: 520px; margin: 0 auto; min-height: 100vh; position: relative; }
+  img { display: block; }
+  button { font: inherit; cursor: pointer; }
+  input, textarea { width: 100%; min-height: 44px; padding: 10px 12px; font: inherit; color: var(--texto); background: var(--cartao); border: 2px solid var(--verde); border-radius: 10px; }
+  textarea { min-height: 96px; resize: vertical; }
+  label, .rotulo { display: block; font-weight: 700; color: var(--rotulo); font-size: .8rem; margin: 14px 0 4px; text-transform: uppercase; letter-spacing: .03em; }
+  .dica { font-size: .8rem; color: var(--sec); margin-top: 4px; }
+  .btn { display: block; width: 100%; min-height: 48px; padding: 12px; border: 0; border-radius: 12px; background: var(--coral); color: #fffefb; font-weight: 700; text-align: center; }
+  .btn.sec { background: var(--cartao); color: var(--selo); border: 2px solid var(--verde); }
+  .btn.perigo { background: var(--rotulo); }
+  .btn:disabled { opacity: .6; }
+  .aviso { padding: 10px 12px; border-radius: 10px; font-size: .9rem; font-weight: 700; margin: 10px 0; }
+  .aviso.ok { background: var(--menta); color: var(--selo); }
+  .aviso.erro { background: #f7e3dc; color: var(--rotulo); }
+  .aviso.info { background: var(--pessego); color: var(--sec); }
+
+  /* entrar */
+  .entrar { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 24px 20px; }
+  .entrar .logo { width: 150px; margin: 0 auto; }
+  .entrar h1 { font-family: 'Comfortaa', sans-serif; text-align: center; color: var(--titulo); margin: 8px 0 0; font-size: 1.5rem; }
+  .frase { font-family: 'EB Garamond', serif; font-style: italic; text-align: center; color: var(--sec); margin: 2px 0 14px; font-size: 1.15rem; }
+
+  /* barra e telas */
+  .barra { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--cartao); border-bottom: 1px solid #eadfd2; position: sticky; top: 0; z-index: 5; min-height: 56px; }
+  .barra img { height: 32px; }
+  .barra .t { font-family: 'Comfortaa', sans-serif; color: var(--titulo); font-size: 1rem; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .barra button { min-height: 44px; min-width: 44px; padding: 0 12px; background: none; border: 0; color: var(--rotulo); font-weight: 700; }
+  .barra .voltar { font-size: 1.6rem; color: var(--titulo); }
+  .corpo { padding: 12px 14px 150px; }
+
+  /* lista */
+  .chips { display: flex; gap: 6px; overflow-x: auto; margin: 8px 0 10px; padding-bottom: 2px; }
+  .chip { min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 22px; background: var(--cartao); border: 1px solid var(--linha); color: var(--texto); white-space: nowrap; font-size: .85rem; }
+  .chip.on { background: var(--selo); color: #fff; border-color: var(--selo); }
+  .item { display: flex; gap: 10px; width: 100%; text-align: left; background: var(--cartao); border: 0; border-radius: 14px; padding: 8px; margin-bottom: 8px; box-shadow: 0 1px 5px rgba(103,70,56,.1); align-items: center; color: var(--texto); min-height: 82px; }
+  .item img { width: 58px; height: 70px; object-fit: cover; border-radius: 10px; background: var(--pessego); flex: none; }
+  .item img.semfoto { object-fit: contain; padding: 6px; }
+  .item .info { flex: 1; min-width: 0; }
+  .item .nome { font-weight: 700; font-size: .95rem; color: var(--titulo); }
+  .item .preco { font-size: .85rem; }
+  .pilulas { display: flex; gap: 3px; margin-top: 4px; flex-wrap: wrap; }
+  .p { font-size: .72rem; padding: 1px 6px; border-radius: 8px; background: var(--menta); color: var(--selo); }
+  .p.zero { background: #f2e4dd; color: #b08a7a; text-decoration: line-through; }
+  .tag { font-size: .68rem; padding: 2px 6px; border-radius: 6px; font-weight: 700; }
+  .tag.off { background: #eee3d9; color: var(--sec); }
+  .tag.esg { background: #f7e3dc; color: var(--rotulo); }
+  .fab { position: fixed; bottom: 16px; right: max(16px, calc(50% - 244px)); min-height: 48px; background: var(--coral); color: #fff; border: 0; border-radius: 28px; padding: 0 20px; font-weight: 700; box-shadow: 0 4px 12px rgba(217,121,91,.45); z-index: 6; }
+
+  /* editar */
+  .galeria { display: flex; gap: 8px; flex-wrap: wrap; }
+  .foto { width: 72px; }
+  .foto img { width: 72px; height: 88px; object-fit: cover; border-radius: 10px; background: var(--pessego); }
+  .foto img.semfoto { object-fit: contain; padding: 8px; }
+  .foto .apagar { width: 100%; min-height: 44px; padding: 0; background: none; border: 0; font-size: .75rem; color: var(--rotulo); font-weight: 700; }
+  .add { width: 72px; min-height: 88px; border: 2px dashed var(--verde); border-radius: 10px; background: none; color: var(--selo); font-size: 1.8rem; }
+  .confirmar { background: #f7e3dc; border-radius: 10px; padding: 10px; margin-top: 8px; }
+  .confirmar .acoes { display: flex; gap: 8px; margin-top: 8px; }
+  .confirmar .btn { margin: 0; }
+  .linha2 { display: flex; gap: 8px; }
+  .linha2 > div { flex: 1; min-width: 0; }
+  .estoque { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .tam { display: flex; align-items: center; justify-content: space-between; background: var(--cartao); border-radius: 10px; padding: 4px 6px; border: 1px solid var(--linha); min-height: 52px; }
+  .tam b { width: 26px; color: var(--titulo); }
+  .tam .ctl { display: flex; align-items: center; gap: 4px; }
+  .tam .ctl button { width: 44px; height: 44px; border-radius: 50%; background: var(--fundo); border: 1px solid var(--verde); font-weight: 700; color: var(--selo); font-size: 1.1rem; }
+  .tam .n { min-width: 34px; text-align: center; font-weight: 700; }
+  .tam.nao { opacity: .6; }
+  .tam.nao .n { font-size: .7rem; font-weight: 400; }
+  .tog { display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 48px; padding: 6px 0; border: 0; border-bottom: 1px solid #eadfd2; background: none; color: var(--texto); font-size: .95rem; text-align: left; }
+  .sw { width: 44px; height: 24px; border-radius: 12px; background: var(--selo); position: relative; flex: none; }
+  .sw::after { content: ''; position: absolute; right: 3px; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+  .tog[aria-checked="false"] .sw { background: #d8cbbd; }
+  .tog[aria-checked="false"] .sw::after { right: auto; left: 3px; }
+  .rodape { position: fixed; bottom: 0; left: 0; right: 0; max-width: 520px; margin: 0 auto; padding: 10px 14px; background: var(--cartao); border-top: 1px solid #eadfd2; z-index: 6; }
+  .rodape .aviso { margin: 0 0 8px; }
+  .codigo { font-family: monospace; background: var(--pessego); padding: 4px 8px; border-radius: 6px; font-size: .85rem; word-break: break-all; }
+  .tamanhos { display: flex; flex-wrap: wrap; gap: 6px; }
+  .secundaria { margin-top: 16px; }
+</style>
+</head>
+<body data-faltando="<?= faltando ?>" data-logo="<?= urlLogo ?>" data-site="<?= urlSite ?>">
+<main>
+  <section id="tela-entrar" class="entrar">
+    <img class="logo" id="logo-entrar" alt="Trio Kids">
+    <h1>Área Adm</h1>
+    <p class="frase">Pequenos looks, grandes histórias.</p>
+    <form id="form-entrar" novalidate>
+      <label for="senha">Senha</label>
+      <input id="senha" type="password" autocomplete="off">
+      <div id="aviso-entrar" role="status"></div>
+      <button id="btn-entrar" class="btn secundaria" type="submit">Entrar</button>
+    </form>
+  </section>
+
+  <section id="tela-lista" hidden>
+    <div class="barra"><img id="logo-lista" alt=""><span class="t">Minhas peças</span><button id="btn-sair" type="button">Sair</button></div>
+    <div class="corpo">
+      <input id="busca" type="search" placeholder="Buscar por nome, cor ou código" autocomplete="off" aria-label="Buscar peça">
+      <div id="chips" class="chips"></div>
+      <div id="aviso-lista" role="status"></div>
+      <div id="itens"></div>
+    </div>
+    <button id="btn-nova" class="fab" type="button">+ Nova peça</button>
+  </section>
+
+  <section id="tela-editar" hidden>
+    <div class="barra"><button id="voltar-editar" class="voltar" type="button" aria-label="Voltar">‹</button><span id="titulo-editar" class="t"></span></div>
+    <div class="corpo">
+      <div class="rotulo" style="margin-top:0">Fotos</div>
+      <div id="galeria" class="galeria"></div>
+      <div id="confirmar-foto"></div>
+      <div class="dica">Toque em "apagar" para tirar uma foto. As fotos novas aparecem em alguns minutos.</div>
+      <button id="btn-trocar" class="btn sec secundaria" type="button">Trocar todas as fotos</button>
+      <div id="progresso-editar" class="dica" role="status"></div>
+
+      <label for="ed-preco">Preço (R$)</label>
+      <input id="ed-preco" inputmode="decimal" autocomplete="off">
+      <label for="ed-categoria">Categoria</label>
+      <input id="ed-categoria" list="lista-categorias" autocomplete="off">
+      <label for="ed-colecao">Coleção</label>
+      <input id="ed-colecao" list="lista-colecoes" autocomplete="off">
+      <div class="dica">Escolha da lista ou escreva uma nova.</div>
+      <div id="aviso-cores" class="aviso info" hidden>Categoria, coleção, descrição e destaque valem para todas as cores.</div>
+      <label for="ed-descricao">Descrição</label>
+      <textarea id="ed-descricao"></textarea>
+
+      <div class="rotulo">Estoque por tamanho</div>
+      <div id="estoque" class="estoque"></div>
+      <div class="dica">"Não tem" = a peça não vem nesse tamanho. 0 = esgotado.</div>
+
+      <div style="margin-top:8px">
+        <button id="tog-ativo" class="tog" type="button" role="switch">Aparece no site <span class="sw"></span></button>
+        <button id="tog-destaque" class="tog" type="button" role="switch">Destaque na página inicial <span class="sw"></span></button>
+        <button id="tog-campanha" class="tog" type="button" role="switch">Participa da Trio Kids Abraça <span class="sw"></span></button>
+      </div>
+      <button id="btn-nova-cor" class="btn sec secundaria" type="button">Nova cor desta peça</button>
+    </div>
+    <div class="rodape">
+      <div id="aviso-editar" role="status"></div>
+      <button id="btn-salvar" class="btn" type="button">Salvar alterações</button>
+    </div>
+  </section>
+
+  <section id="tela-nova" hidden>
+    <div class="barra"><button id="voltar-nova" class="voltar" type="button" aria-label="Voltar">‹</button><span class="t">Nova peça</span></div>
+    <div class="corpo">
+      <label for="nv-nome" style="margin-top:0">Nome da peça</label>
+      <input id="nv-nome" autocomplete="off">
+      <div class="linha2">
+        <div><label for="nv-cor">Cor (se tiver)</label><input id="nv-cor" autocomplete="off"></div>
+        <div><label for="nv-preco">Preço (R$)</label><input id="nv-preco" inputmode="decimal" autocomplete="off"></div>
+      </div>
+      <label for="nv-categoria">Categoria</label>
+      <input id="nv-categoria" list="lista-categorias" autocomplete="off">
+      <label for="nv-colecao">Coleção</label>
+      <input id="nv-colecao" list="lista-colecoes" autocomplete="off">
+      <div class="dica">Vazia, a coleção fica "Linha Petit".</div>
+      <div class="rotulo">Código (gerado sozinho)</div>
+      <span id="nv-codigo" class="codigo"></span>
+      <div class="rotulo">Tamanhos que vão ter</div>
+      <div id="nv-tamanhos" class="tamanhos"></div>
+      <div class="rotulo">Fotos (opcional)</div>
+      <button id="nv-btn-fotos" class="btn sec" type="button">Escolher fotos</button>
+      <div id="nv-fotos-info" class="dica"></div>
+    </div>
+    <div class="rodape">
+      <div id="aviso-nova" role="status"></div>
+      <button id="btn-cadastrar" class="btn" type="button">Cadastrar peça</button>
+      <div class="dica" style="text-align:center">Depois você ajusta a quantidade de cada tamanho.</div>
+    </div>
+  </section>
+
+  <datalist id="lista-categorias"></datalist>
+  <datalist id="lista-colecoes"></datalist>
+  <input id="arquivo" type="file" accept="image/*" multiple hidden>
+</main>
+<script>
+(function () {
+  var LADO_MAX = 1600, QUALIDADE = 0.8, MAX_FOTOS = 8;
+  var TAMANHOS = ['P', 'M', 'G', '1', '2', '3', '4', '6'];
+  var MSG_REDE = 'Não consegui salvar. Confira a internet e tente de novo.';
+  var FILTROS = [['todas', 'Todas'], ['site', 'No site'], ['escondidas', 'Escondidas'], ['esgotadas', 'Esgotadas']];
+  var CHAVES = [['ativo', 'tog-ativo'], ['destaque', 'tog-destaque'], ['campanha', 'tog-campanha']];
+  var $ = function (id) { return document.getElementById(id); };
+  var logo = document.body.getAttribute('data-logo');
+  var site = document.body.getAttribute('data-site');
+  var faltando = document.body.getAttribute('data-faltando');
+
+  // O passe vive só nesta variável: fechar ou recarregar a página exige a senha de novo.
+  var passe = null;
+  var pecas = [], categorias = [], colecoes = [];
+  var filtro = 'todas', busca = '';
+  var atual = null, rascunho = null, modoArquivo = null, apagando = null;
+  var nova = { tamanhos: {}, arquivos: [] };
+
+  // ---------- utilidades de DOM (texto sempre por textContent/value) ----------
+  function el(tag, props, filhos) {
+    var e = document.createElement(tag);
+    props = props || {};
+    for (var k in props) {
+      if (k === 'texto') e.textContent = props[k];
+      else if (k === 'classe') e.className = props[k];
+      else if (k === 'aoClicar') e.addEventListener('click', props[k]);
+      else e.setAttribute(k, props[k]);
+    }
+    (filhos || []).forEach(function (f) { if (f) e.appendChild(f); });
+    return e;
+  }
+  function aviso(idDestino, texto, tipo) {
+    var d = $(idDestino);
+    d.replaceChildren();
+    if (texto) d.appendChild(el('div', { classe: 'aviso ' + tipo, texto: texto }));
+  }
+  function mostrarTela(nome) {
+    ['entrar', 'lista', 'editar', 'nova'].forEach(function (t) { $('tela-' + t).hidden = (t !== nome); });
+    window.scrollTo(0, 0);
+  }
+  function ocupado(botao, textoOcupado, textoNormal, sim) {
+    botao.disabled = sim;
+    botao.textContent = sim ? textoOcupado : textoNormal;
+  }
+  function logoNoErro(img) {
+    img.addEventListener('error', function () {
+      if (img.getAttribute('data-erro')) return;
+      img.setAttribute('data-erro', '1');
+      img.className += ' semfoto';
+      img.src = logo;
+    });
+  }
+  function urlFoto(codigo, n) { return site + 'fotos/' + encodeURIComponent(codigo) + '-' + n + '.jpg'; }
+  function fotoImg(codigo, n, tem) {
+    var img = el('img', { alt: '' });
+    if (tem) { logoNoErro(img); img.src = urlFoto(codigo, n); }
+    else { img.className = 'semfoto'; img.src = logo; }
+    return img;
+  }
+  function virgula(n) { return Number(n).toFixed(2).replace('.', ','); }
+  function preco(n) { return n === null || n === undefined ? 'Sem preço' : 'R$ ' + virgula(n); }
+  function semAcento(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  function chaveNome(t) { return String(t || '').trim().replace(/\s+/g, ' '); }
+  function slug(t) {
+    return semAcento(t).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '');
+  }
+  function tituloDa(p) { return p.cor ? p.nome + ' — ' + p.cor : p.nome; }
+
+  // ---------- servidor ----------
+  // Resposta com sair:true volta para a tela de entrada; falha de rede vira mensagem simples.
+  function servidor(aoReceber, aoFalhar) {
+    return google.script.run
+      .withSuccessHandler(function (r) {
+        if (r && r.sair) { sair(r.mensagem); return; }
+        aoReceber(r || {});
+      })
+      .withFailureHandler(function () { aoFalhar(); });
+  }
+  function sair(mensagem) {
+    passe = null; pecas = []; atual = null; rascunho = null;
+    $('senha').value = '';
+    ocupado($('btn-entrar'), '', 'Entrar', false);
+    mostrarTela('entrar');
+    aviso('aviso-entrar', mensagem || '', 'erro');
+  }
+
+  // ---------- entrar ----------
+  $('logo-entrar').src = logo;
+  $('logo-lista').src = logo;
+  if (faltando) {
+    $('form-entrar').hidden = true;
+    aviso('aviso-entrar', faltando, 'erro');
+  }
+  $('form-entrar').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var senha = $('senha').value;
+    if (!senha) { aviso('aviso-entrar', 'Digite a senha.', 'erro'); return; }
+    aviso('aviso-entrar', '', 'erro');
+    ocupado($('btn-entrar'), 'Entrando...', 'Entrar', true);
+    servidor(function (r) {
+      if (!r.ok) {
+        ocupado($('btn-entrar'), '', 'Entrar', false);
+        aviso('aviso-entrar', r.mensagem || 'Não consegui entrar.', 'erro');
+        return;
+      }
+      passe = r.passe;
+      $('senha').value = '';
+      carregarLista(function () { ocupado($('btn-entrar'), '', 'Entrar', false); });
+    }, function () {
+      ocupado($('btn-entrar'), '', 'Entrar', false);
+      aviso('aviso-entrar', 'Não consegui entrar. Confira a internet e tente de novo.', 'erro');
+    }).entrar(senha);
+  });
+  $('btn-sair').addEventListener('click', function () { sair(''); });
+
+  // ---------- lista ----------
+  function esgotada(p) {
+    var tem = false;
+    for (var i = 0; i < TAMANHOS.length; i++) {
+      var q = p.estoque[TAMANHOS[i]];
+      if (typeof q === 'number') { tem = true; if (q > 0) return false; }
+    }
+    return tem;
+  }
+  function carregarLista(depois) {
+    servidor(function (r) {
+      if (!r.ok) {
+        aviso('aviso-lista', r.mensagem || 'Não consegui carregar as peças.', 'erro');
+        mostrarTela('lista');
+        if (depois) depois();
+        return;
+      }
+      pecas = r.pecas || []; categorias = r.categorias || []; colecoes = r.colecoes || [];
+      atualizarListasDeNomes();
+      aviso('aviso-lista', '', 'erro');
+      mostrarTela('lista');
+      desenharLista();
+      if (depois) depois();
+    }, function () {
+      aviso('aviso-lista', 'Não consegui carregar as peças. Confira a internet e tente de novo.', 'erro');
+      mostrarTela('lista');
+      if (depois) depois();
+    }).listarPecasArea(passe);
+  }
+  function atualizarListasDeNomes() {
+    var c = $('lista-categorias'), o = $('lista-colecoes');
+    c.replaceChildren(); o.replaceChildren();
+    categorias.forEach(function (v) { c.appendChild(el('option', { value: v })); });
+    colecoes.forEach(function (v) { o.appendChild(el('option', { value: v })); });
+  }
+  function lembrarNomes(p) {
+    if (p.categoria && categorias.indexOf(p.categoria) === -1) categorias.push(p.categoria);
+    if (p.colecao && colecoes.indexOf(p.colecao) === -1) colecoes.push(p.colecao);
+    atualizarListasDeNomes();
+  }
+  function filtradas() {
+    var termo = semAcento(busca).trim();
+    return pecas.filter(function (p) {
+      if (filtro === 'site' && !p.ativo) return false;
+      if (filtro === 'escondidas' && p.ativo) return false;
+      if (filtro === 'esgotadas' && !esgotada(p)) return false;
+      if (!termo) return true;
+      return semAcento(p.nome + ' ' + p.cor + ' ' + p.codigo).indexOf(termo) !== -1;
+    });
+  }
+  function desenharLista() {
+    var chips = $('chips');
+    chips.replaceChildren();
+    FILTROS.forEach(function (f) {
+      var texto = f[1] + (f[0] === 'todas' ? ' (' + pecas.length + ')' : '');
+      chips.appendChild(el('button', {
+        type: 'button', classe: 'chip' + (filtro === f[0] ? ' on' : ''), texto: texto,
+        aoClicar: function () { filtro = f[0]; desenharLista(); }
+      }));
+    });
+    var itens = $('itens');
+    itens.replaceChildren();
+    var lista = filtradas();
+    if (!lista.length) {
+      itens.appendChild(el('div', { classe: 'aviso info', texto: pecas.length ? 'Nenhuma peça encontrada.' : 'Ainda não há peças. Toque em "+ Nova peça".' }));
+      return;
+    }
+    lista.forEach(function (p) { itens.appendChild(cartaoDaPeca(p)); });
+  }
+  function cartaoDaPeca(p) {
+    var pilulas = el('div', { classe: 'pilulas' });
+    TAMANHOS.forEach(function (t) {
+      var q = p.estoque[t];
+      if (typeof q !== 'number') return;
+      pilulas.appendChild(el('span', { classe: 'p' + (q === 0 ? ' zero' : ''), texto: q === 0 ? t : t + ' ·' + q }));
+    });
+    var info = el('div', { classe: 'info' }, [
+      el('div', { classe: 'nome', texto: tituloDa(p) }),
+      el('div', { classe: 'preco', texto: preco(p.preco) }),
+      pilulas
+    ]);
+    var filhos = [fotoImg(p.codigo, 1, p.fotos > 0), info];
+    if (esgotada(p)) filhos.push(el('span', { classe: 'tag esg', texto: 'Esgotada' }));
+    if (!p.ativo) filhos.push(el('span', { classe: 'tag off', texto: 'Escondida' }));
+    return el('button', { type: 'button', classe: 'item', aoClicar: function () { abrirEdicao(p); } }, filhos);
+  }
+  $('busca').addEventListener('input', function () { busca = $('busca').value; desenharLista(); });
+  $('btn-nova').addEventListener('click', function () { abrirNova(null); });
+
+  // ---------- editar ----------
+  function abrirEdicao(p, mensagem, tipo) {
+    atual = p;
+    rascunho = { estoque: {}, ativo: p.ativo, destaque: p.destaque, campanha: p.campanha };
+    TAMANHOS.forEach(function (t) { rascunho.estoque[t] = p.estoque[t]; });
+    apagando = null;
+    $('titulo-editar').textContent = tituloDa(p);
+    $('ed-preco').value = p.preco === null ? '' : virgula(p.preco);
+    $('ed-categoria').value = p.categoria;
+    $('ed-colecao').value = p.colecao;
+    $('ed-descricao').value = p.descricao;
+    var outras = pecas.filter(function (o) { return o.codigo !== p.codigo && chaveNome(o.nome) === chaveNome(p.nome); });
+    $('aviso-cores').hidden = !outras.length;
+    $('progresso-editar').textContent = '';
+    aviso('aviso-editar', mensagem || '', tipo || 'ok');
+    desenharGaleria();
+    desenharEstoque();
+    desenharChaves();
+    mostrarTela('editar');
+  }
+  function desenharGaleria() {
+    var g = $('galeria');
+    g.replaceChildren();
+    for (var n = 1; n <= atual.fotos; n++) {
+      (function (n) {
+        g.appendChild(el('div', { classe: 'foto' }, [
+          fotoImg(atual.codigo, n, true),
+          el('button', { type: 'button', classe: 'apagar', texto: 'apagar', 'aria-label': 'Apagar a foto ' + n, aoClicar: function () { apagando = n; desenharConfirmacao(); } })
+        ]));
+      })(n);
+    }
+    g.appendChild(el('button', { type: 'button', classe: 'add', texto: '+', 'aria-label': 'Acrescentar fotos', aoClicar: function () { escolherArquivos('acrescentar'); } }));
+    desenharConfirmacao();
+  }
+  function desenharConfirmacao() {
+    var c = $('confirmar-foto');
+    c.replaceChildren();
+    if (!apagando) return;
+    var n = apagando;
+    c.appendChild(el('div', { classe: 'confirmar' }, [
+      el('div', { texto: 'Apagar a foto ' + n + '? Não dá para desfazer.' }),
+      el('div', { classe: 'acoes' }, [
+        el('button', { type: 'button', classe: 'btn sec', texto: 'Não', aoClicar: function () { apagando = null; desenharConfirmacao(); } }),
+        el('button', { type: 'button', classe: 'btn perigo', texto: 'Sim, apagar', aoClicar: function (ev) { apagarFotoAtual(n, ev.currentTarget); } })
+      ])
+    ]));
+  }
+  function apagarFotoAtual(n, botao) {
+    ocupado(botao, 'Apagando...', 'Sim, apagar', true);
+    servidor(function (r) {
+      apagando = null;
+      if (r.ok) atual.fotos = typeof r.fotos === 'number' ? r.fotos : Math.max(0, atual.fotos - 1);
+      aviso('aviso-editar', r.mensagem || '', r.ok ? 'ok' : 'erro');
+      desenharGaleria();
+    }, function () {
+      apagando = null;
+      aviso('aviso-editar', 'Não consegui apagar. Confira a internet e tente de novo.', 'erro');
+      desenharGaleria();
+    }).apagarFoto(passe, atual.codigo, n);
+  }
+  function semEstoque(v) { return v === '' || v === undefined || v === null; }
+  function desenharEstoque() {
+    var e = $('estoque');
+    e.replaceChildren();
+    TAMANHOS.forEach(function (t) {
+      var q = rascunho.estoque[t];
+      var sem = semEstoque(q);
+      var n = el('span', { classe: 'n', texto: sem ? 'não tem' : String(q) });
+      var menos = el('button', { type: 'button', texto: '−', 'aria-label': 'Menos tamanho ' + t, aoClicar: function () {
+        var v = rascunho.estoque[t];
+        if (semEstoque(v)) return;
+        rascunho.estoque[t] = v <= 0 ? '' : v - 1;
+        desenharEstoque();
+      } });
+      var mais = el('button', { type: 'button', texto: '+', 'aria-label': 'Mais tamanho ' + t, aoClicar: function () {
+        var v = rascunho.estoque[t];
+        rascunho.estoque[t] = semEstoque(v) ? 0 : Math.min(999, v + 1);
+        desenharEstoque();
+      } });
+      e.appendChild(el('div', { classe: 'tam' + (sem ? ' nao' : '') }, [
+        el('b', { texto: t }), el('div', { classe: 'ctl' }, [menos, n, mais])
+      ]));
+    });
+  }
+  function desenharChaves() {
+    CHAVES.forEach(function (par) { $(par[1]).setAttribute('aria-checked', rascunho[par[0]] ? 'true' : 'false'); });
+  }
+  CHAVES.forEach(function (par) {
+    $(par[1]).addEventListener('click', function () { rascunho[par[0]] = !rascunho[par[0]]; desenharChaves(); });
+  });
+  $('voltar-editar').addEventListener('click', function () { mostrarTela('lista'); desenharLista(); });
+
+  $('btn-salvar').addEventListener('click', function () {
+    var botao = $('btn-salvar');
+    var campos = {
+      preco: $('ed-preco').value, categoria: $('ed-categoria').value, colecao: $('ed-colecao').value,
+      descricao: $('ed-descricao').value, estoque: {},
+      ativo: rascunho.ativo, destaque: rascunho.destaque, campanha: rascunho.campanha
+    };
+    TAMANHOS.forEach(function (t) { campos.estoque[t] = rascunho.estoque[t]; });
+    aviso('aviso-editar', '', 'ok');
+    ocupado(botao, 'Salvando...', 'Salvar alterações', true);
+    servidor(function (r) {
+      ocupado(botao, '', 'Salvar alterações', false);
+      if (!r.ok) { aviso('aviso-editar', r.mensagem || 'Não consegui salvar.', 'erro'); return; }
+      if (r.peca) substituirPeca(r.peca);
+      aviso('aviso-editar', r.mensagem || 'Salvo!', 'ok');
+    }, function () {
+      ocupado(botao, '', 'Salvar alterações', false);
+      aviso('aviso-editar', MSG_REDE, 'erro');
+    }).salvarPeca(passe, atual.codigo, campos);
+  });
+  // Mantém a lista local igual à planilha: a peça salva e os 4 campos que valem para todas as cores.
+  function substituirPeca(salva) {
+    var nome = chaveNome(salva.nome);
+    pecas = pecas.map(function (p) {
+      if (p.codigo === salva.codigo) return salva;
+      if (chaveNome(p.nome) !== nome) return p;
+      var c = {};
+      for (var k in p) c[k] = p[k];
+      c.categoria = salva.categoria; c.colecao = salva.colecao; c.descricao = salva.descricao; c.destaque = salva.destaque;
+      return c;
+    });
+    atual = salva;
+    lembrarNomes(salva);
+  }
+
+  // ---------- fotos ----------
+  function escolherArquivos(modo) {
+    modoArquivo = modo;
+    $('arquivo').value = '';
+    $('arquivo').click();
+  }
+  $('btn-trocar').addEventListener('click', function () { escolherArquivos('trocar'); });
+  $('nv-btn-fotos').addEventListener('click', function () { escolherArquivos('nova'); });
+  $('arquivo').addEventListener('change', function () {
+    var arquivos = Array.prototype.slice.call($('arquivo').files);
+    if (!arquivos.length) return;
+    var destino = modoArquivo === 'nova' ? 'aviso-nova' : 'aviso-editar';
+    if (arquivos.length > MAX_FOTOS) { aviso(destino, 'No máximo ' + MAX_FOTOS + ' fotos por envio.', 'erro'); return; }
+    if (modoArquivo === 'nova') {
+      nova.arquivos = arquivos;
+      $('nv-fotos-info').textContent = arquivos.length + (arquivos.length === 1 ? ' foto escolhida.' : ' fotos escolhidas.');
+      aviso('aviso-nova', '', 'erro');
+      return;
+    }
+    aviso('aviso-editar', '', 'ok');
+    enviarDaPeca(arquivos, modoArquivo === 'trocar');
+  });
+  function reduzir(arquivo) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(arquivo);
+      var img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth, h = img.naturalHeight;
+        var escala = Math.min(1, LADO_MAX / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * escala)), ch = Math.max(1, Math.round(h * escala));
+        var canvas = document.createElement('canvas');
+        canvas.width = cw;
+        canvas.height = ch;
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.drawImage(img, 0, 0, cw, ch);
+        URL.revokeObjectURL(url);
+        var dataUrl = canvas.toDataURL('image/jpeg', QUALIDADE);
+        resolve({ tipo: 'image/jpeg', base64: dataUrl.split(',')[1] });
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error('Não consegui abrir uma das fotos.'));
+      };
+      img.src = url;
+    });
+  }
+  function prepararFotos(arquivos, aoProgredir) {
+    var prontas = [];
+    var cadeia = Promise.resolve();
+    arquivos.forEach(function (arq, i) {
+      cadeia = cadeia.then(function () {
+        aoProgredir('Preparando foto ' + (i + 1) + ' de ' + arquivos.length + '...');
+        return reduzir(arq).then(function (r) { prontas.push(r); });
+      });
+    });
+    return cadeia.then(function () { return prontas; });
+  }
+  function enviarDaPeca(arquivos, trocar) {
+    var codigo = atual.codigo;
+    var area = $('progresso-editar');
+    var botoes = [$('btn-trocar'), $('btn-salvar')];
+    botoes.forEach(function (b) { b.disabled = true; });
+    var liberar = function () { botoes.forEach(function (b) { b.disabled = false; }); area.textContent = ''; };
+    prepararFotos(arquivos, function (t) { area.textContent = t; }).then(function (prontas) {
+      area.textContent = 'Enviando... pode levar um pouco.';
+      servidor(function (r) {
+        liberar();
+        if (r.ok && atual && atual.codigo === codigo) {
+          if (typeof r.fotos === 'number') atual.fotos = r.fotos;
+          desenharGaleria();
+        }
+        aviso('aviso-editar', r.ok ? 'Enviado! As fotos novas aparecem em alguns minutos.' : (r.mensagem || 'Não consegui enviar as fotos.'), r.ok ? 'ok' : 'erro');
+      }, function () {
+        liberar();
+        aviso('aviso-editar', 'Não consegui enviar. Confira a internet e tente de novo.', 'erro');
+      }).enviarFotos({ passe: passe, codigo: codigo, trocar: trocar, arquivos: prontas });
+    }).catch(function (e) {
+      liberar();
+      aviso('aviso-editar', (e && e.message) || 'Erro ao preparar as fotos.', 'erro');
+    });
+  }
+
+  // ---------- nova peça ----------
+  function abrirNova(modelo) {
+    nova = { tamanhos: {}, arquivos: [] };
+    TAMANHOS.forEach(function (t) { nova.tamanhos[t] = !!(modelo && typeof modelo.estoque[t] === 'number'); });
+    $('nv-nome').value = modelo ? modelo.nome : '';
+    $('nv-cor').value = '';
+    $('nv-preco').value = modelo && modelo.preco !== null ? virgula(modelo.preco) : '';
+    $('nv-categoria').value = modelo ? modelo.categoria : '';
+    $('nv-colecao').value = modelo ? modelo.colecao : '';
+    $('nv-fotos-info').textContent = '';
+    aviso('aviso-nova', '', 'erro');
+    desenharTamanhosNova();
+    previaCodigo();
+    mostrarTela('nova');
+  }
+  function desenharTamanhosNova() {
+    var c = $('nv-tamanhos');
+    c.replaceChildren();
+    TAMANHOS.forEach(function (t) {
+      c.appendChild(el('button', {
+        type: 'button', classe: 'chip' + (nova.tamanhos[t] ? ' on' : ''), texto: t, 'aria-pressed': nova.tamanhos[t] ? 'true' : 'false',
+        aoClicar: function () { nova.tamanhos[t] = !nova.tamanhos[t]; desenharTamanhosNova(); }
+      }));
+    });
+  }
+  // Só ilustrativo: quem decide o código (e evita repetido) é o servidor.
+  function previaCodigo() {
+    $('nv-codigo').textContent = slug($('nv-nome').value + ' ' + $('nv-cor').value) || 'peca';
+  }
+  $('nv-nome').addEventListener('input', previaCodigo);
+  $('nv-cor').addEventListener('input', previaCodigo);
+  $('voltar-nova').addEventListener('click', function () { mostrarTela('lista'); desenharLista(); });
+  $('btn-nova-cor').addEventListener('click', function () { abrirNova(atual); });
+
+  $('btn-cadastrar').addEventListener('click', function () {
+    var botao = $('btn-cadastrar');
+    var campos = {
+      nome: $('nv-nome').value, cor: $('nv-cor').value, preco: $('nv-preco').value,
+      categoria: $('nv-categoria').value, colecao: $('nv-colecao').value, estoque: {}
+    };
+    TAMANHOS.forEach(function (t) { campos.estoque[t] = nova.tamanhos[t] ? 0 : ''; });
+    var arquivos = nova.arquivos;
+    aviso('aviso-nova', '', 'erro');
+    ocupado(botao, 'Salvando...', 'Cadastrar peça', true);
+    var liberar = function () { ocupado(botao, '', 'Cadastrar peça', false); };
+    servidor(function (r) {
+      if (!r.ok) { liberar(); aviso('aviso-nova', r.mensagem || 'Não consegui cadastrar.', 'erro'); return; }
+      var criada = r.peca;
+      pecas.push(criada);
+      lembrarNomes(criada);
+      if (!arquivos.length) { liberar(); abrirEdicao(criada, 'Peça cadastrada! Agora ajuste o estoque e envie as fotos.', 'ok'); return; }
+      botao.textContent = 'Enviando fotos...';
+      prepararFotos(arquivos, function (t) { botao.textContent = t; }).then(function (prontas) {
+        servidor(function (f) {
+          liberar();
+          if (f.ok && typeof f.fotos === 'number') criada.fotos = f.fotos;
+          abrirEdicao(criada, f.ok ? 'Peça cadastrada! As fotos novas aparecem em alguns minutos.' : 'Peça cadastrada, mas as fotos não foram enviadas. ' + (f.mensagem || ''), f.ok ? 'ok' : 'erro');
+        }, function () {
+          liberar();
+          abrirEdicao(criada, 'Peça cadastrada, mas as fotos não foram enviadas. Confira a internet e envie de novo aqui.', 'erro');
+        }).enviarFotos({ passe: passe, codigo: r.codigo || criada.codigo, trocar: false, arquivos: prontas });
+      }).catch(function (e) {
+        liberar();
+        abrirEdicao(criada, 'Peça cadastrada, mas as fotos não foram enviadas. ' + ((e && e.message) || ''), 'erro');
+      });
+    }, function () {
+      liberar();
+      aviso('aviso-nova', MSG_REDE, 'erro');
+    }).criarPeca(passe, campos);
+  });
+})();
+</script>
+</body>
+</html>

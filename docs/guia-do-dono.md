@@ -6,7 +6,7 @@ Este guia é para quem não mexe com tecnologia. Cada passo diz o que abrir e on
 
 - Uma conta no **GitHub**, onde o site fica guardado e publicado.
 - Uma **Planilha Google**, onde a Anne cuida das peças, preços e estoque.
-- Um **Apps Script**, que é o formulário de fotos da Anne (ela envia a foto pelo celular e ela aparece no site).
+- Um **Apps Script**, que é a **Área Adm** da loja: pelo celular a Anne cadastra peças, ajusta preço e estoque e envia fotos, e tudo aparece no site.
 
 **Dados fixos da loja:**
 
@@ -19,7 +19,7 @@ Este guia é para quem não mexe com tecnologia. Cada passo diz o que abrir e on
 
 A planilha e o Apps Script ficam na **conta Google da loja**. Use sempre essa conta nos passos 2, 3, 4 e 6.
 
-> **Cuidado com segredos.** O repositório do GitHub é público: qualquer pessoa vê o que está lá. Por isso **nunca** escreva em arquivo do site a senha do formulário, o token do GitHub nem o e-mail da loja. Esses três só entram nas "Propriedades do script" (passo 6).
+> **Cuidado com segredos.** O repositório do GitHub é público: qualquer pessoa vê o que está lá. Por isso **nunca** escreva em arquivo do site a senha da Área Adm, o token do GitHub nem o e-mail da loja. Esses três só entram nas "Propriedades do script" (passo 6).
 
 ---
 
@@ -155,15 +155,15 @@ A Anne edita a planilha pelo navegador ou pelo aplicativo Planilhas do celular, 
 
 ---
 
-## 5. Criar o token do GitHub (a "chave" do formulário de fotos)
+## 5. Criar o token do GitHub (a "chave" da Área Adm)
 
-O formulário da Anne precisa de permissão para colocar fotos no repositório. Essa permissão é o **token**. Ele deve valer só para este repositório.
+A Área Adm precisa de permissão para colocar fotos no repositório. Essa permissão é o **token**. Ele deve valer só para este repositório.
 
 1. No GitHub, clique na sua foto (canto superior direito) e em **Settings**.
 2. No menu da esquerda, no fim, clique em **Developer settings**.
 3. Clique em **Personal access tokens → Fine-grained tokens → Generate new token**.
-4. **Token name**: `formulario-fotos`.
-5. **Expiration**: escolha **No expiration** (sem expiração) se a opção existir. Se a conta não permitir, escolha 1 ano e **crie agora um lembrete na sua agenda para daqui a 11 meses**: "renovar o token do GitHub da Trio Kids". Quando o token vence, o formulário para de enviar fotos até você trocar.
+4. **Token name**: `area-adm`.
+5. **Expiration**: escolha **No expiration** (sem expiração) se a opção existir. Se a conta não permitir, escolha 1 ano e **crie agora um lembrete na sua agenda para daqui a 11 meses**: "renovar o token do GitHub da Trio Kids". Quando o token vence, a Área Adm para de enviar fotos até você trocar.
 6. **Repository access**: marque **Only select repositories** e escolha `triokids/triokids.github.io`.
 7. Em **Permissions → Repository permissions**, procure **Contents** e escolha **Read and write** (leitura e escrita). Não marque mais nada.
 8. Clique em **Generate token**.
@@ -173,16 +173,16 @@ Não envie esse token por WhatsApp ou e-mail, e nunca o cole em arquivo do site.
 
 ---
 
-## 6. Apps Script: o formulário de fotos
+## 6. Apps Script: a Área Adm
 
 ### 6.1 Criar o projeto
 
 1. Na planilha **Trio Kids**, use o menu **Extensões → Apps Script**. Abre uma nova aba.
-2. Clique no título "Projeto sem título" e renomeie para `Formulario Trio Kids`.
+2. Clique no título "Projeto sem título" e renomeie para `Area Adm Trio Kids`.
 3. Vamos usar quatro arquivos:
    - `Codigo.gs`: apague o conteúdo do arquivo que já existe, abra `apps-script/Codigo.gs` do site no seu computador, copie tudo e cole.
    - `Logica.gs`: clique em **+** ao lado de "Arquivos" → **Script**, nomeie `Logica` e cole o conteúdo de `apps-script/Logica.gs`.
-   - `Formulario.html`: clique em **+** → **HTML**, nomeie `Formulario` e cole o conteúdo de `apps-script/Formulario.html`.
+   - `Area.html`: clique em **+** → **HTML**, nomeie `Area` e cole o conteúdo de `apps-script/Area.html`.
    - `appsscript.json`: clique na engrenagem (**Configurações do projeto**) e marque **Mostrar arquivo de manifesto "appsscript.json" no editor**. Volte ao editor, abra `appsscript.json`, apague o conteúdo e cole o de `apps-script/appsscript.json`.
 4. Clique em **Salvar projeto** (ícone de disquete).
 
@@ -193,7 +193,7 @@ Não envie esse token por WhatsApp ou e-mail, e nunca o cole em arquivo do site.
 
 | Nome | O que colocar |
 | --- | --- |
-| `SENHA_FORMULARIO` | A senha que a Anne vai digitar para enviar fotos. Invente uma e combine só com ela. **Digite aqui e em nenhum outro lugar.** |
+| `SENHA_FORMULARIO` | A senha da Área Adm (você e a Anne usam a mesma). Invente uma e combine só com ela. **Digite aqui e em nenhum outro lugar.** |
 | `GITHUB_TOKEN` | O token do passo 5 |
 | `GITHUB_DONO` | `triokids` |
 | `GITHUB_REPO` | `triokids.github.io` |
@@ -209,28 +209,34 @@ Não envie esse token por WhatsApp ou e-mail, e nunca o cole em arquivo do site.
 2. O Google vai pedir autorização: clique em **Revisar permissões**, escolha a conta da loja, depois **Avançado → Acessar ... (não seguro)** (é normal, o script é seu) e **Permitir**.
 3. Rode **uma vez só**. Ela cria um gatilho que, todo dia por volta das 6h, confere a planilha e atualiza a reserva (`catalogo.json`) no GitHub se algo mudou.
 
-### 6.4 Publicar o formulário
+### 6.4 Publicar a Área Adm
 
 1. Clique em **Implantar → Nova implantação**.
 2. Na engrenagem ao lado de "Selecionar tipo", escolha **App da Web**.
 3. **Executar como**: **Eu**. **Quem tem acesso**: **Qualquer pessoa**.
 4. Clique em **Implantar** e autorize se pedir.
-5. Copie o **URL do app da Web**. É o endereço do formulário. A senha protege o envio.
+5. Copie o **URL do app da Web**. É o endereço da Área Adm. A senha protege o acesso.
 
-Se mudar o código do Apps Script no futuro, use **Implantar → Gerenciar implantações → editar (lápis) → Versão: Nova versão**. O endereço continua o mesmo.
+Se já existe uma implantação do formulário antigo, ou se mudar o código do Apps Script no futuro, use **Implantar → Gerenciar implantações → editar (lápis) → Versão: Nova versão**. O endereço continua o mesmo.
 
 ---
 
-## 7. Atalho do formulário no celular da Anne
+## 7. Atalho da Área Adm no celular da Anne
 
 No celular da Anne:
 
-1. Abra o endereço do formulário (passo 6.4) no Chrome (Android) ou no Safari (iPhone).
+1. Abra o endereço da Área Adm (passo 6.4) no Chrome (Android) ou no Safari (iPhone).
 2. **Android (Chrome)**: toque nos três pontinhos e em **Adicionar à tela inicial**.
 3. **iPhone (Safari)**: toque no botão de compartilhar e em **Adicionar à Tela de Início**.
-4. Dê o nome "Fotos Trio Kids" e confirme.
+4. Dê o nome "Trio Kids Loja" e confirme.
 
-Como usar: abrir o atalho, escolher a peça, escolher as fotos (ou tirar na hora), digitar a senha e tocar em enviar. Quando aparecer "Enviado!", a foto surge no site em poucos minutos. Para trocar as fotos antigas pelas novas, marque "trocar todas".
+Como usar:
+
+1. Abra o atalho e digite a senha. **A senha é pedida toda vez** que abrir a Área Adm; ela não fica guardada no celular. Depois de 8 horas é preciso digitar de novo.
+2. **Editar uma peça**: toque na peça da lista (use a busca ou os filtros no alto), mude preço, estoque, descrição ou as chaves (aparece no site, destaque, campanha) e toque em **Salvar alterações**. Categoria, coleção, descrição e destaque valem para todas as cores da peça.
+3. **Estoque**: use − e +. No 0 o tamanho fica esgotado; tocar em − de novo vira "não tem".
+4. **Nova peça**: toque em **+ Nova peça**, preencha nome, cor, preço e categoria, marque os tamanhos e (se quiser) escolha as fotos. Para outra cor de uma peça que já existe, abra a peça e toque em **Nova cor desta peça**.
+5. **Fotos**: na tela da peça, **+** acrescenta fotos, "apagar" tira uma foto (o app pede confirmação na própria tela) e **Trocar todas as fotos** substitui o conjunto. As fotos novas aparecem em alguns minutos.
 
 ---
 
@@ -239,33 +245,34 @@ Como usar: abrir o atalho, escolher a peça, escolher as fotos (ou tirar na hora
 Faça depois que os passos 1 a 7 estiverem prontos. Tenha um cronômetro e um papel para anotar horários. O teste inteiro deve caber em 2 horas.
 
 1. Anote a hora de início. Com o celular da Anne, tire na hora uma foto de uma peça (de 3 a 5 MB, tamanho normal de foto de celular).
-2. Abra o atalho, escolha a peça, digite a senha e envie.
+2. Abra o atalho, digite a senha, abra a peça e envie a foto.
 3. Anote a hora em que apareceu "Enviado!".
 4. Recarregue a página dessa peça no site e anote quanto tempo levou até a foto aparecer.
 5. No GitHub, aba **Commits**: confira que existe **um só** commit chamado `Fotos: <código da peça>` para esse envio, com a foto na pasta `fotos` e o `catalogo.json` alterado.
 6. No Apps Script, execute `gerarReserva` manualmente. Se nada mudou na planilha, **não** pode aparecer commit novo.
 7. No celular, mude o estoque de 3 peças na planilha e anote o tempo até o site mostrar os 3 valores novos (pode levar até 10 minutos).
-8. Digite a senha errada 5 vezes no formulário. Ele deve bloquear por 1 hora. Anote o resultado.
-9. Registre todos os tempos. Se algo passou muito do esperado, veja o passo 9 abaixo.
+8. Digite a senha errada 5 vezes na Área Adm. Ele deve bloquear por 1 hora. Anote o resultado.
+9. Na Área Adm, salve uma descrição que comece com um traço (por exemplo `- teste`) e confira no site que não aparece apóstrofo antes do texto.
+10. Registre todos os tempos. Se algo passou muito do esperado, veja o passo 9 abaixo.
 
 ---
 
 ## 9. Se algo der errado
 
-**Chegou um e-mail de falha** (avisando que o formulário ou a reserva falhou): o e-mail diz qual função falhou e o motivo. Os casos mais comuns:
+**Chegou um e-mail de falha** (avisando que a Área Adm ou a reserva falhou): o e-mail diz qual função falhou e o motivo. Os casos mais comuns:
 
 - *Bad credentials, 401 ou 403*: o token venceu ou foi apagado. Gere um novo (passo 5) e troque o valor de `GITHUB_TOKEN` nas Propriedades do script.
 - *Not Found ou 404*: confira `GITHUB_DONO`, `GITHUB_REPO` e `GITHUB_BRANCH` (devem ser `triokids`, `triokids.github.io` e `main`).
 - *Falta configurar: ...*: alguma propriedade do passo 6.2 está vazia. O nome aparece na mensagem.
 - Erro sobre a planilha: confira `PLANILHA_ID` e se a aba Peças tem as colunas `nome`, `cor`, `codigo` e `fotos` com esses nomes.
 
-**O formulário diz "Senha incorreta" ou bloqueou**: o bloqueio dura 1 hora. Se a Anne esqueceu a senha, mude `SENHA_FORMULARIO` nas Propriedades do script e avise a ela.
+**A Área Adm diz "Senha incorreta" ou bloqueou**: o bloqueio dura 1 hora. Se a Anne esqueceu a senha, mude `SENHA_FORMULARIO` nas Propriedades do script e avise a ela.
 
 **A planilha mudou e o site não**: espere até 10 minutos e atualize a página. Se continuar igual, confira se o endereço colado no `config.js` ainda está certo (passo 3) e se a aba continua publicada (**Arquivo → Compartilhar → Publicar na Web**).
 
 **O site mostra uma faixa avisando que está usando a reserva**: o site não conseguiu ler a planilha e mostra a última cópia (`catalogo.json`). As peças aparecem, mas podem estar um pouco desatualizadas. Veja o item anterior.
 
-**Contingência: subir a foto direto pelo GitHub** (se o formulário estiver fora do ar):
+**Contingência: subir a foto direto pelo GitHub** (se a Área Adm estiver fora do ar):
 
 1. No repositório, abra a pasta `fotos`.
 2. Clique em **Add file → Upload files** e arraste a foto.
@@ -281,4 +288,4 @@ A aba **Campanha** já vem com o texto das artes da loja: Nosso propósito, Como
 
 ## Fotos iniciais
 
-A cor **Safira** do **Vestido Clara** está temporariamente **sem foto própria**: a foto que veio do PDF é da cor **Cru**. A Anne deve enviar a foto da Safira pelo formulário (passo 7), escolhendo a peça `Vestido Clara - Safira`. Depois de enviada, o site passa a mostrar a foto correta.
+A cor **Safira** do **Vestido Clara** está temporariamente **sem foto própria**: a foto que veio do PDF é da cor **Cru**. A Anne deve enviar a foto da Safira pela Área Adm (passo 7), escolhendo a peça `Vestido Clara - Safira`. Depois de enviada, o site passa a mostrar a foto correta.
