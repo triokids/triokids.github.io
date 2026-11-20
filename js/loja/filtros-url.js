@@ -14,6 +14,8 @@ function lerPreco(valor) {
 export function lerFiltrosDaUrl(search) {
   const q = new URLSearchParams(search);
   const filtros = {};
+  const busca = (q.get('busca') || '').trim();
+  if (busca) filtros.busca = busca;
   const categoria = (q.get('categoria') || '').trim();
   if (categoria) filtros.categoria = categoria;
   const tamanho = q.get('tamanho');
@@ -29,6 +31,7 @@ export function lerFiltrosDaUrl(search) {
 
 export function filtrosParaUrl(filtros) {
   const q = new URLSearchParams();
+  if (filtros.busca) q.set('busca', filtros.busca);
   if (filtros.categoria) q.set('categoria', filtros.categoria);
   if (filtros.tamanho) q.set('tamanho', filtros.tamanho);
   if (filtros.precoMin != null) q.set('precoMin', String(filtros.precoMin));

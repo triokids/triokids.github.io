@@ -39,6 +39,8 @@ test('filtrarPecas', () => {
   assert.deepEqual(filtrarPecas(todas, { precoMin: 50, precoMax: 100 }).map(p => p.id), ['E1']);
   assert.deepEqual(filtrarPecas(todas, { precoMax: 45.5 }).map(p => p.id), ['J1']);
   assert.equal(filtrarPecas(todas, {}).length, 3);
+  assert.deepEqual(filtrarPecas(todas, { busca: 'jardin' }).map(p => p.id), ['J1']);
+  assert.deepEqual(filtrarPecas(todas, { busca: ' ' }), todas);
 });
 
 test('ordenarPecas não muta e ordena', () => {
