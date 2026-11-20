@@ -37,6 +37,7 @@
 - Modify `js/ui/html.js` — `htmlCartao` (nova estrutura), `htmlGaleria` (param `idBase`), novas `htmlBlocoPreco`, `htmlTamanhosRapidos`, `htmlEspiar`.
 - Modify `tests/html.test.js`, `tests/peca-pagina.test.js`.
 - Create `js/ui/cartoes.js` — `ligarCartoes` (DOM).
+- Modify `js/ui/layout.js` — exporta `FOCAVEIS`.
 - Modify `js/paginas/catalogo.js`, `js/paginas/inicio.js`, `js/paginas/peca.js` — ligam `ligarCartoes`; `peca.js` passa a usar `htmlBlocoPreco` e `mensagemCarrinho`.
 - Modify `css/estilo.css` — seção "Grade e cartão" e nova seção "Espiar".
 
@@ -122,9 +123,10 @@ git commit -m "feat: regras da compra rápida no cartão"
     - Quando o modo é `'tamanhos'`, também `htmlTamanhosRapidos(varianteParaComprar(peca), peca.id)` dentro de `.cartao-foto`.
     - Mantém preço, bloco de campanha, pílulas e selo de esgotado como hoje.
   - `htmlTamanhosRapidos(variante, idPeca) -> string` — `<div class="cartao-tamanhos" id="tam-${esc(idPeca)}" hidden>` com `<p>Escolha o tamanho</p>`, um `<button type="button" class="cartao-tam" data-acao="tamanho" data-codigo="${codigo}" data-tamanho="${t}">` por tamanho com estoque > 0 na ordem de `TAMANHOS`, um `<button type="button" class="cartao-tam-fechar" data-acao="fechar-tamanhos" aria-label="Fechar tamanhos">&times;</button>` e `<p class="cartao-aviso" role="status"></p>`.
+  - `htmlSeletorTamanho(variante, escolhido = '') -> string` — novo 2º parâmetro: o botão do tamanho `escolhido` (se com estoque) sai com `class="tam tam-escolhido"` e `aria-pressed="true"`. Sem o parâmetro, saída idêntica à atual. Em `peca.js`, passe `tamanho` e apague o trecho que marca o botão depois de desenhar.
   - `htmlBlocoPreco(variante, desconto) -> string` — exatamente o HTML que `peca.js` monta hoje em `htmlBlocoPreco()` (preço grande + linha da campanha com link).
   - `htmlGaleria(variante, nome, idBase = 'galeria') -> string` — ids passam a ser `${idBase}-faixa` e `${idBase}-indicador`; com o padrão, saída idêntica à atual.
-  - `htmlEspiar(peca, variante, { desconto, tamanho = '', quantidade = 1, mensagem = '' }) -> string` — conteúdo do diálogo: botão fechar `<button type="button" class="botao-icone espiar-fechar" data-acao="fechar-espiar" aria-label="Fechar">&times;</button>`, `htmlGaleria(variante, peca.nome, 'espiar-galeria')`, `<h2 id="espiar-nome">`, `htmlSeletorCor`, `htmlBlocoPreco`, `htmlSeletorTamanho` (com o tamanho escolhido marcado `aria-pressed="true"` e classe `tam-escolhido`), controle de quantidade com ids `espiar-menos` / `espiar-valor` / `espiar-mais` (mesmas regras de desabilitar da página da peça), `<button type="button" class="botao botao-adicionar" id="espiar-adicionar">Adicionar ao carrinho</button>` (desabilitado sem tamanho), `<p class="peca-aviso" id="espiar-aviso" role="status">` com `mensagem` ou `Escolha um tamanho`, e `<a href="peca.html?c=${variante.codigo}">Ver detalhes</a>`.
+  - `htmlEspiar(peca, variante, { desconto, tamanho = '', quantidade = 1, mensagem = '' }) -> string` — conteúdo do diálogo: botão fechar `<button type="button" class="botao-icone espiar-fechar" data-acao="fechar-espiar" aria-label="Fechar">&times;</button>`, `htmlGaleria(variante, peca.nome, 'espiar-galeria')`, `<h2 id="espiar-nome">`, `htmlSeletorCor`, `htmlBlocoPreco`, `htmlSeletorTamanho(variante, tamanho)`, controle de quantidade com ids `espiar-menos` / `espiar-valor` / `espiar-mais` (mesmas regras de desabilitar da página da peça), `<button type="button" class="botao botao-adicionar" id="espiar-adicionar">Adicionar ao carrinho</button>` (desabilitado sem tamanho), `<p class="peca-aviso" id="espiar-aviso" role="status">` com `mensagem` ou `Escolha um tamanho`, e `<a href="peca.html?c=${encodeURIComponent(variante.codigo)}">Ver detalhes</a>` (valor também passa por `esc`).
 
 - [ ] **Step 1: Escrever os testes que falham.** Em `tests/html.test.js` (os testes existentes de `htmlCartao` continuam valendo):
 
@@ -135,7 +137,7 @@ test('htmlCartao: article com link para a peça e botões Comprar e Espiar com n
   assert.match(h, /<a class="cartao-link" href="peca\.html\?c=x-1">/);
   assert.match(h, /data-acao="comprar"[^>]*aria-label="Comprar A&lt;b&gt; &amp; &quot;c&quot;"/);
   assert.match(h, /data-acao="espiar"[^>]*aria-label="Espiar A&lt;b&gt;/);
-  assert.doesNotMatch(h, /<a[^>]*>(?:(?!<\/a>)[\s\S])*<button/); // nenhum botão dentro de link
+  assert.doesNotMatch(h, /<a[\s>][^>]*>(?:(?!<\/a>)[\s\S])*<button/); // nenhum botão dentro de link (<a , não <article)
 });
 test('htmlCartao esgotada: só Espiar, sem tamanhos rápidos', () => {
   const h = htmlCartao(peca({}, { 4: 0 }), 10);
@@ -156,6 +158,13 @@ test('htmlCartao com duas cores com estoque: Comprar abre diálogo e não há li
   assert.match(h, /data-acao="comprar"[^>]*aria-haspopup="dialog"/);
   assert.doesNotMatch(h, /cartao-tamanhos/);
 });
+test('htmlCartao com duas cores e só uma com estoque: lista de tamanhos da cor com estoque', () => {
+  const p = peca({}, { 4: 0 });
+  p.variantes.push({ codigo: 'x-2', cor: 'Rosa', preco: 139.9, campanha: false, fotos: 1, estoque: { 2: 1 } });
+  const h = htmlCartao(p, 10);
+  assert.match(h, /data-acao="comprar"[^>]*aria-expanded="false"/);
+  assert.match(h, /class="cartao-tam" data-acao="tamanho" data-codigo="x-2" data-tamanho="2"/);
+});
 ```
 
 Em `tests/peca-pagina.test.js`:
@@ -164,6 +173,12 @@ Em `tests/peca-pagina.test.js`:
 test('htmlGaleria com idBase usa ids próprios; sem idBase mantém galeria-faixa', () => {
   assert.match(htmlGaleria(safira, 'V', 'espiar-galeria'), /id="espiar-galeria-faixa"[\s\S]*id="espiar-galeria-indicador"/);
   assert.match(htmlGaleria(safira, 'V'), /id="galeria-faixa"/);
+});
+test('htmlSeletorTamanho com escolhido marca só ele; sem escolhido nada marcado', () => {
+  const h = htmlSeletorTamanho(safira, '2');
+  assert.match(h, /class="tam tam-escolhido" data-tamanho="2" aria-pressed="true"/);
+  assert.match(h, /data-tamanho="4" aria-pressed="false"/);
+  assert.doesNotMatch(htmlSeletorTamanho(safira), /aria-pressed="true"/);
 });
 test('htmlBlocoPreco: preço e campanha com link', () => {
   const h = htmlBlocoPreco(safira, 10);
@@ -190,7 +205,7 @@ test('htmlEspiar sem tamanho: adicionar desabilitado e aviso "Escolha um tamanho
 (Atualize os `import` dos dois arquivos com as funções novas.)
 
 - [ ] **Step 2: Rodar e ver falhar** — `npm test` → os testes novos falham.
-- [ ] **Step 3: Implementar** as funções do bloco Interfaces em `js/ui/html.js`. Em `js/paginas/peca.js`, troque a função local `htmlBlocoPreco()` por `htmlBlocoPreco(variante, desconto)` importada.
+- [ ] **Step 3: Implementar** as funções do bloco Interfaces em `js/ui/html.js`. Em `js/paginas/peca.js`, troque a função local `htmlBlocoPreco()` por `htmlBlocoPreco(variante, desconto)` importada (ajuste a chamada e remova imports que ficarem sem uso, como `precoComCampanha` e `formatarPreco`), e passe `tamanho` a `htmlSeletorTamanho`.
 - [ ] **Step 4: CSS do cartão** em `css/estilo.css`, seção "Grade e cartão":
   - `.cartao { position: relative; }`; `.cartao-link { color: inherit; text-decoration: none; }` e `.cartao-link::after { content: ''; position: absolute; inset: 0; z-index: 1; }`.
   - `.cartao-acoes` no rodapé da foto (`position: absolute; left/right/bottom: 8px; z-index: 2; display: grid; gap: 6px`). `.cartao-botao` min-height 44px, largura total, raio 22px, fundo `var(--titulo)` texto `#fff`; `.cartao-botao-claro` fundo `var(--cartao)` texto `var(--titulo)`.
@@ -212,6 +227,7 @@ git commit -m "feat: cartão com botões Comprar e Espiar e HTML do Espiar"
 **Files:**
 - Create: `js/ui/cartoes.js`
 - Modify: `js/paginas/catalogo.js`, `js/paginas/inicio.js`, `js/paginas/peca.js`
+- Modify: `js/ui/layout.js` (só `export` de `FOCAVEIS`)
 - Modify: `css/estilo.css` (nova seção "Espiar")
 
 **Interfaces:**
@@ -220,12 +236,14 @@ git commit -m "feat: cartão com botões Comprar e Espiar e HTML do Espiar"
 
 Comportamento de `ligarCartoes` (sem teste automático: não há DOM no `node --test`; verificação no navegador no Step 4):
 - Um ouvinte de `click` em `raiz` (delegação; sobrevive ao `innerHTML` das páginas). Acha a peça por `closest('[data-peca]').dataset.peca` em `catalogo.pecas`.
-- `data-acao="comprar"`: modo `'tamanhos'` → mostra `#tam-<id>` (`hidden = false`), `aria-expanded="true"`, foco no primeiro `.cartao-tam`; modo `'espiar'` → abre o Espiar.
-- `data-acao="tamanho"`: `carrinho.adicionar(codigo, tamanho, 1, catalogo)`; ok → fecha a lista e chama `abrirGaveta()`; falha → texto de `mensagemCarrinho` em `.cartao-aviso` daquele cartão.
+- `data-acao="comprar"`: se a lista já está aberta, fecha (alterna); modo `'tamanhos'` → mostra `#tam-<id>` (`hidden = false`), `aria-expanded="true"`, foco no primeiro `.cartao-tam`; modo `'espiar'` → abre o Espiar.
+- `data-acao="tamanho"`: `carrinho.adicionar(codigo, tamanho, 1, catalogo)`; ok → primeiro fecha a lista (foco volta ao Comprar), depois chama `abrirGaveta()`; falha → texto de `mensagemCarrinho` em `.cartao-aviso` daquele cartão.
 - `data-acao="fechar-tamanhos"` e `Esc` com foco dentro da lista → fecha, `aria-expanded="false"`, foco volta ao Comprar.
 - `data-acao="espiar"` → abre o Espiar com `varianteParaComprar(peca) || peca.variantes[0]`.
-- Espiar: o markup do diálogo é inserido uma vez no `body` (se `#espiar` já existe, reaproveita — `peca.js` pode chamar `ligarCartoes` e o diálogo não duplica): `<div class="fundo-espiar" id="fundo-espiar" hidden></div><div class="espiar" id="espiar" role="dialog" aria-modal="true" aria-labelledby="espiar-nome" hidden><div class="espiar-caixa" id="espiar-caixa"></div></div>`. Estado local `{ peca, variante, tamanho, quantidade, mensagem }`; cada mudança redesenha `#espiar-caixa` com `htmlEspiar` e devolve o foco ao controle clicado (mesmo padrão de `desenhar(seletorFoco)` em `peca.js`). Cor/tamanho/quantidade seguem as mesmas regras da página da peça. `#espiar-adicionar` → `carrinho.adicionar(variante.codigo, tamanho, quantidade, catalogo)`; ok → fecha o Espiar e chama `abrirGaveta()`; falha → `mensagemCarrinho`.
-- Abrir: guarda o elemento que tinha o foco, mostra fundo + diálogo, `document.body.classList.add('gaveta-aberta')` (já trava a rolagem), foco no botão fechar. Fechar (×, clique no fundo, `Esc`): esconde, remove a classe, devolve o foco. `Tab` preso dentro do diálogo (mesmo algoritmo da gaveta em `js/ui/layout.js`, seletor `FOCAVEIS`).
+- Espiar: o markup do diálogo é inserido uma vez no `body` (se `#espiar` já existe, reaproveita — `peca.js` pode chamar `ligarCartoes` e o diálogo não duplica): `<div class="fundo-espiar" id="fundo-espiar" hidden></div><div class="espiar" id="espiar" role="dialog" aria-modal="true" aria-labelledby="espiar-nome" hidden><div class="espiar-caixa" id="espiar-caixa"></div></div>`. Estado local `{ peca, variante, tamanho, quantidade, mensagem }`; cada mudança redesenha `#espiar-caixa` com `htmlEspiar` e devolve o foco ao controle clicado (mesmo padrão de `desenhar(seletorFoco)` em `peca.js`). Cor/tamanho/quantidade seguem as mesmas regras da página da peça. `#espiar-adicionar` → `carrinho.adicionar(variante.codigo, tamanho, quantidade, catalogo)`; ok → **primeiro** fecha o Espiar (remove `gaveta-aberta`, devolve o foco ao botão que abriu), **depois** chama `abrirGaveta()` — nessa ordem, senão a gaveta guarda um elemento oculto como acionador (`js/ui/layout.js:136`) e a rolagem destrava ao fechar; falha → `mensagemCarrinho`.
+- O diálogo fica no `body`, fora de `raiz`: ele tem **ouvintes próprios** (`click` em `#espiar` e no fundo; `scroll` da galeria), registrados uma única vez junto com a criação do markup.
+- Galeria do Espiar: indicador `#espiar-galeria-indicador` atualiza no `scroll` de `#espiar-galeria-faixa` (`i / N`, mesma conta de `peca.js`); ao redesenhar sem trocar de cor, preserva `scrollLeft` e o indicador, como `desenhar(_, true)` em `peca.js`.
+- Abrir: guarda o elemento que tinha o foco, mostra fundo + diálogo, `document.body.classList.add('gaveta-aberta')` (já trava a rolagem), foco no botão fechar. Fechar (×, clique no fundo, `Esc`): esconde, remove a classe, devolve o foco. `Tab` preso dentro do diálogo (mesmo algoritmo da gaveta em `js/ui/layout.js`; exporte `FOCAVEIS` de `layout.js` e importe, sem duplicar).
 - Páginas: `catalogo.js` liga em `document.getElementById('resultado')`; `inicio.js` liga em `document.getElementById('conteudo')` (depois de preencher); `peca.js` liga em `principal` (cobre o "Combina com"). Cada uma pega `carrinho` e `abrirGaveta` de `montarLayout`.
 - CSS "Espiar": `.fundo-espiar` igual a `.fundo-gaveta` (z-index 40); `.espiar` fixo e centrado, z-index 41, `max-width: 880px`, `max-height: calc(100vh - 32px)`, `overflow-y: auto`, fundo `var(--cartao)`, raio `var(--raio)`; conteúdo em 2 colunas a partir de 761px (galeria | info), 1 coluna abaixo; no celular ocupa a tela inteira (`inset: 0; border-radius: 0`). `.espiar-fechar` no canto superior direito.
 
@@ -244,6 +262,6 @@ Comportamento de `ligarCartoes` (sem teste automático: não há DOM no `node --
 - [ ] **Step 5: Commit**
 
 ```bash
-git add js/ui/cartoes.js js/paginas/catalogo.js js/paginas/inicio.js js/paginas/peca.js css/estilo.css
+git add js/ui/cartoes.js js/ui/layout.js js/paginas/catalogo.js js/paginas/inicio.js js/paginas/peca.js css/estilo.css
 git commit -m "feat: Comprar e Espiar funcionando nos cartões"
 ```
