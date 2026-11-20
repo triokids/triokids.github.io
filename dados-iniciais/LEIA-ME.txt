@@ -8,12 +8,13 @@ ABA PEÇAS
   - Célula VAZIA = a loja não tem esse tamanho.
   - 0 = o tamanho existe, mas está ESGOTADO.
   - Um número (1, 2, 3...) = quantas unidades tem no estoque.
-- Preço: só o número, com vírgula. Exemplo: 139,90 (sem R$).
+- Preço: só o número, com vírgula. Exemplo: 139,90 (sem R$). Isso só funciona com a região da planilha em Brasil (Arquivo > Configurações > Localidade: Brasil). Se o preço ficar alinhado à esquerda ou for recusado, avise o dono.
 - ativo: sim aparece no site, nao esconde a peça.
 - destaque: sim coloca a peça em destaque na página inicial.
 - campanha: sim faz a peça participar da campanha (desconto).
 - Peça nova: escreva na ÚLTIMA linha da tabela. A última linha é a novidade e aparece entre as novidades do site.
-- Não apague nem mude a coluna codigo. Ela é o "RG" da peça: a foto, o carrinho e o pedido dependem dela. Se criar peça nova, o código é o nome sem acento, em minúsculas, com hífen. Exemplo: vestido-ester.
+- Não apague a coluna codigo. Ela é o "RG" da peça: a foto, o carrinho e o pedido dependem dela. NUNCA mude o código de uma peça que já existe ou já tem fotos.
+- Peça nova: crie o código em minúsculas, sem acento, com as palavras separadas por hífen, e ele precisa ser único (não repetir o de outra linha). Exemplo: vestido-clara-safira. Peça com cores diferentes tem um código para cada cor.
 - Não mude os títulos da linha 1.
 - A coluna fotos diz quantas fotos a peça tem. O formulário de fotos atualiza sozinho; não precisa mexer.
 

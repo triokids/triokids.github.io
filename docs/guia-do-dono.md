@@ -79,7 +79,9 @@ Escolha **uma** das duas formas.
 3. A planilha já vem com uma aba chamada "Página1". Clique nela com o botão direito, escolha **Renomear** e escreva `Peças`.
 4. Clique no **+** no canto inferior esquerdo para criar mais três abas e dê estes nomes, com essa grafia: `Config`, `Campanha`, `LEIA-ME`.
 
-### 2.2 Importar os dados iniciais
+### 2.2 Ajustar a região da planilha e importar os dados iniciais
+
+**Antes de importar**, ajuste a região: menu **Arquivo → Configurações**, aba **Geral**, em **Localidade** escolha **Brasil** e clique em **Salvar configurações**. Sem isso, o preço `139,90` vira texto em vez de número, e a validação "É um número" do passo 2.4 recusa os preços.
 
 Os arquivos estão na pasta `dados-iniciais` do site: `pecas.csv`, `config.csv` e `campanha.csv`.
 
@@ -111,7 +113,7 @@ Na aba **Peças**:
 
 1. **Congelar**: clique em qualquer célula da aba Peças, menu **Ver → Congelar → 1 linha** e também **Ver → Congelar → 1 coluna**. Assim o título e o `codigo` ficam sempre à vista.
 2. **Proteger o cabeçalho** (linha 1): selecione a linha 1, clique com o botão direito, escolha **Ver mais ações da linha → Proteger intervalo**. Dê o nome "Cabeçalho", clique em **Definir permissões**, escolha **Restringir quem pode editar este intervalo → Somente você** e **Concluído**.
-3. Repita a proteção para a coluna `codigo` (coluna A inteira), chamando de "Códigos". O código é o "RG" da peça; se mudar, a foto e o pedido se perdem. (A Anne continua podendo escrever o código de uma peça **nova** se você deixar a proteção só para as linhas já existentes; se achar complicado, deixe a coluna toda protegida e crie você mesmo as peças novas.)
+**Não proteja a coluna `codigo`**: a Anne precisa escrever o código das peças novas. O aviso para nunca mudar o código de uma peça que já existe está na aba `LEIA-ME`.
 
 ---
 
@@ -276,4 +278,4 @@ Os textos que estão hoje na aba **Campanha** são **provisórios**. Cada linha 
 
 ## Fotos iniciais
 
-A cor **Safira** do **Vestido Clara** está temporariamente **sem foto própria**: a foto que veio do PDF é da cor **Cru**. A Anne deve enviar a foto da Safira pelo formulário (passo 7), escolhendo a peça `Vestido Clara (Safira)`. Depois de enviada, o site passa a mostrar a foto correta.
+A cor **Safira** do **Vestido Clara** está temporariamente **sem foto própria**: a foto que veio do PDF é da cor **Cru**. A Anne deve enviar a foto da Safira pelo formulário (passo 7), escolhendo a peça `Vestido Clara - Safira`. Depois de enviada, o site passa a mostrar a foto correta.
