@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fotos - Trio Kids</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=EB+Garamond:ital,wght@0,400;1,400&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fundo: #fbf6ef; --cartao: #fffefb; --texto: #674638; --titulo: #7a4e2e;
+    --secundario: #604431; --coral: #d9795b; --verde: #719779; --selo: #52745d; --rotulo: #b65b43;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: 'Lato', sans-serif; font-size: 17px; line-height: 1.5; }
+  main { max-width: 520px; margin: 0 auto; padding: 20px 16px 40px; }
+  .logo { display: block; max-width: 160px; max-height: 90px; margin: 0 auto 8px; }
+  h1 { font-family: 'Comfortaa', sans-serif; font-weight: 700; color: var(--titulo); text-align: center; font-size: 1.5rem; margin: 0 0 4px; }
+  .sub { font-family: 'EB Garamond', serif; font-style: italic; text-align: center; color: var(--secundario); margin: 0 0 20px; font-size: 1.15rem; }
+  form { background: var(--cartao); border-radius: 16px; padding: 18px; box-shadow: 0 2px 10px rgba(103, 70, 56, .12); }
+  label { display: block; font-weight: 700; color: var(--rotulo); margin: 14px 0 6px; }
+  label:first-child { margin-top: 0; }
+  select, input[type=password], input[type=file] { width: 100%; padding: 12px; font: inherit; color: var(--texto); background: var(--cartao); border: 2px solid var(--verde); border-radius: 10px; }
+  .marcar { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; color: var(--texto); }
+  .marcar input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--selo); }
+  button { width: 100%; margin-top: 20px; padding: 14px; font: inherit; font-weight: 700; color: #fffefb; background: var(--coral); border: 0; border-radius: 12px; }
+  button:disabled { opacity: .6; }
+  #progresso { margin-top: 16px; display: none; }
+  #barra { height: 10px; background: var(--fundo); border-radius: 6px; overflow: hidden; border: 1px solid var(--verde); }
+  #barra div { height: 100%; width: 0; background: var(--verde); transition: width .2s; }
+  #status { margin: 8px 0 0; color: var(--secundario); }
+  #resultado { margin-top: 16px; padding: 12px; border-radius: 10px; display: none; font-weight: 700; }
+  #resultado.ok { background: #e6efe8; color: var(--selo); }
+  #resultado.erro { background: #f7e3dc; color: var(--rotulo); }
+</style>
+</head>
+<body data-faltando="<?= faltando ?>">
+<main>
+  <img class="logo" src="<?= urlLogo ?>" alt="Trio Kids" onerror="this.style.display='none'">
+  <h1>Fotos das peças</h1>
+  <p class="sub">Escolha a peça e envie as fotos.</p>
+  <form id="form" novalidate>
+    <label for="peca">Peça</label>
+    <select id="peca" required><option value="">Carregando...</option></select>
+
+    <label for="fotos">Fotos (câmera ou galeria)</label>
+    <input id="fotos" type="file" accept="image/*" multiple>
+
+    <label class="marcar"><input id="trocar" type="checkbox"> Trocar todas as fotos desta peça</label>
+
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" autocomplete="off">
+
+    <button id="enviar" type="submit">Enviar fotos</button>
+  </form>
+  <div id="progresso"><div id="barra"><div></div></div><p id="status"></p></div>
+  <div id="resultado" role="status"></div>
+</main>
+<script>
+(function () {
+  var LADO_MAX = 1600, QUALIDADE = 0.8, MAX_FOTOS = 8;
+  var $ = function (id) { return document.getElementById(id); };
+  var faltando = document.body.getAttribute('data-faltando');
+
+  function mostrarResultado(texto, ok) {
+    var r = $('resultado');
+    r.textContent = texto;
+    r.className = ok ? 'ok' : 'erro';
+    r.style.display = 'block';
+  }
+  function progresso(parte, texto) {
+    $('progresso').style.display = 'block';
+    $('barra').firstChild.style.width = Math.round(parte * 100) + '%';
+    $('status').textContent = texto;
+  }
+
+  if (faltando) {
+    $('form').style.display = 'none';
+    mostrarResultado(faltando, false);
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(function (lista) {
+      var sel = $('peca');
+      sel.innerHTML = '';
+      var vazio = document.createElement('option');
+      vazio.value = '';
+      vazio.textContent = 'Escolha a peça...';
+      sel.appendChild(vazio);
+      lista.forEach(function (p) {
+        var o = document.createElement('option');
+        o.value = p.codigo;
+        o.textContent = p.rotulo;
+        sel.appendChild(o);
+      });
+    })
+    .withFailureHandler(function (e) {
+      $('peca').innerHTML = '<option value="">Não foi possível carregar</option>';
+      mostrarResultado((e && e.message) || 'Não consegui carregar as peças. Avise o dono.', false);
+    })
+    .listarPecas();
+
+  function reduzir(arquivo) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(arquivo);
+      var img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth, h = img.naturalHeight;
+        var escala = Math.min(1, LADO_MAX / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * escala)), ch = Math.max(1, Math.round(h * escala));
+        var canvas = document.createElement('canvas');
+        canvas.width = cw;
+        canvas.height = ch;
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.drawImage(img, 0, 0, cw, ch);
+        URL.revokeObjectURL(url);
+        var dataUrl = canvas.toDataURL('image/jpeg', QUALIDADE);
+        resolve({ tipo: 'image/jpeg', base64: dataUrl.split(',')[1] });
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error('Não consegui abrir uma das fotos.'));
+      };
+      img.src = url;
+    });
+  }
+
+  $('form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    $('resultado').style.display = 'none';
+    var codigo = $('peca').value;
+    var arquivos = Array.prototype.slice.call($('fotos').files);
+    if (!codigo) return mostrarResultado('Escolha a peça.', false);
+    if (!arquivos.length) return mostrarResultado('Escolha pelo menos uma foto.', false);
+    if (arquivos.length > MAX_FOTOS) return mostrarResultado('No máximo ' + MAX_FOTOS + ' fotos por envio.', false);
+    if (!$('senha').value) return mostrarResultado('Digite a senha.', false);
+
+    $('enviar').disabled = true;
+    var prontas = [];
+    var cadeia = Promise.resolve();
+    arquivos.forEach(function (arq, i) {
+      cadeia = cadeia.then(function () {
+        progresso(i / (arquivos.length + 1), 'Preparando foto ' + (i + 1) + ' de ' + arquivos.length + '...');
+        return reduzir(arq).then(function (r) { prontas.push(r); });
+      });
+    });
+    cadeia.then(function () {
+      progresso(arquivos.length / (arquivos.length + 1), 'Enviando... pode levar um pouco.');
+      google.script.run
+        .withSuccessHandler(function (r) {
+          progresso(1, r.ok ? 'Pronto.' : 'Não enviado.');
+          mostrarResultado(r.mensagem, r.ok);
+          if (r.ok) { $('fotos').value = ''; $('trocar').checked = false; }
+          $('enviar').disabled = false;
+        })
+        .withFailureHandler(function () {
+          mostrarResultado('Não consegui enviar. Avise o dono.', false);
+          $('enviar').disabled = false;
+        })
+        .enviarFotos({ senha: $('senha').value, codigo: codigo, trocar: $('trocar').checked, arquivos: prontas });
+    }).catch(function (e) {
+      mostrarResultado(e.message || 'Erro ao preparar as fotos.', false);
+      $('enviar').disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>
