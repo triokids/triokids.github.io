@@ -32,7 +32,7 @@ PECAS = [
     ("vestido-ester", "Vestido Ester", "", "Vestido", "139,90", "2:1 4:1 6:1", [4]),
     ("conjunto-joab", "Conjunto Joab", "", "Conjunto", "89,90", "2:1 4:1 6:1", [5]),
     ("vestido-clara-cru", "Vestido Clara", "Cru", "Vestido", "129,90", "1:1 2:1 6:1", [6]),
-    ("vestido-clara-safira", "Vestido Clara", "Safira", "Vestido", "129,90", "2:1 4:1 6:1", [6]),
+    ("vestido-clara-safira", "Vestido Clara", "Safira", "Vestido", "129,90", "2:1 4:1 6:1", []),  # sem foto própria (a do PDF é da cor Cru): a vendedora envia pelo formulário
     ("conjunto-joao-gabriel", "Conjunto João Gabriel", "", "Conjunto", "75,90", "2:2 6:2", [7]),
     ("conjunto-flor", "Conjunto Flor", "", "Conjunto", "88,90", "1:1 4:1 6:1", [8]),
     ("conjunto-happy-arthur", "Conjunto Happy Arthur", "", "Conjunto", "95,90", "2:1 4:1 6:2", [9, 10]),

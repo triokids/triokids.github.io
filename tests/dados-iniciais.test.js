@@ -43,8 +43,13 @@ test('toda foto declarada existe em disco', () => {
   }
 });
 
-test('toda variante tem ao menos uma foto e o logo existe', () => {
-  for (const p of cat.pecas) for (const v of p.variantes) assert.ok(v.fotos >= 1, v.codigo);
+test('toda variante tem foto, exceto a Safira (sem foto própria), e o logo existe', () => {
+  for (const p of cat.pecas) for (const v of p.variantes) {
+    if (v.codigo !== 'vestido-clara-safira') assert.ok(v.fotos >= 1, v.codigo);
+  }
+  const safira = cat.pecas.flatMap((p) => p.variantes).find((v) => v.codigo === 'vestido-clara-safira');
+  assert.equal(safira.fotos, 0);
+  assert.equal(existsSync(new URL('fotos/vestido-clara-safira-1.jpg', raiz)), false);
   assert.ok(existsSync(new URL('img/logo.png', raiz)));
 });
 
