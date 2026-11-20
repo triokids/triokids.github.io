@@ -110,17 +110,25 @@ Mostrado em cartão e na peça como `preco × (1 − desconto_campanha/100)`, ar
 Abre `https://wa.me/<whatsapp>?text=<mensagem codificada>`:
 
 ```
-Olá, Anne! Quero fazer este pedido:
+Olá, Anne! Vim pelo site e quero fazer este pedido:
 
-• Vestido Maria Júlia – Tam 4 – 1x – R$ 139,90
-• Vestido Clara (Safira) – Tam 2 – 2x – R$ 129,90 (R$ 259,80)
+*Itens (3 peças)*
+1. Vestido Maria Júlia — cód. VMJ01
+   Tam 4 · 1 un. · R$ 139,90
+2. Vestido Clara (Safira) — cód. VCL02
+   Tam 2 · 2 × R$ 129,90 = R$ 259,80
 
-Total: R$ 399,70
-Quero participar da Trio Kids Abraça (doação de peça). ← só se marcado
+*Total: R$ 399,70*
 
+Quero participar da *Trio Kids Abraça* (doação de peça).        ← só se marcado
+Se a doação for confirmada, o total fica *R$ 359,73*.           ← só se marcado
+
+*Meus dados*
 Nome: <nome>
 Cidade/bairro: <cidade>
 ```
+
+`*...*` é o negrito do WhatsApp. O código é o da variante (cor) que está no carrinho.
 
 Nome e cidade obrigatórios antes de habilitar o botão.
 
@@ -139,7 +147,7 @@ Primeiro o teste de 2 horas no celular da vendedora (ADR-001, item 5). Depois o 
 - **Se o teste de 2 horas falhar**: o plano para ali e volta ao dono com o resultado; contingência do ADR-001 (dono sobe fotos pelo GitHub) segue disponível.
 - **Endereço da peça**: `peca.html?c=<codigo>`. Ao trocar de cor, o endereço muda para o código da cor.
 - **Tamanhos**: colunas e rótulos `P, M, G, 1, 2, 3, 4, 6`, nessa ordem em filtros e pílulas. O guia usa os rótulos do PDF (01, 02, 04, 06), que equivalem a 1, 2, 4, 6; o tamanho 3 não tem linha no guia.
-- **Campanha**: coluna `campanha` (sim/não, padrão sim) para excluir peças. O preço "com a Trio Kids Abraça" aparece sempre nas peças participantes, como no PDF. A mensagem lista os preços cheios e o total cheio; se a caixa estiver marcada, acrescenta "Total com a campanha, se a doação for confirmada: R$ X" (só itens participantes).
+- **Campanha**: coluna `campanha` (sim/não, padrão sim) para excluir peças. O preço "com a Trio Kids Abraça" aparece sempre nas peças participantes, como no PDF. A mensagem lista os preços cheios e o total cheio; se a caixa estiver marcada, acrescenta "Se a doação for confirmada, o total fica R$ X." (só itens participantes).
 - **Preços diferentes entre cores**: cada linha tem o seu preço; o cartão mostra "a partir de" o menor.
 - **Novidades e destaques**: "novidades" = ordem inversa das linhas (a última cadastrada aparece primeiro; regra no LEIA-ME). Destaques = linhas com `destaque = sim`, até 8, na ordem da planilha; sem nenhum marcado, mostra as 8 mais novas.
 - **Preço no CSV**: o site aceita `139,90` e `139.90`.
