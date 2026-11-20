@@ -3,7 +3,7 @@ import { encontrarVariante } from '../loja/carrinho.js';
 import { precoComCampanha } from '../loja/campanha.js';
 import { esgotada } from '../loja/filtros.js';
 import { formatarPreco } from '../dados/csv.js';
-import { esc, htmlCartao, htmlGaleria, htmlSeletorTamanho, htmlSeletorCor } from '../ui/html.js';
+import { esc, htmlCartao, htmlGaleria, htmlSeletorTamanho, htmlSeletorCor, urlFoto, altFoto } from '../ui/html.js';
 
 const MOTIVOS = {
   'sem-tamanho': 'Esse tamanho não está disponível.',
@@ -27,6 +27,7 @@ try {
     let tamanho = '';
     let quantidade = 1;
     let mensagem = '';
+    let fotoAtual = 1;
     document.title = `${peca.nome} | Trio Kids`;
 
     const combina = catalogo.pecas
@@ -42,26 +43,49 @@ try {
       return `<p class="preco preco-grande">${formatarPreco(variante.preco)}</p>${campanha}`;
     }
 
-    function ligarGaleria() {
-      const faixa = document.getElementById('galeria-faixa');
+    // Troca a foto grande sem redesenhar a página (mantém o foco onde a cliente está).
+    function mostrarFoto(n) {
+      const total = variante.fotos;
+      const foto = document.getElementById('galeria-foto');
+      if (!foto || !(total > 1)) return;
+      fotoAtual = ((n - 1 + total) % total) + 1;
+      foto.src = urlFoto(variante.codigo, fotoAtual);
+      foto.alt = altFoto(variante, peca.nome, fotoAtual);
+      principal.querySelectorAll('.galeria-mini').forEach((b) => {
+        if (Number(b.dataset.foto) === fotoAtual) b.setAttribute('aria-current', 'true');
+        else b.removeAttribute('aria-current');
+      });
       const indicador = document.getElementById('galeria-indicador');
-      if (!faixa || !indicador) return;
-      const total = faixa.querySelectorAll('img').length;
-      faixa.addEventListener('scroll', () => {
-        const i = Math.min(total, Math.round(faixa.scrollLeft / faixa.clientWidth) + 1);
-        indicador.textContent = `${i} / ${total}`;
+      if (indicador) indicador.textContent = `${fotoAtual} / ${total}`;
+    }
+
+    // Deslizar o dedo na foto grande (celular) passa para a anterior/próxima.
+    function ligarDeslize() {
+      const area = principal.querySelector('.galeria-com-miniaturas .galeria-principal');
+      if (!area) return;
+      let inicioX = null;
+      let inicioY = null;
+      area.addEventListener('touchstart', (e) => {
+        inicioX = e.touches[0].clientX;
+        inicioY = e.touches[0].clientY;
+      }, { passive: true });
+      area.addEventListener('touchend', (e) => {
+        if (inicioX === null) return;
+        const dx = e.changedTouches[0].clientX - inicioX;
+        const dy = e.changedTouches[0].clientY - inicioY;
+        inicioX = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) mostrarFoto(fotoAtual + (dx < 0 ? 1 : -1));
       }, { passive: true });
     }
 
     // seletorFoco: seletor CSS do controle que deve receber o foco depois de redesenhar.
     // manterGaleria: true quando a variante não mudou (mantém a foto que a cliente estava vendo).
     function desenhar(seletorFoco, manterGaleria) {
-      const faixaAntes = manterGaleria ? document.getElementById('galeria-faixa') : null;
-      const posicao = faixaAntes ? faixaAntes.scrollLeft : 0;
+      if (!manterGaleria) fotoAtual = 1;
       const max = estoqueEscolhido();
       principal.innerHTML = `<nav class="migalha" aria-label="Caminho"><a href="catalogo.html">&larr; Catálogo</a></nav>
 <div class="peca">
-  <div class="peca-fotos">${htmlGaleria(variante, peca.nome)}</div>
+  <div class="peca-fotos">${htmlGaleria(variante, peca.nome, fotoAtual)}</div>
   <div class="peca-info">
     <h1 class="peca-nome">${esc(peca.nome)}</h1>
     ${variante.cor && peca.variantes.length < 2 ? `<p class="peca-cor">${esc(variante.cor)}</p>` : ''}
@@ -89,23 +113,29 @@ ${combina.length ? `<section class="bloco"><h2 class="titulo-secao">Combina com<
           b.classList.add('tam-escolhido');
         }
       }
-      ligarGaleria();
-      const faixaNova = document.getElementById('galeria-faixa');
-      if (faixaNova && posicao > 0) {
-        faixaNova.scrollLeft = posicao;
-        const indicador = document.getElementById('galeria-indicador');
-        const total = faixaNova.querySelectorAll('img').length;
-        if (indicador && faixaNova.clientWidth) {
-          indicador.textContent = `${Math.min(total, Math.round(posicao / faixaNova.clientWidth) + 1)} / ${total}`;
-        }
-      }
+      ligarDeslize();
       if (seletorFoco) {
         const el = principal.querySelector(seletorFoco);
         if (el && !el.disabled) el.focus();
       }
     }
 
+    principal.addEventListener('keydown', (e) => {
+      if (!e.target.closest('.galeria-com-miniaturas')) return;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const mini = e.target.closest('.galeria-mini');
+        const base = mini ? Number(mini.dataset.foto) : fotoAtual;
+        mostrarFoto(base + (e.key === 'ArrowRight' ? 1 : -1));
+        if (mini) principal.querySelector(`.galeria-mini[data-foto="${fotoAtual}"]`)?.focus();
+      }
+    });
+
     principal.addEventListener('click', (e) => {
+      const mini = e.target.closest('.galeria-mini');
+      if (mini) { mostrarFoto(Number(mini.dataset.foto)); return; }
+      if (e.target.closest('.galeria-anterior')) { mostrarFoto(fotoAtual - 1); return; }
+      if (e.target.closest('.galeria-proxima')) { mostrarFoto(fotoAtual + 1); return; }
       const cor = e.target.closest('.cor');
       if (cor) {
         const destino = peca.variantes.find((v) => v.codigo === cor.dataset.codigo);
