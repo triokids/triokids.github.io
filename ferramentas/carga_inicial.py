@@ -75,6 +75,27 @@ def para_jpeg(doc, xref, destino):
     im.save(destino, "JPEG", quality=QUALIDADE, optimize=True)
 
 
+def logo_transparente(im, tolerancia=12, suave=24):
+    """Devolve o logo em RGBA: pixels parecidos com a cor de fundo (amostrada no canto)
+    ficam transparentes, com borda suavizada entre `tolerancia` e `tolerancia + suave`."""
+    im = im.convert("RGB")
+    fundo = im.getpixel((0, 0))
+    out = im.convert("RGBA")
+    px_in, px_out = im.load(), out.load()
+    for y in range(im.height):
+        for x in range(im.width):
+            p = px_in[x, y]
+            d = max(abs(p[i] - fundo[i]) for i in range(3))
+            if d <= tolerancia:
+                a = 0
+            elif d >= tolerancia + suave:
+                a = 255
+            else:
+                a = round(255 * (d - tolerancia) / suave)
+            px_out[x, y] = (p[0], p[1], p[2], a)
+    return out
+
+
 def escrever_csv(caminho, linhas):
     with open(caminho, "w", encoding="utf-8", newline="") as f:
         csv.writer(f, lineterminator="\n").writerows(linhas)
@@ -107,6 +128,7 @@ def main(caminho_pdf):
         pix = fitz.Pixmap(fitz.csRGB, pix)
     logo = Image.open(io.BytesIO(pix.tobytes("png"))).convert("RGB")
     logo.thumbnail((600, 600), Image.LANCZOS)
+    logo = logo_transparente(logo)
     logo.save(RAIZ / "img" / "logo.png", optimize=True)
 
     escrever_csv(RAIZ / "dados-iniciais" / "pecas.csv", linhas)

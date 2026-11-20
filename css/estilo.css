@@ -210,7 +210,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 16px 16px 48px; min-height: 6
   .menu { justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
-.heroi img, .marca img { mix-blend-mode: multiply; }
+
 .so-leitor { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .gaveta-topo h2:focus { outline: none; }
 

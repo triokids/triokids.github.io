@@ -53,6 +53,12 @@ test('toda variante tem foto, exceto a Safira (sem foto própria), e o logo exis
   assert.ok(existsSync(new URL('img/logo.png', raiz)));
 });
 
+test('logo tem canal alfa (PNG RGBA), sem fundo opaco', () => {
+  const png = readFileSync(new URL('img/logo.png', raiz));
+  assert.equal(png.toString('latin1', 1, 4), 'PNG');
+  assert.equal(png[25], 6, 'tipo de cor 6 = RGBA');
+});
+
 test('config e campanha', () => {
   assert.equal(cat.config.whatsapp, '5562993379366');
   assert.equal(cat.config.descontoCampanha, 10);
