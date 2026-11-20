@@ -2,9 +2,10 @@ import { montarLayout } from '../ui/layout.js';
 import { filtrarPecas, ordenarPecas } from '../loja/filtros.js';
 import { lerFiltrosDaUrl, filtrosParaUrl, esgotadasNoFim } from '../loja/filtros-url.js';
 import { htmlCartao, htmlFiltros } from '../ui/html.js';
+import { ligarCartoes } from '../ui/cartoes.js';
 
 try {
-  const { catalogo } = await montarLayout({ pagina: 'catalogo' });
+  const { catalogo, carrinho, abrirGaveta } = await montarLayout({ pagina: 'catalogo' });
   const principal = document.getElementById('conteudo');
   const categorias = [...new Set(catalogo.pecas.map((p) => p.categoria).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b, 'pt-BR'));
@@ -57,6 +58,7 @@ try {
   caixa.addEventListener('change', (e) => {
     if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') aplicar(lerFormulario());
   });
+  ligarCartoes(document.getElementById('resultado'), { catalogo, carrinho, abrirGaveta });
   document.getElementById('resultado').addEventListener('click', (e) => {
     if (e.target.closest('#limpar-filtros')) limpar();
   });

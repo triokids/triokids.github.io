@@ -18,7 +18,7 @@ const ICONE_CARRINHO = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hid
 const ICONE_WHATSAPP = '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 21l1.6-4.6A8.5 8.5 0 1 1 8 19.6L3 21z"/><path fill="currentColor" d="M9 7.8c.3-.4.7-.4 1 .1l.7 1.5c.1.3 0 .5-.2.8l-.4.5c.8 1.4 1.700 2.200 3.200 2.900l.6-.6c.2-.3.500-.3.800-.1l1.500.7c.4.2.4.600.2 1-.5 1-1.400 1.400-2.400 1.100-2.700-.8-5-3-5.600-5.600-.2-.9 0-1.600.6-2.200z"/></svg>';
 const ICONE_INSTAGRAM = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/></svg>';
 
-const FOCAVEIS = 'a[href], button:not([disabled]), input:not([disabled]), textarea, select, [tabindex]:not([tabindex="-1"])';
+export const FOCAVEIS = 'a[href], button:not([disabled]), input:not([disabled]), textarea, select, [tabindex]:not([tabindex="-1"])';
 const instagramUrl = `https://www.instagram.com/${CONFIG.instagram}/`;
 
 function htmlCabecalho(pagina) {

@@ -3,6 +3,7 @@ import { encontrarVariante } from '../loja/carrinho.js';
 import { esgotada } from '../loja/filtros.js';
 import { esc, htmlCartao, htmlGaleria, htmlSeletorTamanho, htmlSeletorCor, htmlBlocoPreco } from '../ui/html.js';
 import { mensagemCarrinho } from '../loja/compra-rapida.js';
+import { ligarCartoes } from '../ui/cartoes.js';
 
 try {
   const { catalogo, carrinho, abrirGaveta } = await montarLayout({ pagina: 'catalogo' });
@@ -131,6 +132,7 @@ ${combina.length ? `<section class="bloco"><h2 class="titulo-secao">Combina com<
       }
     });
 
+    ligarCartoes(principal, { catalogo, carrinho, abrirGaveta });
     desenhar();
   }
 } catch {

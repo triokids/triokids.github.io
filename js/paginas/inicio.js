@@ -2,6 +2,7 @@ import { montarLayout } from '../ui/layout.js';
 import { TAMANHOS } from '../dados/catalogo.js';
 import { destaques } from '../loja/filtros.js';
 import { esc, htmlCartao, htmlTituloColorido, htmlPontinhos } from '../ui/html.js';
+import { ligarCartoes } from '../ui/cartoes.js';
 
 function htmlInicio(catalogo) {
   const categorias = [...new Set(catalogo.pecas.map((p) => p.categoria).filter(Boolean))];
@@ -41,8 +42,10 @@ function htmlInicio(catalogo) {
 }
 
 try {
-  const { catalogo } = await montarLayout({ pagina: 'inicio' });
-  document.getElementById('conteudo').innerHTML = htmlInicio(catalogo);
+  const { catalogo, carrinho, abrirGaveta } = await montarLayout({ pagina: 'inicio' });
+  const conteudo = document.getElementById('conteudo');
+  conteudo.innerHTML = htmlInicio(catalogo);
+  ligarCartoes(conteudo, { catalogo, carrinho, abrirGaveta });
 } catch {
   // montarLayout já mostrou a mensagem de erro e o botão do WhatsApp.
 }
