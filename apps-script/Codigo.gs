@@ -53,7 +53,7 @@ function doGet() {
   modelo.urlSite = urlSite_(props);
   modelo.faltando = propriedadesFaltando_(props).length ? mensagemFaltando_(propriedadesFaltando_(props)) : '';
   return modelo.evaluate()
-    .setTitle('Trio Kids - Área da loja')
+    .setTitle('Trio Kids - Área Adm')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
@@ -166,13 +166,8 @@ function mensagemErroSenha_(codigoErro) {
 }
 
 function enviarFotos(dados) {
-  var props = lerPropriedades_();
-  var faltando = propriedadesFaltando_(props);
-  if (faltando.length) return { ok: false, mensagem: mensagemFaltando_(faltando) };
   dados = dados || {};
-  if (!passeAceito_(props, dados.passe)) return respostaSair_();
-
-  try {
+  return comPasse_('enviarFotos', dados.passe, function (props) {
     var codigos = lerPecas_(props);
     var codigosValidos = [];
     for (var i = 1; i < codigos.tabela.length; i++) {
@@ -191,10 +186,7 @@ function enviarFotos(dados) {
     if (!validacao.ok) return { ok: false, mensagem: mensagemErroSenha_(validacao.erro) };
     var total = enviarComTrava_(props, codigo, !!dados.trocar, arquivos);
     return { ok: true, mensagem: 'Enviado! Aparece no site em alguns minutos.', fotos: total };
-  } catch (erro) {
-    avisarDono_(props, 'enviarFotos', erro);
-    return { ok: false, mensagem: MENSAGEM_FALHA };
-  }
+  });
 }
 
 function enviarComTrava_(props, codigo, trocar, arquivos) {
@@ -266,10 +258,7 @@ function respostaSair_() {
 }
 
 function entrar(senha) {
-  var props = lerPropriedades_();
-  var faltando = propriedadesFaltando_(props);
-  if (faltando.length) return { ok: false, mensagem: mensagemFaltando_(faltando) };
-  try {
+  return protegido_('entrar', function (props) {
     var cache = CacheService.getScriptCache();
     var erros = Number(cache.get(CHAVE_ERROS_SENHA)) || 0;
     if (erros >= MAX_ERROS_SENHA) return { ok: false, mensagem: mensagemErroSenha_('bloqueado') };
@@ -281,24 +270,30 @@ function entrar(senha) {
     }
     cache.remove(CHAVE_ERROS_SENHA);
     return { ok: true, passe: criarPasse(Date.now(), assinar_(props)) };
-  } catch (erro) {
-    avisarDono_(props, 'entrar', erro);
-    return { ok: false, mensagem: MENSAGEM_FALHA };
-  }
+  });
 }
 
-// Confere configuração e passe; roda a ação; nunca lança para a página.
-function comPasse_(origem, passe, acao) {
-  var props = lerPropriedades_();
-  var faltando = propriedadesFaltando_(props);
-  if (faltando.length) return { ok: false, mensagem: mensagemFaltando_(faltando) };
-  if (!passeAceito_(props, passe)) return respostaSair_();
+// Lê e confere a configuração e roda a ação; qualquer erro inesperado vira
+// aviso ao dono e mensagem simples. Nunca lança para a página.
+function protegido_(origem, acao) {
+  var props = {};
   try {
+    props = lerPropriedades_();
+    var faltando = propriedadesFaltando_(props);
+    if (faltando.length) return { ok: false, mensagem: mensagemFaltando_(faltando) };
     return acao(props);
   } catch (erro) {
     avisarDono_(props, origem, erro);
     return { ok: false, mensagem: MENSAGEM_FALHA };
   }
+}
+
+// Como protegido_, e exige passe válido.
+function comPasse_(origem, passe, acao) {
+  return protegido_(origem, function (props) {
+    if (!passeAceito_(props, passe)) return respostaSair_();
+    return acao(props);
+  });
 }
 
 function distintosOrdenados_(valores) {

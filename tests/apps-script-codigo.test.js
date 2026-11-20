@@ -322,11 +322,11 @@ test('enviarFotos com código inexistente ou sem fotos recusa com a mensagem de 
   assert.equal(amb.chamadas.length, 0);
 });
 
-test('doGet serve o modelo Area com título da área da loja', () => {
+test('doGet serve o modelo Area com o título da Área Adm', () => {
   const amb = ambiente();
   const pagina = amb.ctx.doGet();
   assert.equal(pagina.modelo.nome, 'Area');
-  assert.equal(pagina.titulo, 'Trio Kids - Área da loja');
+  assert.equal(pagina.titulo, 'Trio Kids - Área Adm');
   assert.equal(pagina.modelo.urlLogo, 'https://dono.github.io/img/logo.png');
   assert.equal(pagina.modelo.urlSite, 'https://dono.github.io/');
   assert.equal(pagina.modelo.faltando, '');
@@ -346,4 +346,30 @@ test('sem configuração completa as funções devolvem mensagem e não lançam'
     assert.equal(r.ok, false);
     assert.match(r.mensagem, /Falta configurar: GITHUB_TOKEN/);
   }
+});
+
+test('erro inesperado em serviço do Google não faz as funções lançarem', () => {
+  const amb = ambiente();
+  const passe = entrarOk(amb);
+  amb.ctx.PropertiesService = { getScriptProperties: () => { throw new Error('serviço fora do ar'); } };
+  const respostas = [
+    () => amb.ctx.entrar('certa'), () => amb.ctx.listarPecasArea(passe), () => amb.ctx.salvarPeca(passe, 'vestido-lua', {}),
+    () => amb.ctx.criarPeca(passe, {}), () => amb.ctx.apagarFoto(passe, 'x', 1), () => amb.ctx.enviarFotos({ passe }),
+  ];
+  for (const chamar of respostas) {
+    let r;
+    assert.doesNotThrow(() => { r = j(chamar()); });
+    assert.deepEqual(r, { ok: false, mensagem: 'Não consegui enviar. Avise o dono.' });
+  }
+});
+
+test('erro inesperado depois de ler a configuração avisa o dono e devolve a mensagem de falha', () => {
+  const amb = ambiente();
+  const passe = entrarOk(amb);
+  amb.ctx.SpreadsheetApp = { openById: () => { throw new Error('planilha fora do ar'); }, flush() {} };
+  const r = j(amb.ctx.listarPecasArea(passe));
+  assert.deepEqual(r, { ok: false, mensagem: 'Não consegui enviar. Avise o dono.' });
+  assert.equal(amb.emails.length, 1);
+  const rr = j(amb.ctx.entrar('errada'));
+  assert.equal(rr.ok, false);
 });
