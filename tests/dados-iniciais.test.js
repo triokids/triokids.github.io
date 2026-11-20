@@ -5,7 +5,7 @@ import { montarCatalogo } from '../js/dados/catalogo.js';
 
 const raiz = new URL('../', import.meta.url);
 const bruto = JSON.parse(readFileSync(new URL('catalogo.json', raiz), 'utf8'));
-const padrao = { whatsapp: '', descontoCampanha: 0 };
+const padrao = { whatsapp: '5562993379366', descontoCampanha: 0 };
 const cat = montarCatalogo(bruto, padrao);
 
 test('catalogo.json tem o formato esperado', () => {

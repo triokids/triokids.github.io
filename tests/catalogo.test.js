@@ -64,6 +64,13 @@ test('config e campanha', () => {
   assert.deepEqual(cat.campanha, ['Doe uma peça', 'Vale para...']);
 });
 
+test('whatsapp da aba Config é ignorado: vale sempre o padrão do config.js', () => {
+  for (const valor of ['(62) 99337-9366', '5,56299E+12', '+55 62 98888-7777']) {
+    const t = { ...tabelas, config: [['chave', 'valor'], ['whatsapp', valor]] };
+    assert.equal(montarCatalogo(t, padrao).config.whatsapp, '5562993379366', valor);
+  }
+});
+
 test('colunas em outra ordem, cabeçalho com maiúscula/acento', () => {
   const t = { pecas: [['PREÇO', 'Nome', 'Código', 'p'], ['9,5', 'X', 'x1', '2']], config: [], campanha: [] };
   const cat = montarCatalogo(t, padrao);

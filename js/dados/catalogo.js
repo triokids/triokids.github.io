@@ -93,9 +93,8 @@ function montarConfig(tabela, padrao) {
       if (n !== null) config.descontoCampanha = n;
     } else if (chave === 'aviso_topo') {
       config.avisoTopo = valor;
-    } else if (chave === 'whatsapp' && valor) {
-      config.whatsapp = valor;
     }
+    // O número do WhatsApp vem só do config.js (spec 5.8): a chave 'whatsapp' da planilha é ignorada.
   }
   return config;
 }

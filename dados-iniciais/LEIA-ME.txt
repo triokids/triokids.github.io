@@ -19,7 +19,7 @@ ABA PEÇAS
 - A coluna fotos diz quantas fotos a peça tem. O formulário de fotos atualiza sozinho; não precisa mexer.
 
 ABA CONFIG
-- whatsapp: número da loja com 55 e DDD, sem espaço.
+- O número do WhatsApp NÃO fica na planilha: para trocar, edite o arquivo config.js do site (campo whatsapp).
 - desconto_campanha: percentual do desconto da campanha (só o número).
 - aviso_topo: texto da faixa no alto do site. Deixe vazio para não mostrar.
 

@@ -45,7 +45,7 @@ PECAS = [
 ]
 DESTAQUES = 9  # as 9 primeiras linhas (8 peças, o Vestido Clara ocupa 2)
 
-CONFIG = [["chave", "valor"], ["whatsapp", "5562993379366"], ["desconto_campanha", "10"], ["aviso_topo", ""]]
+CONFIG = [["chave", "valor"], ["desconto_campanha", "10"], ["aviso_topo", ""]]
 MARCA = "[texto provisório — a Anne substitui na planilha]"
 CAMPANHA = [
     [f"{MARCA} Doe uma peça infantil em bom estado e ajude outra família a vestir a infância com carinho."],
