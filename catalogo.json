@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-11-27T17:22:47.812Z",
+  "geradoEm": "2026-11-27T18:03:03.801Z",
   "pecas": [
     [
       "codigo",
@@ -114,7 +114,7 @@
       "Linha Petit",
       "129,90",
       "sim",
-      "nao",
+      "sim",
       "sim",
       "1",
       "Delicado e atemporal, o Vestido Clara valoriza os pequenos detalhes que encantam.\nCom gola branca bordada com flor delicada, mangas curtas e modelagem confortável, é uma peça leve, com saia franzida e babado único, garantindo um caimento suave e elegante.\n\nVersátil, pode ser usado tanto em ocasiões especiais quanto no dia a dia, mantendo sempre um visual clássico e delicado.\n\nDetalhes do produto:\n• Gola bordada delicada\n• Manga curta\n• Modelagem confortável\n• Babado único na saia\n• Acabamento cuidadoso\n\nUma peça que traduz simplicidade, charme e atemporalidade 🤍",
@@ -135,7 +135,7 @@
       "Linha Petit",
       "129,90",
       "nao",
-      "nao",
+      "sim",
       "nao",
       "0",
       "Delicado e atemporal, o Vestido Clara valoriza os pequenos detalhes que encantam.\nCom gola branca bordada com flor delicada, mangas curtas e modelagem confortável, é uma peça leve, com saia franzida e babado único, garantindo um caimento suave e elegante.\n\nVersátil, pode ser usado tanto em ocasiões especiais quanto no dia a dia, mantendo sempre um visual clássico e delicado.\n\nDetalhes do produto:\n• Gola bordada delicada\n• Manga curta\n• Modelagem confortável\n• Babado único na saia\n• Acabamento cuidadoso\n\nUma peça que traduz simplicidade, charme e atemporalidade 🤍",
@@ -188,7 +188,7 @@
       "",
       "",
       "1",
-      "1"
+      "2"
     ],
     [
       "conjunto-happy-arthur",
@@ -219,7 +219,7 @@
       "Linha Petit",
       "88,90",
       "sim",
-      "",
+      "sim",
       "sim",
       "3",
       "Estilo, conforto e personalidade em uma combinação moderna e despojada!\n\nO Conjunto Helena é composto por camiseta confeccionada em malha 100% algodão, com toque macio, modelagem confortável e estampa nas costas\n\nO shorts é confeccionado em moletinho 100% algodão, com estampa  contrastante, proporcionando leveza, liberdade de movimento e um visual cheio de estilo.\n\nComposição:\n\nCamiseta: 100% algodão.\n\nShorts: Moletinho 100% algodão.\n\nIdeal para compor looks casuais, modernos e confortáveis para o dia a dia dos pequenos.",
@@ -240,7 +240,7 @@
       "Linha Petit",
       "109,90",
       "sim",
-      "",
+      "sim",
       "sim",
       "3",
       "Conjunto Doguinho, é cheio de personalidade\nA camiseta em malha macia traz destaque nas costas com a estampa , em design colorido e lúdico, que transmite atitude e alegria — tendência forte no infantil. \nO shorts listrado equilibra o look, trazendo leveza, conforto e versatilidade para o dia a dia.\nDestaques do produto:\n• Estampa moderna \n• Design colorido com alto destaque visual\n• Estilo minimalista com toque divertido\n• Shorts listrada com elástico confortável\n• Modelagem prática para o dia a dia\n• Peça com alto potencial de giro no ponto de venda\nTecido:\n• Camiseta: malha 100% algodão\n• Shorts: tecido leve e respirável\nIndicação:\nPerfeito para uso diário, passeios e composições casuais com estilo.",
@@ -261,7 +261,7 @@
       "Linha Petit",
       "119,90",
       "sim",
-      "",
+      "sim",
       "sim",
       "5",
       "Delicada e atemporal, a Jardineira Antonella é confeccionada em tricoline 100% algodão, proporcionando um toque macio, leve e confortável para o dia a dia das crianças. Seu clássico xadrez vichy traz um charme especial à peça, enquanto o recorte franzido garante um caimento soltinho e confortável.\nAs alças com babados adicionam um detalhe delicado e romântico, complementadas pelos botões de madeira que dão um acabamento sofisticado \nDestaques da peça:\nTricoline 100% algodão.\nEstampa em xadrez vichy, tendência da temporada.\nModelagem confortável com recorte franzido.\nAlças com babados delicados.\nBotões de madeira decorativos.\nLeve, respirável e ideal para os dias mais quentes.\nO xadrez vichy é um dos grandes destaques da moda infantil nesta temporada, trazendo um visual clássico, delicado e atemporal que nunca sai de moda.",
@@ -282,7 +282,7 @@
       "Linha Petit",
       "45,90",
       "sim",
-      "",
+      "sim",
       "sim",
       "3",
       "Shorts infantil em linho, perfeito para ocasiões especiais ou momentos casuais com estilo e conforto. Confeccionado em tecido leve e respirável, proporciona liberdade de movimento e bem-estar o dia todo. Sua modelagem clássica combina com camisetas ou camisas, criando um visual moderno e charmoso. Disponível em cores neutras que facilitam a combinação com outros looks. Ideal para meninos que amam estar bem-vestidos sem abrir mão da praticidade.",
@@ -292,7 +292,7 @@
       "",
       "",
       "",
-      "",
+      "1",
       "2"
     ],
     [
@@ -303,7 +303,7 @@
       "Linha Petit",
       "49,90",
       "sim",
-      "",
+      "sim",
       "sim",
       "2",
       "A camiseta Arthur  em malha macia traz destaque nas costas com a estampa , em design colorido e lúdico, que transmite atitude e alegria.\n• Camiseta: malha 100% algodão",
@@ -324,7 +324,7 @@
       "Linha Petit",
       "45,50",
       "sim",
-      "",
+      "sim",
       "sim",
       "1",
       "Shorts: Moletinho 100% algodão.\n\nIdeal para compor looks casuais, modernos e confortáveis para o dia a dia dos pequenos.",
@@ -366,6 +366,27 @@
       "Linha Petit",
       "139,90",
       "",
+      "sim",
+      "",
+      "3",
+      "Vestido MINNIE - Poá  🤍🖤\nO clássico que voltou para ser uma das grandes tendências da temporada! O poá será a sensação do verão, trazendo aquele toque retrô, delicado e cheio de personalidade que combina perfeitamente com a leveza da infância.\n\nConfeccionado em tricoline 100% algodão, o Vestido Poá Minizi possui toque macio, conforto e um caimento estruturado na medida certa. Sua modelagem delicada, com mangas levemente franzidas e saia com volume suave, cria uma peça encantadora, elegante e atemporal.\n\nDetalhes da peça:\n• Tecido: Tricoline 100% algodão\n• Estampa poá: tendência destaque do verão\n• Manga curta com franzido delicado\n• Saia com franzido e movimento\n• Modelagem confortável e elegante\n• Toque macio e excelente acabamento\n\nUma peça que une tendência, conforto e a essência minimalista da Minizi. ✨",
+      "",
+      "",
+      "",
+      "",
+      "2",
+      "",
+      "2",
+      "2"
+    ],
+    [
+      "vestido-branca",
+      "VESTIDO BRANCA",
+      "",
+      "Vestido",
+      "Linha Petit",
+      "129,90",
+      "",
       "",
       "",
       "3",
@@ -377,7 +398,7 @@
       "0",
       "",
       "0",
-      "0"
+      ""
     ]
   ],
   "config": [
